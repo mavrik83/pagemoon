@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import prisma from '../../../lib/prisma';
 
-const getUsers = async (req: NextApiRequest, res: NextApiResponse) => {
+const getUsers = async (_req: NextApiRequest, res: NextApiResponse) => {
     const users = await prisma.user.findMany();
     return res.send(users);
 };
