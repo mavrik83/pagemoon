@@ -3,7 +3,7 @@ import type { NextPage } from 'next';
 import Head from 'next/head';
 import { Container, Text } from '@nextui-org/react';
 import { User } from '@prisma/client';
-import { userApi } from '../utils/api';
+import { userApi } from '../utils/api/Users';
 
 interface Props {
     users: User[];
