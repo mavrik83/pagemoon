@@ -19,7 +19,8 @@ model User {
   lastName  String?
   password  String?
   createdAt DateTime? @default(now())
-  updatedAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+  posts     Post[]
 
   @@map("users")
 }
@@ -35,7 +36,21 @@ model Book {
   readingAge String?
   gradeLevel String?
   createdAt  DateTime? @default(now())
-  updatedAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
 
   @@map("books")
+}
+
+model Post {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  title       String?
+  description String?
+  rawContent  Json?
+  draftMode   Boolean?  @default(true)
+  createdAt   DateTime? @default(now())
+  updatedAt   DateTime? @updatedAt
+  userId      String?   @db.ObjectId
+  user        User?     @relation(fields: [userId], references: [id])
+
+  @@map("posts")
 }

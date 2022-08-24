@@ -1,33 +1,21 @@
-import React from 'react';
-import Document, {
-    Html,
-    Head,
-    Main,
-    NextScript,
-    DocumentContext,
-} from 'next/document';
-import { CssBaseline } from '@nextui-org/react';
+import React, { Html, Head, Main, NextScript } from 'next/document';
 
-class MyDocument extends Document {
-    static async getInitialProps(ctx: DocumentContext) {
-        const initialProps = await Document.getInitialProps(ctx);
-        return {
-            ...initialProps,
-            styles: React.Children.toArray([initialProps.styles]),
-        };
-    }
+const Document = () => (
+    <Html>
+        <Head>
+            <link rel="preconnect" href="https://fonts.googleapis.com" />
+            <link rel="preconnect" href="https://fonts.gstatic.com" />
+            <link
+                href="https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:wght@300;400&display=swap"
+                rel="stylesheet"
+            />
+        </Head>
+        <body>
+            <Main />
+            <NextScript />
+            <div id="tiptap-editor" />
+        </body>
+    </Html>
+);
 
-    render() {
-        return (
-            <Html lang="en">
-                <Head>{CssBaseline.flush()}</Head>
-                <body>
-                    <Main />
-                    <NextScript />
-                </body>
-            </Html>
-        );
-    }
-}
-
-export default MyDocument;
+export default Document;

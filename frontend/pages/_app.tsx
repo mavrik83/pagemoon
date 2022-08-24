@@ -1,21 +1,12 @@
 import React from 'react';
 import '../styles/globals.css';
 import type { AppProps } from 'next/app';
-import { NextUIProvider, createTheme } from '@nextui-org/react';
-
-const theme = createTheme({
-    type: 'light',
-    theme: {
-        fonts: {
-            sans: 'Fira Sans Condensed',
-        },
-    },
-});
+import { Layout } from '../components/layout';
 
 const MyApp = ({ Component, pageProps }: AppProps) => (
-    <NextUIProvider theme={theme}>
+    <Layout>
         <Component {...pageProps} />
-    </NextUIProvider>
+    </Layout>
 );
 
 export default MyApp;
