@@ -34,7 +34,7 @@ export const PreviewCard: React.FC<Props> = ({ post }) => (
                         Some cool text
                     </p>
                     <div className="flex space-x-1 text-sm text-gray-500">
-                        <time>{post.createdAt?.toDateString()}</time>
+                        <time>{post.createdAt?.toLocaleTimeString()}</time>
                         <span aria-hidden="true">&middot;</span>
                     </div>
                 </div>
