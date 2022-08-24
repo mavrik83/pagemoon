@@ -40,6 +40,7 @@ export const getStaticProps = async () => {
             users,
             posts,
         },
+        revalidate: 10,
     };
 };
 
