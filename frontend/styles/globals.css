@@ -9,3 +9,8 @@
     pointer-events: none;
     height: 0;
 }
+
+*:focus,
+button:focus {
+    @apply outline-none !important;
+}

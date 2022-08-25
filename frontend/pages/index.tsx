@@ -13,7 +13,8 @@ import { Post, User } from '@prisma/client';
 // import { useAsync } from '../utils/hooks/useAsync';
 // import { Button } from '../components';
 import prisma from '../lib/prisma';
-import { PreviewCard } from '../components/previewCard';
+// import { PreviewCard } from '../components/previewCard';
+import { RecentPosts } from '../components/recentPosts';
 
 interface Props {
     users: Pick<User, 'id' | 'firstName'>[];
@@ -50,6 +51,9 @@ const Home: NextPage<Props> = ({ users, posts }: Props) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const dummy = '';
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const post = posts[0];
+
     // const html = generateHTML(post.rawContent as JSONContent, [
     //     Underline,
     //     Placeholder,
@@ -71,12 +75,7 @@ const Home: NextPage<Props> = ({ users, posts }: Props) => {
             <br />
             <h3 className="text-3xl font-light">First User:</h3>
             <p>First Name: {users[0].firstName}</p>
-            <div className="grid max-w-lg gap-5 mx-auto mt-12 lg:grid-cols-3 lg:max-w-none">
-                {posts &&
-                    posts.map((post) => (
-                        <PreviewCard key={post.id} post={post} />
-                    ))}
-            </div>
+            <RecentPosts />
         </div>
     );
 };
