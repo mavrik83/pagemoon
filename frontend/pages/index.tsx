@@ -45,8 +45,6 @@ const Home: NextPage<Props> = ({ posts }: Props) => {
 
             <h1 className="text-6xl font-light">PageMoon</h1>
 
-            <br />
-
             <RecentPosts />
         </div>
     );

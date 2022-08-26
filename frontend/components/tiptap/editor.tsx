@@ -25,6 +25,7 @@ import toast from 'react-hot-toast';
 import { Post } from '@prisma/client';
 import { classNames } from '../../utils/helpers/classNames';
 import Button from '../button';
+import { ComboBox } from '../combobox';
 import { useDebounce } from '../../utils/hooks/useDebounce';
 import { postApi } from '../../utils/api';
 
@@ -185,6 +186,9 @@ const TipTap: React.FC<Props> = ({ isEditable, renderContent }) => {
                 >
                     Save as draft
                 </Button>
+                <div>
+                    <ComboBox />
+                </div>
             </div>
             <div>
                 {editor && (

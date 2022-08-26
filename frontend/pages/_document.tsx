@@ -13,7 +13,6 @@ const Document = () => (
         <body>
             <Main />
             <NextScript />
-            <div id="tiptap-editor" />
         </body>
     </Html>
 );

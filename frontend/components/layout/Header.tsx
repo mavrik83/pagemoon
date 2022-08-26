@@ -7,6 +7,7 @@ import React, {
     Fragment,
     useState,
 } from 'react';
+import toast from 'react-hot-toast';
 import { Auth, AuthProps } from '../auth';
 import { useFirebaseAuth } from '../../utils/contexts/firebaseProvider';
 import { Button } from '..';
@@ -86,7 +87,17 @@ export const Header: React.FC = () => {
                                     <div className="ml-3">
                                         <button
                                             type="button"
-                                            onClick={() => auth.signOut()}
+                                            onClick={() =>
+                                                auth.signOut().then(() => {
+                                                    toast.success(
+                                                        'Logged out!',
+                                                        {
+                                                            position:
+                                                                'top-center',
+                                                        },
+                                                    );
+                                                })
+                                            }
                                         >
                                             <span className="inline-flex items-center px-3 py-0.5 rounded-full text-sm bg-sky-100 text-sky-900">
                                                 Sign Out

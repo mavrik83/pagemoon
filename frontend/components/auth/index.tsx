@@ -22,6 +22,8 @@ export const Auth: React.FC<AuthProps> = ({ open, setOpen, mode }) => {
     const [authForm, setAuthForm] = useState({
         email: '',
         password: '',
+        firstName: '',
+        lastName: '',
     });
 
     const handlers = {
@@ -38,11 +40,15 @@ export const Auth: React.FC<AuthProps> = ({ open, setOpen, mode }) => {
                     authForm.password,
                 )
                     .then((userCred) => {
-                        console.log(userCred);
+                        toast.success(`Signed in as: ${userCred.user.email}`, {
+                            position: 'top-center',
+                        });
                         setOpen(false);
                     })
                     .catch((err) => {
-                        console.log(err);
+                        toast.error(`${err.message}`, {
+                            position: 'top-center',
+                        });
                     });
             }
 
@@ -58,20 +64,26 @@ export const Auth: React.FC<AuthProps> = ({ open, setOpen, mode }) => {
                                 authUid: userCred.user.uid,
                                 email: userCred.user.email,
                                 password: authForm.password,
+                                firstName: authForm.firstName,
+                                lastName: authForm.lastName,
                             })
                             .then((user) => {
-                                toast.success(`Saved new user: ${user.email}`);
+                                toast.success(`Saved new user: ${user.email}`, {
+                                    position: 'top-center',
+                                });
                                 setOpen(false);
                             });
                     })
-                    .catch((error) => {
-                        toast.error(`${error.message}`);
+                    .catch((err) => {
+                        toast.error(`${err.message}`, {
+                            position: 'top-center',
+                        });
                     });
             }
         },
         handleLogout: () => {
             auth.signOut();
-            console.log('logged out');
+            toast.success('Logged out!', { position: 'top-center' });
         },
     };
 
@@ -80,10 +92,10 @@ export const Auth: React.FC<AuthProps> = ({ open, setOpen, mode }) => {
             <Dialog as="div" className="relative z-50" onClose={setOpen}>
                 <Transition.Child
                     as={Fragment}
-                    enter="ease-in-out duration-500"
+                    enter="ease-in-out duration-200"
                     enterFrom="opacity-0"
                     enterTo="opacity-100"
-                    leave="ease-in-out duration-500"
+                    leave="ease-in-out duration-200"
                     leaveFrom="opacity-100"
                     leaveTo="opacity-0"
                 >
@@ -95,10 +107,10 @@ export const Auth: React.FC<AuthProps> = ({ open, setOpen, mode }) => {
                         <div className="fixed inset-y-0 right-0 flex max-w-full pl-10 pointer-events-none">
                             <Transition.Child
                                 as={Fragment}
-                                enter="transform transition ease-in-out duration-500 sm:duration-700"
+                                enter="transform transition ease-in-out duration-200"
                                 enterFrom="translate-x-full"
                                 enterTo="translate-x-0"
-                                leave="transform transition ease-in-out duration-500 sm:duration-700"
+                                leave="transform transition ease-in-out duration-200"
                                 leaveFrom="translate-x-0"
                                 leaveTo="translate-x-full"
                             >
@@ -139,6 +151,60 @@ export const Auth: React.FC<AuthProps> = ({ open, setOpen, mode }) => {
                                                     name="remember"
                                                     defaultValue="true"
                                                 />
+                                                {mode === 'signup' && (
+                                                    <div className="-space-y-px rounded-md shadow-sm">
+                                                        <div>
+                                                            <label
+                                                                htmlFor="first-name"
+                                                                className="sr-only"
+                                                            >
+                                                                First Name
+                                                            </label>
+                                                            <input
+                                                                value={
+                                                                    authForm.firstName ||
+                                                                    ''
+                                                                }
+                                                                onChange={(e) =>
+                                                                    handlers.handleChange(
+                                                                        e,
+                                                                    )
+                                                                }
+                                                                id="first-name"
+                                                                name="firstName"
+                                                                type="text"
+                                                                required
+                                                                className="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-none appearance-none rounded-t-md focus:outline-none focus:ring-tertiary focus:border-tertiary focus:z-10 sm:text-sm"
+                                                                placeholder="First Name"
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label
+                                                                htmlFor="last-name"
+                                                                className="sr-only"
+                                                            >
+                                                                Last Name
+                                                            </label>
+                                                            <input
+                                                                value={
+                                                                    authForm.lastName ||
+                                                                    ''
+                                                                }
+                                                                onChange={(e) =>
+                                                                    handlers.handleChange(
+                                                                        e,
+                                                                    )
+                                                                }
+                                                                id="last-name"
+                                                                name="lastName"
+                                                                type="text"
+                                                                required
+                                                                className="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-none appearance-none rounded-b-md focus:outline-none focus:ring-highlight focus:border-highlight focus:z-10 sm:text-sm"
+                                                                placeholder="Last Name"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                )}
                                                 <div className="-space-y-px rounded-md shadow-sm">
                                                     <div>
                                                         <label
@@ -162,7 +228,7 @@ export const Auth: React.FC<AuthProps> = ({ open, setOpen, mode }) => {
                                                             type="email"
                                                             autoComplete="email"
                                                             required
-                                                            className="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-none appearance-none rounded-t-md focus:outline-none focus:ring-sky-600 focus:border-sky-600 focus:z-10 sm:text-sm"
+                                                            className="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-none appearance-none rounded-t-md focus:outline-none focus:ring-tertiary focus:border-tertiary focus:z-10 sm:text-sm"
                                                             placeholder="Email address"
                                                         />
                                                     </div>
@@ -188,23 +254,22 @@ export const Auth: React.FC<AuthProps> = ({ open, setOpen, mode }) => {
                                                             type="password"
                                                             autoComplete="current-password"
                                                             required
-                                                            className="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-none appearance-none rounded-b-md focus:outline-none focus:ring-sky-600 focus:border-sky-600 focus:z-10 sm:text-sm"
+                                                            className="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-none appearance-none rounded-b-md focus:outline-none focus:ring-highlight focus:border-highlight focus:z-10 sm:text-sm"
                                                             placeholder="Password"
                                                         />
                                                     </div>
                                                 </div>
-
                                                 <div className="flex items-center justify-between">
                                                     <div className="flex items-center">
                                                         <input
                                                             id="remember-me"
                                                             name="remember-me"
                                                             type="checkbox"
-                                                            className="w-4 h-4 border-gray-300 rounded text-sky-900 focus:ring-sky-600"
+                                                            className="w-4 h-4 rounded border-secondary text-primary"
                                                         />
                                                         <label
                                                             htmlFor="remember-me"
-                                                            className="block ml-2 text-sm text-sky-900"
+                                                            className="block ml-2 text-sm text-primary"
                                                         >
                                                             Remember Me
                                                         </label>
@@ -213,7 +278,7 @@ export const Auth: React.FC<AuthProps> = ({ open, setOpen, mode }) => {
                                                         <div className="text-sm">
                                                             <a
                                                                 href="/forgot-password"
-                                                                className="font-medium text-sky-900 hover:text-sky-400"
+                                                                className="font-medium text-primary hover:text-opacity-70"
                                                             >
                                                                 Forgot your
                                                                 password?
@@ -225,11 +290,11 @@ export const Auth: React.FC<AuthProps> = ({ open, setOpen, mode }) => {
                                                 <div>
                                                     <button
                                                         type="submit"
-                                                        className="relative flex justify-center w-full px-4 py-2 text-sm font-medium text-white border border-transparent rounded-md group bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-600"
+                                                        className="relative flex justify-center w-full px-4 py-2 text-sm font-medium text-white border border-transparent rounded-md group bg-tertiary hover:bg-secondary hover:bg-opacity-70 focus:outline-none"
                                                     >
                                                         <span className="absolute inset-y-0 left-0 flex items-center pl-3">
                                                             <LockClosedIcon
-                                                                className="w-5 h-5 text-sky-900 group-hover:text-sky-400"
+                                                                className="w-5 h-5 text-secondary group-hover:text-primary"
                                                                 aria-hidden="true"
                                                             />
                                                         </span>
