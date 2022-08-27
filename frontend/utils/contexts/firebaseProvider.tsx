@@ -4,23 +4,31 @@ import { auth } from '../../lib/firebase';
 
 export type FUser = User | null;
 
-type IContextState = { user: FUser; auth: Auth };
+type IContextState = { authUser: FUser; auth: Auth; authLoading: boolean };
 
 const FirebaseAuthContext = React.createContext<IContextState | undefined>(
     undefined,
 );
 
 const FirebaseAuthProvider = ({ children }: React.PropsWithChildren) => {
-    const [user, setUser] = useState<FUser>(null);
+    const [authUser, setAuthUser] = useState<FUser>(null);
+    const [authLoading, setAuthLoading] = useState(true);
+
+    const handleAuthStateChange = (fbuser: FUser) => {
+        setAuthUser(fbuser);
+        setAuthLoading(false);
+    };
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, setUser);
+        const unsubscribe = onAuthStateChanged(auth, (fbUser) =>
+            handleAuthStateChange(fbUser),
+        );
         return unsubscribe;
     }, []);
 
     return (
         // eslint-disable-next-line react/jsx-no-constructed-context-values
-        <FirebaseAuthContext.Provider value={{ user, auth }}>
+        <FirebaseAuthContext.Provider value={{ authUser, auth, authLoading }}>
             {children}
         </FirebaseAuthContext.Provider>
     );

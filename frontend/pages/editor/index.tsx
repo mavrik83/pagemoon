@@ -7,15 +7,15 @@ import TipTap from '../../components/tiptap/editor';
 
 const Editor: NextPage = () => {
     const router = useRouter();
-    const { user } = useFirebaseAuth();
+    const { authUser, authLoading } = useFirebaseAuth();
 
     useEffect(() => {
-        if (!user) {
+        if (!authLoading && !authUser) {
             router.push('/');
         }
-    }, [user, router]);
+    }, [authUser, router, authLoading]);
 
-    return <div>{user && <TipTap isEditable />}</div>;
+    return <div>{authUser && <TipTap isEditable />}</div>;
 };
 
 export default Editor;

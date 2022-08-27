@@ -40,7 +40,7 @@ export const Header: React.FC = () => {
 
     const [mode, setMode] = useState<AuthProps['mode']>('signin');
 
-    const { user, auth } = useFirebaseAuth();
+    const { authUser, auth, authLoading } = useFirebaseAuth();
 
     return (
         <>
@@ -70,61 +70,71 @@ export const Header: React.FC = () => {
                                 ))}
                             </div>
                         </div>
-                        {user ? (
-                            <div className="flex-shrink-0 hidden group sm:block">
-                                <div className="flex items-center">
-                                    <div className="inline-block w-10 h-10 overflow-hidden rounded-full bg-sky-100">
-                                        <MyLink href={`user/${user.uid}`}>
-                                            <svg
-                                                className="w-full h-full text-sky-900"
-                                                fill="currentColor"
-                                                viewBox="0 0 24 24"
-                                            >
-                                                <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
-                                            </svg>
-                                        </MyLink>
+                        {!authLoading ? (
+                            <div>
+                                {authUser ? (
+                                    <div className="flex-shrink-0 hidden group sm:block">
+                                        <div className="flex items-center">
+                                            <div className="inline-block w-10 h-10 overflow-hidden rounded-full bg-sky-100">
+                                                <MyLink
+                                                    href={`user/${authUser.uid}`}
+                                                >
+                                                    <svg
+                                                        className="w-full h-full text-sky-900"
+                                                        fill="currentColor"
+                                                        viewBox="0 0 24 24"
+                                                    >
+                                                        <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
+                                                    </svg>
+                                                </MyLink>
+                                            </div>
+                                            <div className="ml-3">
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        auth
+                                                            .signOut()
+                                                            .then(() => {
+                                                                toast.success(
+                                                                    'Logged out!',
+                                                                    {
+                                                                        position:
+                                                                            'top-center',
+                                                                    },
+                                                                );
+                                                            })
+                                                    }
+                                                >
+                                                    <span className="inline-flex items-center px-3 py-0.5 rounded-full text-sm bg-sky-100 text-sky-900">
+                                                        Sign Out
+                                                    </span>
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div className="ml-3">
-                                        <button
-                                            type="button"
-                                            onClick={() =>
-                                                auth.signOut().then(() => {
-                                                    toast.success(
-                                                        'Logged out!',
-                                                        {
-                                                            position:
-                                                                'top-center',
-                                                        },
-                                                    );
-                                                })
-                                            }
+                                ) : (
+                                    <div className="hidden ml-10 space-x-4 sm:block">
+                                        <Button
+                                            onClick={() => {
+                                                setMode('signin');
+                                                setOpen(true);
+                                            }}
                                         >
-                                            <span className="inline-flex items-center px-3 py-0.5 rounded-full text-sm bg-sky-100 text-sky-900">
-                                                Sign Out
-                                            </span>
-                                        </button>
+                                            Sign in
+                                        </Button>
+                                        <Button
+                                            onClick={() => {
+                                                setMode('signup');
+                                                setOpen(true);
+                                            }}
+                                        >
+                                            Sign up
+                                        </Button>
                                     </div>
-                                </div>
+                                )}
                             </div>
                         ) : (
-                            <div className="hidden ml-10 space-x-4 sm:block">
-                                <Button
-                                    onClick={() => {
-                                        setMode('signin');
-                                        setOpen(true);
-                                    }}
-                                >
-                                    Sign in
-                                </Button>
-                                <Button
-                                    onClick={() => {
-                                        setMode('signup');
-                                        setOpen(true);
-                                    }}
-                                >
-                                    Sign up
-                                </Button>
-                            </div>
+                            <div className="w-10 h-10 border-l-2 rounded-full border-highlight animate-spin" />
                         )}
                         <Menu
                             as="div"
@@ -167,75 +177,85 @@ export const Header: React.FC = () => {
                                         </Menu.Item>
                                     </div>
                                     <div className="py-1">
-                                        {!user ? (
-                                            <>
-                                                <Menu.Item>
-                                                    {({
-                                                        active,
-                                                    }: MenuProps) => (
-                                                        <button
-                                                            onClick={() => {
-                                                                setMode(
-                                                                    'signin',
-                                                                );
-                                                                setOpen(true);
-                                                            }}
-                                                            type="button"
-                                                            className={classNames(
-                                                                active
-                                                                    ? 'bg-gray-100 text-sky-700'
-                                                                    : 'text-sky-900',
-                                                                'block px-4 py-2 text-sm',
+                                        {!authLoading ? (
+                                            <div>
+                                                {!authUser ? (
+                                                    <>
+                                                        <Menu.Item>
+                                                            {({
+                                                                active,
+                                                            }: MenuProps) => (
+                                                                <button
+                                                                    onClick={() => {
+                                                                        setMode(
+                                                                            'signin',
+                                                                        );
+                                                                        setOpen(
+                                                                            true,
+                                                                        );
+                                                                    }}
+                                                                    type="button"
+                                                                    className={classNames(
+                                                                        active
+                                                                            ? 'bg-gray-100 text-sky-700'
+                                                                            : 'text-sky-900',
+                                                                        'block px-4 py-2 text-sm',
+                                                                    )}
+                                                                >
+                                                                    Sign In
+                                                                </button>
                                                             )}
-                                                        >
-                                                            Sign In
-                                                        </button>
-                                                    )}
-                                                </Menu.Item>
-                                                <Menu.Item>
-                                                    {({
-                                                        active,
-                                                    }: MenuProps) => (
-                                                        <button
-                                                            onClick={() => {
-                                                                setMode(
-                                                                    'signup',
-                                                                );
-                                                                setOpen(true);
-                                                            }}
-                                                            type="button"
-                                                            className={classNames(
-                                                                active
-                                                                    ? 'bg-gray-100 text-sky-700'
-                                                                    : 'text-sky-900',
-                                                                'block px-4 py-2 text-sm',
+                                                        </Menu.Item>
+                                                        <Menu.Item>
+                                                            {({
+                                                                active,
+                                                            }: MenuProps) => (
+                                                                <button
+                                                                    onClick={() => {
+                                                                        setMode(
+                                                                            'signup',
+                                                                        );
+                                                                        setOpen(
+                                                                            true,
+                                                                        );
+                                                                    }}
+                                                                    type="button"
+                                                                    className={classNames(
+                                                                        active
+                                                                            ? 'bg-gray-100 text-sky-700'
+                                                                            : 'text-sky-900',
+                                                                        'block px-4 py-2 text-sm',
+                                                                    )}
+                                                                >
+                                                                    Sign Up
+                                                                </button>
                                                             )}
-                                                        >
-                                                            Sign Up
-                                                        </button>
-                                                    )}
-                                                </Menu.Item>
-                                            </>
-                                        ) : (
-                                            <Menu.Item>
-                                                {({ active }: MenuProps) => (
-                                                    <button
-                                                        onClick={() =>
-                                                            auth.signOut()
-                                                        }
-                                                        type="button"
-                                                        className={classNames(
-                                                            active
-                                                                ? 'bg-gray-100 text-sky-700'
-                                                                : 'text-sky-900',
-                                                            'block px-4 py-2 text-sm',
+                                                        </Menu.Item>
+                                                    </>
+                                                ) : (
+                                                    <Menu.Item>
+                                                        {({
+                                                            active,
+                                                        }: MenuProps) => (
+                                                            <button
+                                                                onClick={() =>
+                                                                    auth.signOut()
+                                                                }
+                                                                type="button"
+                                                                className={classNames(
+                                                                    active
+                                                                        ? 'bg-gray-100 text-sky-700'
+                                                                        : 'text-sky-900',
+                                                                    'block px-4 py-2 text-sm',
+                                                                )}
+                                                            >
+                                                                Sign Out
+                                                            </button>
                                                         )}
-                                                    >
-                                                        Sign Out
-                                                    </button>
+                                                    </Menu.Item>
                                                 )}
-                                            </Menu.Item>
-                                        )}
+                                            </div>
+                                        ) : null}
                                     </div>
                                 </Menu.Items>
                             </Transition>

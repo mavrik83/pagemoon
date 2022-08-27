@@ -4,6 +4,7 @@ import Head from 'next/head';
 import { Post } from '@prisma/client';
 import prisma from '../lib/prisma';
 import { RecentPosts } from '../components/preview/recentPosts';
+import { Loader } from '../components/loader/loader';
 
 interface Props {
     posts: Pick<Post, 'id' | 'title' | 'description' | 'createdAt'>[];
@@ -44,7 +45,7 @@ const Home: NextPage<Props> = ({ posts }: Props) => {
             </Head>
 
             <h1 className="text-6xl font-light">PageMoon</h1>
-
+            <Loader />
             <RecentPosts />
         </div>
     );
