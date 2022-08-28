@@ -189,7 +189,7 @@ const TipTap: React.FC<Props> = ({ isEditable, renderContent }) => {
 
     return (
         <div className="z-30 mt-10">
-            <div className="flex justify-start gap-5">
+            <div className="flex flex-wrap justify-start gap-5">
                 <Button onClick={() => savePost(false)}>Publish</Button>
                 <Button
                     twClasses="bg-tertiary !border-tertiary"
