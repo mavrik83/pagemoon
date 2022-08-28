@@ -26,8 +26,8 @@ import { Post } from '@prisma/client';
 import { classNames } from '../../utils/helpers/classNames';
 import Button from '../button';
 import { ComboBox } from '../combobox';
-import { useDebounce } from '../../utils/hooks/useDebounce';
-import { postApi } from '../../utils/api';
+import { useDebounce, useAsync } from '../../utils/hooks';
+import { postApi, categoryApi } from '../../utils/api';
 
 interface Props {
     // eslint-disable-next-line react/require-default-props
@@ -68,6 +68,11 @@ const TipTap: React.FC<Props> = ({ isEditable, renderContent }) => {
     const [query, setQuery] = useState('');
 
     const debouncedState = useDebounce(state, 5000);
+
+    const { data, error, execute, status } = useAsync(
+        categoryApi.getCategories,
+        true,
+    );
 
     const getTitle = () => {
         const documentContent = state && state.rawContent.content;
