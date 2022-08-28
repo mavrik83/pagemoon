@@ -25,11 +25,10 @@ const Button: React.FC<Props> = ({
 
     const btnMode = {
         primary:
-            'text-white bg-secondary hover:bg-opacity-90 outline outline-secondary',
+            'text-white bg-secondary hover:bg-opacity-90 border border-secondary',
         secondary:
-            'text-black bg-secondary bg-opacity-20 !outline !outline-secondary hover:opacity-90',
-        default:
-            'text-white bg-primary hover:opacity-90 outline outline-primary',
+            'text-black bg-secondary bg-opacity-20 border border-secondary hover:opacity-90',
+        default: 'text-white bg-primary hover:opacity-90 border border-primary',
     };
 
     const btnSize = {

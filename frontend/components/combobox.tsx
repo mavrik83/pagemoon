@@ -18,7 +18,7 @@ const items: ListItem[] = [
 ];
 
 export const ComboBox: React.FC = () => {
-    const [selectedItem, setSelectedItem] = useState<ListItem>();
+    const [selectedItem, setSelectedItem] = useState<ListItem[]>([]);
     const [query, setQuery] = useState('');
 
     const filteredItems =
@@ -32,15 +32,13 @@ export const ComboBox: React.FC = () => {
               );
 
     return (
-        <Combobox value={selectedItem} onChange={setSelectedItem}>
+        <Combobox value={selectedItem} onChange={setSelectedItem} multiple>
             <div className="relative z-30">
-                <div className="relative w-full overflow-hidden text-left bg-white rounded-lg shadow-md cursor-default focus:outline-none outline outline-secondary ">
+                <div className="relative w-full overflow-hidden text-left bg-white border rounded-lg shadow-md cursor-default focus:outline-none border-secondary ">
                     <Combobox.Input
                         className="w-full py-2 pl-3 pr-10 text-sm leading-5 text-gray-900 bg-opacity-25 border-none focus:ring-0 bg-secondary"
                         // eslint-disable-next-line @typescript-eslint/no-shadow
-                        displayValue={(item: ListItem) =>
-                            item ? item.name : 'Categories...'
-                        }
+                        placeholder="Categories"
                         onChange={(event) => setQuery(event.target.value)}
                     />
                     <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
@@ -60,13 +58,15 @@ export const ComboBox: React.FC = () => {
                     <Combobox.Options className="absolute w-full py-1 mt-1 overflow-auto text-base rounded-md shadow-lg max-h-60 ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
                         <Button
                             secondary
-                            twClasses="relative mt-1 mx-2 w-fit bg-tertiary !outline-tertiary"
+                            twClasses={`relative my-1 mx-2 w-fit bg-tertiary !border-tertiary ${
+                                !selectedItem && 'hidden'
+                            }`}
                         >
                             Add Selected
                         </Button>
                         {filteredItems.length === 0 && query !== '' ? (
                             <div className="relative px-4 py-2 text-gray-700 cursor-default select-none">
-                                Nothing found.
+                                Add category
                             </div>
                         ) : (
                             filteredItems.map((item) => (
@@ -75,7 +75,7 @@ export const ComboBox: React.FC = () => {
                                     className={({ active }) =>
                                         `relative cursor-default select-none py-2 pl-10 pr-4 ${
                                             active
-                                                ? 'bg-tertiary bg-opacity-50 text-white'
+                                                ? 'bg-tertiary text-white'
                                                 : 'text-gray-900'
                                         }`
                                     }
@@ -97,7 +97,7 @@ export const ComboBox: React.FC = () => {
                                                     className={`absolute inset-y-0 left-0 flex items-center pl-3 ${
                                                         active
                                                             ? 'text-white'
-                                                            : 'text-teal-600'
+                                                            : 'text-primary'
                                                     }`}
                                                 >
                                                     <CheckIcon

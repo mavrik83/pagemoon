@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Menu, Transition } from '@headlessui/react';
-import { MoonIcon, MenuIcon } from '@heroicons/react/solid';
+import { MenuIcon } from '@heroicons/react/solid';
+import { WiMoonAltWaxingCrescent3 } from 'react-icons/wi';
 import React, {
     ComponentPropsWithRef,
     forwardRef,
@@ -53,7 +54,7 @@ export const Header: React.FC = () => {
                     <div className="flex items-center justify-between w-full py-2">
                         <div className="flex items-center">
                             <MyLink href="/">
-                                <MoonIcon className="w-auto lg:duration-300 lg:ease-in-out lg:transition-colors text-primary h-14 lg:hover:text-secondary lg:hover:text-opacity-90" />
+                                <WiMoonAltWaxingCrescent3 className="w-auto rotate-45 lg:duration-300 lg:ease-in-out lg:transition-colors text-primary h-14 lg:hover:text-secondary lg:hover:text-opacity-90" />
                             </MyLink>
                             <div className="hidden text-3xl sm:block text-primary">
                                 PageMoon

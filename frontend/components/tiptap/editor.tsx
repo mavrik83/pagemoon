@@ -180,7 +180,7 @@ const TipTap: React.FC<Props> = ({ isEditable, renderContent }) => {
             <div className="flex justify-start gap-5">
                 <Button onClick={() => savePost(false)}>Publish</Button>
                 <Button
-                    twClasses="bg-tertiary !outline-tertiary"
+                    twClasses="bg-tertiary !border-tertiary"
                     secondary
                     onClick={() => savePost(true)}
                 >
@@ -194,7 +194,7 @@ const TipTap: React.FC<Props> = ({ isEditable, renderContent }) => {
                 {editor && (
                     <div>
                         <BubbleMenu
-                            className="flex gap-2 p-1 bg-opacity-50 rounded-lg bg-secondary outline outline-secondary backdrop-blur-sm focus:rounded-lg"
+                            className="flex gap-2 p-1 bg-opacity-50 border rounded-lg bg-secondary border-secondary backdrop-blur-sm focus:rounded-lg "
                             tippyOptions={{ duration: 100, zIndex: 20 }}
                             editor={editor}
                         >
@@ -269,7 +269,7 @@ const TipTap: React.FC<Props> = ({ isEditable, renderContent }) => {
                 {editor && (
                     <div>
                         <FloatingMenu
-                            className="flex gap-2 p-1 bg-opacity-50 rounded-lg bg-secondary outline outline-secondary focus:rounded-lg"
+                            className="flex gap-2 p-1 bg-opacity-50 border rounded-lg bg-secondary border-secondary focus:rounded-lg"
                             tippyOptions={{
                                 duration: 100,
                                 placement: 'bottom-start',
