@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     useEditor,
     EditorContent,
@@ -46,14 +46,26 @@ const CustomDocument = Document.extend({
     content: 'heading block*',
 });
 
+const items = [
+    { id: '1', name: 'Wade Cooper' },
+    { id: '2', name: 'Arlene Mccoy' },
+    { id: '3', name: 'Devon Webb' },
+    { id: '4', name: 'Tom Cook' },
+    { id: '5', name: 'Tanya Fox' },
+    { id: '6', name: 'Hellen Schmidt' },
+];
+
 const TipTap: React.FC<Props> = ({ isEditable, renderContent }) => {
-    const [state, setState] = React.useState<IState>({
+    const [state, setState] = useState<IState>({
         // initial state
         postId: '',
         rawContent: (renderContent?.rawContent as JSONContent) || {},
         draftMode: true,
         touched: false,
     });
+
+    const [selectedItems, setSelectedItems] = useState<any[]>([]);
+    const [query, setQuery] = useState('');
 
     const debouncedState = useDebounce(state, 5000);
 
@@ -128,7 +140,7 @@ const TipTap: React.FC<Props> = ({ isEditable, renderContent }) => {
         }
     };
 
-    React.useEffect(() => {
+    useEffect(() => {
         // only update if touched
         if (debouncedState.touched) {
             savePost().then(() => {
@@ -187,8 +199,19 @@ const TipTap: React.FC<Props> = ({ isEditable, renderContent }) => {
                     Save as draft
                 </Button>
                 <div>
-                    <ComboBox />
+                    <ComboBox
+                        query={query}
+                        setQuery={setQuery}
+                        selectedItems={selectedItems}
+                        setSelectedItems={setSelectedItems}
+                        options={items}
+                    />
                 </div>
+                {selectedItems.length !== 0 && (
+                    <Button secondary twClasses=" bg-tertiary !border-tertiary">
+                        Add Selected
+                    </Button>
+                )}
             </div>
             <div>
                 {editor && (
