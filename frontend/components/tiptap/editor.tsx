@@ -22,10 +22,11 @@ import {
     TbUnderline,
 } from 'react-icons/tb';
 import toast from 'react-hot-toast';
-import { Post } from '@prisma/client';
-import { classNames } from '../../utils/helpers/classNames';
+import { Category, Post } from '@prisma/client';
+import { OnChangeValue } from 'react-select';
+import { classNames } from '../../utils/helpers';
 import Button from '../button';
-import { ComboBox } from '../combobox';
+import { ComboBox, IOption } from '../combobox';
 import { useDebounce, useAsync } from '../../utils/hooks';
 import { postApi, categoryApi } from '../../utils/api';
 
@@ -40,20 +41,16 @@ interface IState {
     rawContent: JSONContent;
     draftMode: boolean;
     touched: boolean;
+    categoryIds: string[];
+    categorySelect: {
+        options: IOption[];
+        value: Partial<Category>[];
+    };
 }
 
 const CustomDocument = Document.extend({
     content: 'heading block*',
 });
-
-const items = [
-    { id: '1', name: 'Wade Cooper' },
-    { id: '2', name: 'Arlene Mccoy' },
-    { id: '3', name: 'Devon Webb' },
-    { id: '4', name: 'Tom Cook' },
-    { id: '5', name: 'Tanya Fox' },
-    { id: '6', name: 'Hellen Schmidt' },
-];
 
 const TipTap: React.FC<Props> = ({ isEditable, renderContent }) => {
     const [state, setState] = useState<IState>({
@@ -62,17 +59,64 @@ const TipTap: React.FC<Props> = ({ isEditable, renderContent }) => {
         rawContent: (renderContent?.rawContent as JSONContent) || {},
         draftMode: true,
         touched: false,
+        categoryIds: [],
+        categorySelect: {
+            options: [],
+            value: [],
+        },
     });
-
-    const [selectedItems, setSelectedItems] = useState<any[]>([]);
-    const [query, setQuery] = useState('');
 
     const debouncedState = useDebounce(state, 5000);
 
-    const { data, error, execute, status } = useAsync(
-        categoryApi.getCategories,
-        true,
-    );
+    const {
+        data: categoryData,
+        error: categoryError,
+        status: categoryFetchStatus,
+        execute: fetchCategories,
+    } = useAsync(categoryApi.getCategories, true);
+
+    if (categoryFetchStatus === 'error' && categoryError) {
+        toast.error(categoryError);
+    }
+
+    useEffect(() => {
+        if (categoryData) {
+            const options = categoryData.map((category: Category) => ({
+                value: category.id,
+                label: category.name!,
+            }));
+
+            setState((prevState) => ({
+                ...prevState,
+                categorySelect: {
+                    ...prevState.categorySelect,
+                    options,
+                },
+            }));
+        }
+    }, [categoryData]);
+
+    const handleCategorySelect = (value: OnChangeValue<IOption, true>) => {
+        const categoryIds = value.map((option: IOption) => option.value);
+        setState((prevState) => ({
+            ...prevState,
+            categoryIds,
+        }));
+    };
+
+    const handleCategoryCreate = async (inputValue: string) => {
+        categoryApi
+            .createCategory({
+                name: inputValue,
+            })
+            .then(() => {
+                toast.success('Category created');
+                fetchCategories();
+            })
+            .catch(() => {
+                toast.error('Error creating category');
+            });
+    };
 
     const getTitle = () => {
         const documentContent = state && state.rawContent.content;
@@ -203,20 +247,19 @@ const TipTap: React.FC<Props> = ({ isEditable, renderContent }) => {
                 >
                     Save as draft
                 </Button>
-                <div>
-                    <ComboBox
-                        query={query}
-                        setQuery={setQuery}
-                        selectedItems={selectedItems}
-                        setSelectedItems={setSelectedItems}
-                        options={items}
-                    />
-                </div>
-                {selectedItems.length !== 0 && (
-                    <Button secondary twClasses=" bg-tertiary !border-tertiary">
-                        Add Selected
-                    </Button>
+                {!categoryError && categoryData && (
+                    <div>
+                        <ComboBox
+                            options={state.categorySelect.options}
+                            changeHandler={handleCategorySelect}
+                            createHandler={handleCategoryCreate}
+                        />
+                    </div>
                 )}
+
+                <Button secondary twClasses=" bg-tertiary !border-tertiary">
+                    Add Selected
+                </Button>
             </div>
             <div>
                 {editor && (

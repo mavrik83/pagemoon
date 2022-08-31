@@ -16,10 +16,17 @@ export interface AuthProps {
     mode: 'signin' | 'signup';
 }
 
+interface AuthState {
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+}
+
 export const Auth: React.FC<AuthProps> = ({ open, setOpen, mode }) => {
     const { auth } = useFirebaseAuth();
 
-    const [authForm, setAuthForm] = useState({
+    const [authForm, setAuthForm] = useState<AuthState>({
         email: '',
         password: '',
         firstName: '',

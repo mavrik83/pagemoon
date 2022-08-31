@@ -29,6 +29,7 @@
         "react-dom": "18.2.0",
         "react-hot-toast": "^2.3.0",
         "react-icons": "^4.4.0",
+        "react-select": "^5.4.0",
         "slate": "^0.82.0",
         "slate-react": "^0.82.0",
         "superjson": "^1.9.1",

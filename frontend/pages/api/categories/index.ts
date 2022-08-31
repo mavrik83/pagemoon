@@ -7,10 +7,9 @@ const getCategories = async (_req: NextApiRequest, res: NextApiResponse) => {
 };
 
 const createCategory = async (req: NextApiRequest, res: NextApiResponse) => {
-    const category = await prisma.category.update({
-        where: { id: req.body.id },
+    const category = await prisma.category.create({
         data: {
-            ...req.body,
+            name: req.body.name,
         },
     });
     return res.status(200).send(category);
