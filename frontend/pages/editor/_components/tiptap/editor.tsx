@@ -37,7 +37,7 @@ const CustomDocument = Document.extend({
     content: 'heading block*',
 });
 
-const TipTap: React.FC<Props> = ({ isEditable, renderContent }) => {
+export const TipTap: React.FC<Props> = ({ isEditable, renderContent }) => {
     const { authUser } = useFirebaseAuth();
 
     const triggerDelayedSave = useEditorStore(
@@ -282,5 +282,3 @@ const TipTap: React.FC<Props> = ({ isEditable, renderContent }) => {
         </div>
     );
 };
-
-export default TipTap;
