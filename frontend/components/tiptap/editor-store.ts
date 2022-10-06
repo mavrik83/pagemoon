@@ -3,10 +3,10 @@ import { JSONContent } from '@tiptap/react';
 import { toast } from 'react-hot-toast';
 import { OnChangeValue } from 'react-select';
 import create from 'zustand';
-import { SavePostParams } from '../../../../utils/api/Posts';
-import { categoryApi, postApi } from '../../../../utils/api';
-import { FUser } from '../../../../utils/contexts/firebaseProvider';
-import { debounce } from '../../../../utils/helpers/debounce';
+import { SavePostParams } from '../../utils/api/Posts';
+import { categoryApi, postApi } from '../../utils/api';
+import { FUser } from '../../utils/contexts/firebaseProvider';
+import { debounce } from '../../utils/helpers/debounce';
 
 interface IOption {
     value: string;

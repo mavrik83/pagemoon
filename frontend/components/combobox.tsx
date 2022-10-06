@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import CreatableSelect from 'react-select/creatable';
 import { StylesConfig } from 'react-select';
-import { useEditorStore } from '../pages/editor/_components/tiptap/editor-store';
+import { useEditorStore } from './tiptap/editor-store';
 import { useFirebaseAuth } from '../utils/contexts/firebaseProvider';
 
 export interface IOption {

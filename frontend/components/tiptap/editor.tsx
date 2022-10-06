@@ -21,10 +21,10 @@ import {
     TbUnderline,
 } from 'react-icons/tb';
 import { Post } from '@prisma/client';
-import { useFirebaseAuth } from '../../../../utils/contexts/firebaseProvider';
-import { classNames } from '../../../../utils/helpers';
-import Button from '../../../../components/button';
-import { ComboBox } from '../../../../components/combobox';
+import { useFirebaseAuth } from '../../utils/contexts/firebaseProvider';
+import { classNames } from '../../utils/helpers';
+import Button from '../button';
+import { ComboBox } from '../combobox';
 import { useEditorStore } from './editor-store';
 
 interface Props {
