@@ -6,7 +6,7 @@
         "prettier"
     ],
     "parserOptions": {
-        "project": "frontend/tsconfig.json"
+        "project": "/frontend/tsconfig.json"
     },
     "rules": {
         "react/function-component-definition": [
