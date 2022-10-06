@@ -23,7 +23,7 @@ const Button: React.FC<Props> = ({
         primary = false;
     }
 
-    const btnMode = {
+    const btnModeClasses = {
         primary:
             'text-white bg-secondary hover:bg-opacity-90 border border-secondary',
         secondary:
@@ -31,7 +31,7 @@ const Button: React.FC<Props> = ({
         default: 'text-white bg-primary hover:opacity-90 border border-primary',
     };
 
-    const btnSize = {
+    const btnSizeClasses = {
         xs: 'text-xs px-2.5 py-1.5',
         sm: 'text-sm px-3 py-2',
         md: 'text-sm px-4 py-2',
@@ -51,10 +51,10 @@ const Button: React.FC<Props> = ({
         hover:scale-105
         active:shadow-none
         active:scale-100
-        ${primary && btnMode.primary}
-        ${secondary && btnMode.secondary}
-        ${size ? btnSize[size] : btnSize.default}
-        ${!primary && !secondary && btnMode.default}
+        ${primary && btnModeClasses.primary}
+        ${secondary && btnModeClasses.secondary}
+        ${size ? btnSizeClasses[size] : btnSizeClasses.default}
+        ${!primary && !secondary && btnModeClasses.default}
     `;
 
     const classes = classNames(mergeStrings(baseClasses, twClasses));

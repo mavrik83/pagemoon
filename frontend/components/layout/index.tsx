@@ -16,18 +16,20 @@ export const Layout = ({ children }: LayoutProps) => (
                 success: {
                     className: 'font-light',
                     icon: <BsPinFill className="text-primary" />,
-                    position: 'top-right',
+                    position: 'bottom-right',
                     style: {
                         background: '#3BD96750',
                     },
+                    duration: 3000,
                 },
                 error: {
                     className: 'font-light',
                     icon: <MdError className="text-alert" />,
-                    position: 'top-right',
+                    position: 'bottom-right',
                     style: {
                         background: '#D93B3B50',
                     },
+                    duration: 3000,
                 },
             }}
         />

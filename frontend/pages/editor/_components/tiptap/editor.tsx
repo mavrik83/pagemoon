@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import {
     useEditor,
     EditorContent,
     BubbleMenu,
     FloatingMenu,
-    JSONContent,
 } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Document from '@tiptap/extension-document';
@@ -21,14 +20,12 @@ import {
     TbListNumbers,
     TbUnderline,
 } from 'react-icons/tb';
-import toast from 'react-hot-toast';
-import { Category, Post } from '@prisma/client';
-import { OnChangeValue } from 'react-select';
-import { classNames } from '../../utils/helpers';
-import Button from '../button';
-import { ComboBox, IOption } from '../combobox';
-import { useDebounce, useAsync } from '../../utils/hooks';
-import { postApi, categoryApi } from '../../utils/api';
+import { Post } from '@prisma/client';
+import { useFirebaseAuth } from '../../../../utils/contexts/firebaseProvider';
+import { classNames } from '../../../../utils/helpers';
+import Button from '../../../../components/button';
+import { ComboBox } from '../../../../components/combobox';
+import { useEditorStore } from './editor-store';
 
 interface Props {
     // eslint-disable-next-line react/require-default-props
@@ -36,171 +33,28 @@ interface Props {
     isEditable: boolean;
 }
 
-interface IState {
-    postId: string;
-    rawContent: JSONContent;
-    draftMode: boolean;
-    touched: boolean;
-    categoryIds: string[];
-    categorySelect: {
-        options: IOption[];
-        value: Partial<Category>[];
-    };
-}
-
 const CustomDocument = Document.extend({
     content: 'heading block*',
 });
 
 const TipTap: React.FC<Props> = ({ isEditable, renderContent }) => {
-    const [state, setState] = useState<IState>({
-        // initial state
-        postId: '',
-        rawContent: (renderContent?.rawContent as JSONContent) || {},
-        draftMode: true,
-        touched: false,
-        categoryIds: [],
-        categorySelect: {
-            options: [],
-            value: [],
-        },
-    });
+    const { authUser } = useFirebaseAuth();
 
-    const debouncedState = useDebounce(state, 5000);
-
-    const {
-        data: categoryData,
-        error: categoryError,
-        status: categoryFetchStatus,
-        execute: fetchCategories,
-    } = useAsync(categoryApi.getCategories, true);
-
-    if (categoryFetchStatus === 'error' && categoryError) {
-        toast.error(categoryError);
-    }
+    const triggerDelayedSave = useEditorStore(
+        useCallback((state) => state.triggerDelayedSave, []),
+    );
+    const fetchCategories = useEditorStore(
+        useCallback((state) => state.fetchCategories, []),
+    );
+    const setRawContent = useEditorStore(
+        useCallback((state) => state.setRawContent, []),
+    );
+    const savePost = useEditorStore(useCallback((state) => state.savePost, []));
 
     useEffect(() => {
-        if (categoryData) {
-            const options = categoryData.map((category: Category) => ({
-                value: category.id,
-                label: category.name!,
-            }));
-
-            setState((prevState) => ({
-                ...prevState,
-                categorySelect: {
-                    ...prevState.categorySelect,
-                    options,
-                },
-            }));
-        }
-    }, [categoryData]);
-
-    const handleCategorySelect = (value: OnChangeValue<IOption, true>) => {
-        const categoryIds = value.map((option: IOption) => option.value);
-        setState((prevState) => ({
-            ...prevState,
-            categoryIds,
-        }));
-    };
-
-    const handleCategoryCreate = async (inputValue: string) => {
-        categoryApi
-            .createCategory({
-                name: inputValue,
-            })
-            .then(() => {
-                toast.success('Category created');
-                fetchCategories();
-            })
-            .catch(() => {
-                toast.error('Error creating category');
-            });
-    };
-
-    const getTitle = () => {
-        const documentContent = state && state.rawContent.content;
-        const preview = documentContent?.find(
-            (item) => item.type === 'heading',
-        );
-        // deeply iterate through previewTitle to get the value of all text properties and join them in string
-        const previewTitle =
-            preview &&
-            preview.content &&
-            preview.content.reduce((acc, curr) => {
-                if (curr.type === 'text') {
-                    return acc + curr.text;
-                }
-
-                return acc;
-            }, '');
-        return previewTitle || 'No title';
-    };
-
-    const getDescription = () => {
-        const documentContent = state && state.rawContent.content;
-        // get the first paragraph of the document
-        const preview = documentContent?.find(
-            (item) => item.type === 'paragraph',
-        );
-        // deeply iterate through previewDescription to get the value of all text properties and join them in string
-        const previewDescription =
-            preview &&
-            preview.content &&
-            preview.content.reduce((acc, curr) => {
-                if (curr.type === 'text') {
-                    return acc + curr.text;
-                }
-
-                return acc;
-            }, '');
-        return previewDescription || 'No description';
-    };
-
-    const savePost = async (draftMode?: IState['draftMode']) => {
-        try {
-            const newPost: Partial<Post> = {
-                title: getTitle(),
-                description: getDescription(),
-                rawContent: debouncedState.rawContent,
-                draftMode: draftMode || debouncedState.draftMode,
-            };
-
-            const updatePost: Partial<Post> = {
-                ...newPost,
-                id: debouncedState.postId,
-            };
-
-            const savedPost = await postApi.upsertPost(
-                debouncedState.postId ? updatePost : newPost,
-            );
-
-            setState((prevState) => ({
-                ...prevState,
-                postId: savedPost.id,
-                draftMode: draftMode || debouncedState.draftMode,
-            }));
-
-            toast.success('Saved...');
-            return true;
-        } catch (err: any) {
-            toast.error(`Error: ${err.message}`);
-            return false;
-        }
-    };
-
-    useEffect(() => {
-        // only update if touched
-        if (debouncedState.touched) {
-            savePost().then(() => {
-                setState((prevState) => ({
-                    ...prevState,
-                    touched: false,
-                }));
-            });
-        }
+        fetchCategories();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [debouncedState]);
+    }, []);
 
     const editor = useEditor({
         editable: isEditable,
@@ -227,39 +81,32 @@ const TipTap: React.FC<Props> = ({ isEditable, renderContent }) => {
         },
         content: renderContent || null,
         onUpdate: (editorObj) => {
-            const rawContent = editorObj.editor.getJSON();
-            setState((prevState: IState) => ({
-                ...prevState,
-                rawContent,
-                touched: true,
-            }));
+            setRawContent(editorObj.editor.getJSON());
+            triggerDelayedSave(authUser);
         },
     });
 
     return (
         <div className="z-30 mt-10">
             <div className="flex flex-wrap justify-start gap-5">
-                <Button onClick={() => savePost(false)}>Publish</Button>
+                <Button onClick={() => savePost(authUser, false)}>
+                    Publish
+                </Button>
                 <Button
                     twClasses="bg-tertiary !border-tertiary"
                     secondary
-                    onClick={() => savePost(true)}
+                    onClick={() => savePost(authUser, true)}
                 >
                     Save as draft
                 </Button>
-                {!categoryError && categoryData && (
-                    <div>
-                        <ComboBox
-                            options={state.categorySelect.options}
-                            changeHandler={handleCategorySelect}
-                            createHandler={handleCategoryCreate}
-                        />
-                    </div>
-                )}
-
-                <Button secondary twClasses=" bg-tertiary !border-tertiary">
-                    Add Selected
-                </Button>
+                <div>
+                    <ComboBox />
+                </div>
+                {/* {state.pendingCategoryIds.length > 0 && (
+                    <Button secondary twClasses=" bg-tertiary !border-tertiary">
+                        Add Selected
+                    </Button>
+                )} */}
             </div>
             <div>
                 {editor && (

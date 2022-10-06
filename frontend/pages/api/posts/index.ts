@@ -1,30 +1,101 @@
+import { Post } from '@prisma/client';
 import { NextApiRequest, NextApiResponse } from 'next';
 import prisma from '../../../lib/prisma';
 
+interface IPostRequest extends NextApiRequest {
+    body: IPostReqBody;
+}
+
+interface IPostReqBody extends Partial<Post> {
+    userUid?: string;
+}
+
 const getPosts = async (_req: NextApiRequest, res: NextApiResponse) => {
-    const posts = await prisma.post.findMany();
-    return res.send(posts);
+    try {
+        const posts = await prisma.post.findMany().catch(() => {
+            throw new Error('failed to get posts');
+        });
+        res.send(posts);
+    } catch (error) {
+        if (error instanceof Error) {
+            res.status(400).send(error.message);
+        } else {
+            res.status(500).send('Internal server error');
+        }
+    }
 };
 
-const upsertPost = async (req: NextApiRequest, res: NextApiResponse) => {
-    if (!req.body.id) {
-        const post = await prisma.post.create({
-            data: {
-                ...req.body,
-            },
-        });
-        return res.status(200).send(post);
+const upsertPost = async (req: IPostRequest, res: NextApiResponse) => {
+    try {
+        const user = await prisma.user
+            .findFirst({
+                where: {
+                    authUid: req.body.userUid,
+                },
+            })
+            .catch(() => {
+                throw new Error('User not found');
+            });
+
+        if (!req.body.id) {
+            const post = await prisma.post
+                .create({
+                    data: {
+                        title: req.body.title,
+                        description: req.body.description,
+                        rawContent: req.body.rawContent,
+                        draftMode: req.body.draftMode,
+                        categories: {
+                            connect: req.body.categoryIds?.map(
+                                (id: string) => ({
+                                    id,
+                                }),
+                            ),
+                        },
+                        user: {
+                            connect: {
+                                id: user!.id,
+                            },
+                        },
+                    },
+                })
+                .catch(() => {
+                    throw new Error('Failed to create post');
+                });
+
+            res.status(200).send(post);
+        } else {
+            const post = await prisma.post
+                .update({
+                    where: { id: req.body.id },
+                    data: {
+                        title: req.body.title,
+                        description: req.body.description,
+                        rawContent: req.body.rawContent,
+                        draftMode: req.body.draftMode,
+                        categories: {
+                            set: [],
+                            connect: req.body.categoryIds?.map(
+                                (id: string) => ({
+                                    id,
+                                }),
+                            ),
+                        },
+                    },
+                })
+                .catch(() => {
+                    throw new Error('Failed to update post');
+                });
+
+            res.status(200).send(post);
+        }
+    } catch (error) {
+        if (error instanceof Error) {
+            res.status(400).send(error.message);
+        } else {
+            res.status(500).send('Internal server error');
+        }
     }
-    const post = await prisma.post.update({
-        where: { id: req.body.id },
-        data: {
-            title: req.body.title,
-            description: req.body.description,
-            rawContent: req.body.rawContent,
-            draftMode: req.body.draftMode,
-        },
-    });
-    return res.status(200).send(post);
 };
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {

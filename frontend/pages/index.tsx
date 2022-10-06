@@ -42,7 +42,7 @@ const Home: NextPage<Props> = ({ posts }: Props) => {
                 <meta name="description" content="Future home of PageMoon" />
                 <link rel="icon" href="/favicon.ico" />
             </Head>
-            <h1 className="text-6xl font-light">PageMoon</h1> <RecentPosts />
+            <h1 className="text-6xl font-light px">PageMoon</h1> <RecentPosts />
         </div>
     );
 };
