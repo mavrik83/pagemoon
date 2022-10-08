@@ -4,6 +4,7 @@ import {
     EditorContent,
     BubbleMenu,
     FloatingMenu,
+    JSONContent,
 } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Document from '@tiptap/extension-document';
@@ -29,7 +30,7 @@ import { useEditorStore } from './editor-store';
 
 interface Props {
     // eslint-disable-next-line react/require-default-props
-    renderContent?: Post;
+    data?: Post;
     isEditable: boolean;
 }
 
@@ -37,9 +38,12 @@ const CustomDocument = Document.extend({
     content: 'heading block*',
 });
 
-export const TipTap: React.FC<Props> = ({ isEditable, renderContent }) => {
+export const TipTap: React.FC<Props> = ({ isEditable, data }) => {
     const { authUser } = useFirebaseAuth();
 
+    const categoryDisplay = useEditorStore(
+        useCallback((state) => state.categoryDisplay, []),
+    );
     const triggerDelayedSave = useEditorStore(
         useCallback((state) => state.triggerDelayedSave, []),
     );
@@ -50,9 +54,27 @@ export const TipTap: React.FC<Props> = ({ isEditable, renderContent }) => {
         useCallback((state) => state.setRawContent, []),
     );
     const savePost = useEditorStore(useCallback((state) => state.savePost, []));
+    const setCharCount = useEditorStore(
+        useCallback((state) => state.setCharCount, []),
+    );
+    const setPostId = useEditorStore(
+        useCallback((state) => state.setPostId, []),
+    );
+    const setCategoryIds = useEditorStore(
+        useCallback((state) => state.setCategoryIds, []),
+    );
+    const setCategoryDisplay = useEditorStore(
+        useCallback((state) => state.setCategoryDisplay, []),
+    );
 
     useEffect(() => {
         fetchCategories();
+        if (data) {
+            setRawContent(data.rawContent as JSONContent);
+            setPostId(data.id);
+            setCategoryIds(data.categoryIds);
+            setCategoryDisplay();
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -79,9 +101,10 @@ export const TipTap: React.FC<Props> = ({ isEditable, renderContent }) => {
                 class: 'prose prose-lg prose-stone my-10 outline-none prose-p:leading-none prose-li:leading-none prose-h1:text-3xl prose-h1:font-light prose-h2:font-light prose-h3:font-light prose-h2:text-2xl prose-h3:text-xl placeholder-text:text-gray-500 prose-strong:font-extrabold font-light',
             },
         },
-        content: renderContent || null,
+        content: (data?.rawContent as JSONContent) || null,
         onUpdate: (editorObj) => {
             setRawContent(editorObj.editor.getJSON());
+            setCharCount(editorObj.editor.getText().length);
             triggerDelayedSave(authUser);
         },
     });
@@ -107,6 +130,16 @@ export const TipTap: React.FC<Props> = ({ isEditable, renderContent }) => {
                         Add Selected
                     </Button>
                 )} */}
+            </div>
+            <div className="flex flex-row gap-3">
+                {categoryDisplay.map((category) => (
+                    <span
+                        key={category}
+                        className="inline-flex items-center rounded-full bg-secondary bg-opacity-30 px-3 py-0.5 text-sm font-medium text-gray-800"
+                    >
+                        {category}
+                    </span>
+                ))}
             </div>
             <div>
                 {editor && (

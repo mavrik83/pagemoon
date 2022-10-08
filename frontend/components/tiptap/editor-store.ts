@@ -23,8 +23,9 @@ interface IEditorState {
     categoryData: Category[] | 'loading' | 'error' | 'idle';
     options: IOption[];
     selectedCategories: IOption[];
-    categoryDisplayOptions: IOption[];
+    categoryDisplay: string[];
     isLoadingCategories: boolean;
+    charCount: number;
 }
 
 interface IEditorActions {
@@ -40,12 +41,14 @@ interface IEditorActions {
     setSelectedCategories: (
         selectedCategories: OnChangeValue<IOption, true>,
     ) => void;
-    setCategoryDisplayOptions: (categoryDisplayOptions: IOption[]) => void;
+    setCategoryDisplay: () => void;
     setIsLoadingCategories: (isLoadingCategories: boolean) => void;
     getTitle: () => string;
     getDescription: () => string;
     savePost: (authUser: FUser, draftModeParam?: boolean) => void;
     triggerDelayedSave: (authUser: FUser) => void;
+    setCharCount: (charCount: number) => void;
+    determineReadTime: () => number;
 }
 export const useEditorStore = create<IEditorState & IEditorActions>()(
     (set, get) => ({
@@ -59,8 +62,9 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
         categoryData: 'idle',
         options: [],
         selectedCategories: [],
-        categoryDisplayOptions: [],
+        categoryDisplay: [],
         isLoadingCategories: false,
+        charCount: 0,
         // Actions
         fetchCategories: async () => {
             set({ categoryData: 'loading' });
@@ -119,10 +123,16 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
             set({ pendingCategoryIds });
         },
         setOptions: (categoryData) => {
-            const options = categoryData.map((category) => ({
+            const { categoryIds } = get();
+            let options = categoryData.map((category) => ({
                 value: category.id,
                 label: category.name || '',
             }));
+            if (categoryIds.length > 0) {
+                options = options.filter((option) =>
+                    categoryIds.includes(option.value),
+                );
+            }
             set({ options });
         },
         setSelectedCategories: (selectedCategories) => {
@@ -130,8 +140,16 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
             set({ selectedCategories: selectedCategories as IOption[] });
             setPendingCategoryIds(selectedCategories as IOption[]);
         },
-        setCategoryDisplayOptions: (categoryDisplayOptions) => {
-            set({ categoryDisplayOptions });
+        setCategoryDisplay: () => {
+            const { categoryIds, categoryData } = get();
+            if (categoryData === 'loading' || categoryData === 'error') {
+                return;
+            }
+            // Make a new array of category names from categoryData that match the categoryIds
+            const categoryDisplay = (categoryData as Category[])
+                .filter((category) => categoryIds.includes(category.id))
+                .map((category) => category.name) as string[];
+            set({ categoryDisplay });
         },
         setIsLoadingCategories: (isLoadingCategories) => {
             set({ isLoadingCategories });
@@ -192,6 +210,8 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
                     setTouched,
                     setPostId,
                     setDraftMode,
+                    determineReadTime,
+                    setSelectedCategories,
                 } = get();
 
                 // find any new categories that were added
@@ -206,6 +226,7 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
                     draftMode: draftModeParam || draftMode,
                     categoryIds: newCategories,
                     userUid: authUser.uid,
+                    readTime: determineReadTime(),
                 };
 
                 const updatePost: SavePostParams = {
@@ -220,6 +241,7 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
                 setPostId(savedPost.id);
                 setTouched(false);
                 setDraftMode(draftModeParam || draftMode);
+                setSelectedCategories([]);
 
                 toast.success('Saved...');
             } catch (err: any) {
@@ -230,5 +252,12 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
             const { savePost } = get();
             savePost(authUser);
         }),
+        setCharCount: (charCount) => {
+            set({ charCount });
+        },
+        determineReadTime: () => {
+            const { charCount } = get();
+            return Math.ceil(charCount / 200);
+        },
     }),
 );

@@ -10,12 +10,26 @@ interface IPostReqBody extends Partial<Post> {
     userUid?: string;
 }
 
-const getPosts = async (_req: NextApiRequest, res: NextApiResponse) => {
+const getPosts = async (req: NextApiRequest, res: NextApiResponse) => {
     try {
-        const posts = await prisma.post.findMany().catch(() => {
-            throw new Error('failed to get posts');
-        });
-        res.send(posts);
+        if (req.query.id) {
+            const post = await prisma.post
+                .findFirst({
+                    where: {
+                        id: req.query.id as string,
+                    },
+                })
+                .catch(() => {
+                    throw new Error('Post not found');
+                });
+
+            res.status(200).send(post);
+        } else {
+            const posts = await prisma.post.findMany().catch(() => {
+                throw new Error('failed to get posts');
+            });
+            res.send(posts);
+        }
     } catch (error) {
         if (error instanceof Error) {
             res.status(400).send(error.message);
@@ -45,6 +59,7 @@ const upsertPost = async (req: IPostRequest, res: NextApiResponse) => {
                         description: req.body.description,
                         rawContent: req.body.rawContent,
                         draftMode: req.body.draftMode,
+                        readTime: req.body.readTime,
                         categories: {
                             connect: req.body.categoryIds?.map(
                                 (id: string) => ({
@@ -73,6 +88,7 @@ const upsertPost = async (req: IPostRequest, res: NextApiResponse) => {
                         description: req.body.description,
                         rawContent: req.body.rawContent,
                         draftMode: req.body.draftMode,
+                        readTime: req.body.readTime,
                         categories: {
                             set: [],
                             connect: req.body.categoryIds?.map(

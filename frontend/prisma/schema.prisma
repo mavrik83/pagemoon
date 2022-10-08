@@ -49,6 +49,7 @@ model Post {
   title       String?
   description String?
   rawContent  Json?
+  readTime    Int?
   draftMode   Boolean?   @default(true)
   createdAt   DateTime?  @default(now())
   updatedAt   DateTime?  @updatedAt

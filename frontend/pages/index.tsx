@@ -1,12 +1,12 @@
 import React from 'react';
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import { Post } from '@prisma/client';
 import prisma from '../lib/prisma';
 import { RecentPosts } from '../components/preview/recentPosts';
+import { IPostPreview } from '../components/preview/previewCard';
 
 interface Props {
-    posts: Pick<Post, 'id' | 'title' | 'description' | 'createdAt'>[];
+    posts: IPostPreview[];
 }
 
 export const getStaticProps = async () => {
@@ -15,7 +15,18 @@ export const getStaticProps = async () => {
             id: true,
             title: true,
             description: true,
-            createdAt: true,
+            updatedAt: true,
+            readTime: true,
+            user: {
+                select: {
+                    firstName: true,
+                },
+            },
+            categories: {
+                select: {
+                    name: true,
+                },
+            },
         },
     });
     return {
@@ -26,25 +37,16 @@ export const getStaticProps = async () => {
     };
 };
 
-const Home: NextPage<Props> = ({ posts }: Props) => {
-    // const { execute, data, error, status } = useAsync(bookApi.getBooks);
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const dummy = '';
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const post = posts[0];
-
-    return (
-        <div>
-            <Head>
-                <title>PageMoon</title>
-                <meta name="description" content="Future home of PageMoon" />
-                <link rel="icon" href="/favicon.ico" />
-            </Head>
-            <h1 className="text-6xl font-light px">PageMoon</h1> <RecentPosts />
-        </div>
-    );
-};
+const Home: NextPage<Props> = ({ posts }: Props) => (
+    <div>
+        <Head>
+            <title>PageMoon</title>
+            <meta name="description" content="Future home of PageMoon" />
+            <link rel="icon" href="/favicon.ico" />
+        </Head>
+        <h1 className="text-6xl font-light px">PageMoon</h1>{' '}
+        <RecentPosts posts={posts} />
+    </div>
+);
 
 export default Home;

@@ -16,4 +16,8 @@ export const postApi = {
         const newPost = await apiRequest.post<null, Post>('/api/posts', params);
         return newPost;
     },
+    getPostById: async (id: string) => {
+        const post = await apiRequest.get<null, Post>(`/api/posts?id=${id}`);
+        return post;
+    },
 };
