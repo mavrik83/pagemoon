@@ -17,6 +17,7 @@ export const getStaticProps = async () => {
             description: true,
             updatedAt: true,
             readTime: true,
+            status: true,
             user: {
                 select: {
                     firstName: true,

@@ -22,15 +22,15 @@ export const CategorySelect: FC = () => {
                 multiple
             >
                 <div className="relative">
-                    <Listbox.Button className="inline-flex items-center justify-center whitespace-nowrap font-medium rounded-lg shadow-lg hover:scale-105 active:shadow-none active:scale-100 text-black bg-secondary bg-opacity-20 border border-secondary text-sm pl-4 py-1">
+                    <Listbox.Button className="inline-flex items-center justify-center whitespace-nowrap font-medium rounded-lg shadow-lg hover:scale-105 active:shadow-none active:scale-100 text-black bg-secondary bg-opacity-20 border border-secondary text-sm py-2 px-2">
                         <span>
                             {categoryStatus === 'done'
                                 ? 'Category Select'
                                 : 'Loading...'}
                         </span>
-                        <span>
+                        <span className="bg-tertiary bg-opacity-30 ml-2 rounded-xl">
                             <TbDirection
-                                className="h-7 w-auto text-black"
+                                className="h-6 w-auto text-black"
                                 aria-hidden="true"
                             />
                         </span>
@@ -50,7 +50,7 @@ export const CategorySelect: FC = () => {
                                         className={({ active }) =>
                                             `relative cursor-default select-none py-2 pl-10 pr-4 ${
                                                 active
-                                                    ? 'bg-amber-100 text-amber-900'
+                                                    ? 'bg-tertiary bg-opacity-30 text-black'
                                                     : 'text-gray-900'
                                             }`
                                         }
@@ -68,7 +68,7 @@ export const CategorySelect: FC = () => {
                                                     {category.name}
                                                 </span>
                                                 {selected ? (
-                                                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600">
+                                                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-secondary">
                                                         <TbCheck
                                                             className="h-5 w-5"
                                                             aria-hidden="true"

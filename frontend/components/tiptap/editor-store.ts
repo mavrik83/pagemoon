@@ -20,7 +20,8 @@ interface PostData {
 interface IEditorState {
     postData: PostData;
     rawContent: JSONContent;
-    draftMode: boolean;
+    htmlContent: string;
+    status: 'published' | 'draft';
     touched: boolean;
     categoryStatus: 'done' | 'loading' | 'error' | 'idle';
     options: IOption[];
@@ -34,14 +35,15 @@ interface IEditorActions {
     createCategory: (name: string, authUser: FUser) => void;
     setPostData: (postData: PostData) => void;
     setRawContent: (rawContent: JSONContent) => void;
-    setDraftMode: (draftMode: boolean) => void;
+    setHtmlContent: (htmlContent: string) => void;
+    setStatus: (status: IEditorState['status']) => void;
     setTouched: (touched: boolean) => void;
     setOptions: (categoryData?: Category[]) => void;
     setSelectedCategories: (selectedCategories: IOption[]) => void;
     setIsLoadingCategories: (isLoadingCategories: boolean) => void;
     getTitle: () => string;
     getDescription: () => string;
-    savePost: (authUser: FUser, draftModeParam?: boolean) => void;
+    savePost: (authUser: FUser, status?: IEditorState['status']) => void;
     triggerDelayedSave: (authUser: FUser) => void;
     setCharCount: (charCount: number) => void;
     determineReadTime: () => number;
@@ -54,7 +56,8 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
             categoryIds: [],
         },
         rawContent: {},
-        draftMode: true,
+        htmlContent: '',
+        status: 'draft',
         touched: false,
         categoryStatus: 'idle',
         options: [],
@@ -103,8 +106,11 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
         setRawContent: (rawContent) => {
             set({ rawContent });
         },
-        setDraftMode: (draftMode) => {
-            set({ draftMode });
+        setHtmlContent: (htmlContent) => {
+            set({ htmlContent });
+        },
+        setStatus: (status) => {
+            set({ status });
         },
         setTouched: (touched) => {
             set({ touched });
@@ -172,7 +178,7 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
                 }, '');
             return previewDescription || 'No description';
         },
-        savePost: async (authUser, draftModeParam?) => {
+        savePost: async (authUser, statusParam) => {
             try {
                 if (!authUser) {
                     toast.error('You must be logged in to save a post');
@@ -182,13 +188,14 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
                 const {
                     selectedCategories,
                     rawContent,
+                    htmlContent,
                     postData,
-                    draftMode,
+                    status,
                     getTitle,
                     getDescription,
                     setTouched,
                     setPostData,
-                    setDraftMode,
+                    setStatus,
                     determineReadTime,
                 } = get();
 
@@ -199,7 +206,8 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
                     title: getTitle(),
                     description: getDescription(),
                     rawContent,
-                    draftMode: draftModeParam || draftMode,
+                    htmlContent,
+                    status: statusParam || status,
                     categoryIds: newCategories,
                     userUid: authUser.uid,
                     readTime: determineReadTime(),
@@ -219,7 +227,7 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
                     categoryIds: savedPost.categoryIds,
                 });
                 setTouched(false);
-                setDraftMode(draftModeParam || draftMode);
+                setStatus(statusParam || status);
 
                 toast.success('Saved...');
             } catch (err: any) {
