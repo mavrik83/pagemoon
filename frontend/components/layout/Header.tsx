@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Menu, Transition } from '@headlessui/react';
 import { MenuIcon } from '@heroicons/react/solid';
 import { WiMoonAltWaxingCrescent3 } from 'react-icons/wi';
+import { SiAboutdotme } from 'react-icons/si';
 import React, {
     ComponentPropsWithRef,
     forwardRef,
@@ -76,17 +77,11 @@ export const Header: React.FC = () => {
                                 {authUser ? (
                                     <div className="flex-shrink-0 hidden group sm:block">
                                         <div className="flex items-center">
-                                            <div className="inline-block w-10 h-10 overflow-hidden rounded-full bg-sky-100">
+                                            <div className="inline-block w-10 h-10 overflow-hidden rounded">
                                                 <MyLink
                                                     href={`user/${authUser.uid}`}
                                                 >
-                                                    <svg
-                                                        className="w-full h-full text-sky-900"
-                                                        fill="currentColor"
-                                                        viewBox="0 0 24 24"
-                                                    >
-                                                        <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
-                                                    </svg>
+                                                    <SiAboutdotme className="w-auto h-10 text-primary" />
                                                 </MyLink>
                                             </div>
                                             <div className="ml-3">
@@ -106,7 +101,7 @@ export const Header: React.FC = () => {
                                                             })
                                                     }
                                                 >
-                                                    <span className="inline-flex items-center px-3 py-0.5 rounded-full text-sm bg-sky-100 text-sky-900">
+                                                    <span className="inline-flex items-center px-3 py-0.5 rounded-full text-sm bg-tertiary bg-opacity-30 text-black">
                                                         Sign Out
                                                     </span>
                                                 </button>

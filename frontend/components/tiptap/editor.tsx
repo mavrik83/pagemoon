@@ -25,7 +25,7 @@ import { Post } from '@prisma/client';
 import { useFirebaseAuth } from '../../utils/contexts/firebaseProvider';
 import { classNames } from '../../utils/helpers';
 import Button from '../button';
-import { ComboBox } from '../combobox';
+import { CategorySelect } from '../categorySelect';
 import { useEditorStore } from './editor-store';
 
 interface Props {
@@ -41,9 +41,6 @@ const CustomDocument = Document.extend({
 export const TipTap: React.FC<Props> = ({ isEditable, data }) => {
     const { authUser } = useFirebaseAuth();
 
-    const categoryDisplay = useEditorStore(
-        useCallback((state) => state.categoryDisplay, []),
-    );
     const triggerDelayedSave = useEditorStore(
         useCallback((state) => state.triggerDelayedSave, []),
     );
@@ -57,24 +54,16 @@ export const TipTap: React.FC<Props> = ({ isEditable, data }) => {
     const setCharCount = useEditorStore(
         useCallback((state) => state.setCharCount, []),
     );
-    const setPostId = useEditorStore(
-        useCallback((state) => state.setPostId, []),
-    );
-    const setCategoryIds = useEditorStore(
-        useCallback((state) => state.setCategoryIds, []),
-    );
-    const setCategoryDisplay = useEditorStore(
-        useCallback((state) => state.setCategoryDisplay, []),
+    const setPostData = useEditorStore(
+        useCallback((state) => state.setPostData, []),
     );
 
     useEffect(() => {
-        fetchCategories();
         if (data) {
             setRawContent(data.rawContent as JSONContent);
-            setPostId(data.id);
-            setCategoryIds(data.categoryIds);
-            setCategoryDisplay();
+            setPostData({ id: data.id, categoryIds: data.categoryIds });
         }
+        fetchCategories();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -122,24 +111,7 @@ export const TipTap: React.FC<Props> = ({ isEditable, data }) => {
                 >
                     Save as draft
                 </Button>
-                <div>
-                    <ComboBox />
-                </div>
-                {/* {state.pendingCategoryIds.length > 0 && (
-                    <Button secondary twClasses=" bg-tertiary !border-tertiary">
-                        Add Selected
-                    </Button>
-                )} */}
-            </div>
-            <div className="flex flex-row gap-3">
-                {categoryDisplay.map((category) => (
-                    <span
-                        key={category}
-                        className="inline-flex items-center rounded-full bg-secondary bg-opacity-30 px-3 py-0.5 text-sm font-medium text-gray-800"
-                    >
-                        {category}
-                    </span>
-                ))}
+                <CategorySelect />
             </div>
             <div>
                 {editor && (
