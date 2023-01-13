@@ -15,6 +15,7 @@ const Editor: NextPage = () => {
 
     useEffect(() => {
         postApi.getPostById(id as string).then((res) => setPost(res));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
