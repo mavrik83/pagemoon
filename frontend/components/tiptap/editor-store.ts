@@ -1,7 +1,6 @@
 import { Category } from '@prisma/client';
 import { JSONContent } from '@tiptap/react';
 import { toast } from 'react-hot-toast';
-import { OnChangeValue } from 'react-select';
 import create from 'zustand';
 import { SavePostParams } from '../../utils/api/Posts';
 import { categoryApi, postApi } from '../../utils/api';
@@ -9,21 +8,23 @@ import { FUser } from '../../utils/contexts/firebaseProvider';
 import { debounce } from '../../utils/helpers/debounce';
 
 interface IOption {
-    value: string;
-    label: string;
+    id: string;
+    name: string;
+}
+
+interface PostData {
+    id: string;
+    categoryIds: string[];
 }
 
 interface IEditorState {
-    postId: string;
+    postData: PostData;
     rawContent: JSONContent;
     draftMode: boolean;
     touched: boolean;
-    categoryIds: string[];
-    pendingCategoryIds: string[];
-    categoryData: Category[] | 'loading' | 'error' | 'idle';
+    categoryStatus: 'done' | 'loading' | 'error' | 'idle';
     options: IOption[];
     selectedCategories: IOption[];
-    categoryDisplay: string[];
     isLoadingCategories: boolean;
     charCount: number;
 }
@@ -31,17 +32,12 @@ interface IEditorState {
 interface IEditorActions {
     fetchCategories: () => void;
     createCategory: (name: string, authUser: FUser) => void;
-    setPostId: (postId: string) => void;
+    setPostData: (postData: PostData) => void;
     setRawContent: (rawContent: JSONContent) => void;
     setDraftMode: (draftMode: boolean) => void;
     setTouched: (touched: boolean) => void;
-    setCategoryIds: (categoryIds: string[]) => void;
-    setPendingCategoryIds: (selectedCategories: IOption[]) => void;
-    setOptions: (categoryData: Category[]) => void;
-    setSelectedCategories: (
-        selectedCategories: OnChangeValue<IOption, true>,
-    ) => void;
-    setCategoryDisplay: () => void;
+    setOptions: (categoryData?: Category[]) => void;
+    setSelectedCategories: (selectedCategories: IOption[]) => void;
     setIsLoadingCategories: (isLoadingCategories: boolean) => void;
     getTitle: () => string;
     getDescription: () => string;
@@ -53,33 +49,33 @@ interface IEditorActions {
 export const useEditorStore = create<IEditorState & IEditorActions>()(
     (set, get) => ({
         // State
-        postId: '',
+        postData: {
+            id: '',
+            categoryIds: [],
+        },
         rawContent: {},
         draftMode: true,
         touched: false,
-        categoryIds: [],
-        pendingCategoryIds: [],
-        categoryData: 'idle',
+        categoryStatus: 'idle',
         options: [],
         selectedCategories: [],
-        categoryDisplay: [],
         isLoadingCategories: false,
         charCount: 0,
         // Actions
         fetchCategories: async () => {
-            set({ categoryData: 'loading' });
+            set({ categoryStatus: 'loading' });
             set({ isLoadingCategories: true });
             categoryApi
                 .getCategories()
                 .then((res) => {
-                    set({ categoryData: res });
                     useEditorStore.getState().setOptions(res);
+                    set({ categoryStatus: 'done' });
                 })
                 .then(() => {
                     set({ isLoadingCategories: false });
                 })
                 .catch(() => {
-                    set({ categoryData: 'error' });
+                    set({ categoryStatus: 'error' });
                     toast.error('Error fetching categories');
                 });
         },
@@ -101,8 +97,8 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
                     toast.error('Error creating category');
                 });
         },
-        setPostId: (postId) => {
-            set({ postId });
+        setPostData: (postData) => {
+            set({ postData });
         },
         setRawContent: (rawContent) => {
             set({ rawContent });
@@ -113,43 +109,27 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
         setTouched: (touched) => {
             set({ touched });
         },
-        setCategoryIds: (categoryIds) => {
-            set({ categoryIds });
-        },
-        setPendingCategoryIds: (selectedCategories) => {
-            const pendingCategoryIds = selectedCategories.map(
-                (category) => category.value,
-            );
-            set({ pendingCategoryIds });
-        },
         setOptions: (categoryData) => {
-            const { categoryIds } = get();
-            let options = categoryData.map((category) => ({
-                value: category.id,
-                label: category.name || '',
-            }));
-            if (categoryIds.length > 0) {
-                options = options.filter((option) =>
-                    categoryIds.includes(option.value),
-                );
-            }
+            const { postData } = get();
+
+            const options =
+                categoryData &&
+                categoryData.map((category) => ({
+                    name: category.name as string,
+                    id: category.id,
+                }));
             set({ options });
+
+            if (postData && postData.categoryIds.length > 0 && options) {
+                // if there are categories in the post, set the selected categories
+                const selectedCategories = options.filter((option) =>
+                    postData.categoryIds.includes(option.id),
+                );
+                set({ selectedCategories });
+            }
         },
         setSelectedCategories: (selectedCategories) => {
-            const { setPendingCategoryIds } = get();
-            set({ selectedCategories: selectedCategories as IOption[] });
-            setPendingCategoryIds(selectedCategories as IOption[]);
-        },
-        setCategoryDisplay: () => {
-            const { categoryIds, categoryData } = get();
-            if (categoryData === 'loading' || categoryData === 'error') {
-                return;
-            }
-            // Make a new array of category names from categoryData that match the categoryIds
-            const categoryDisplay = (categoryData as Category[])
-                .filter((category) => categoryIds.includes(category.id))
-                .map((category) => category.name) as string[];
-            set({ categoryDisplay });
+            set({ selectedCategories });
         },
         setIsLoadingCategories: (isLoadingCategories) => {
             set({ isLoadingCategories });
@@ -200,24 +180,20 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
                 }
 
                 const {
-                    pendingCategoryIds,
+                    selectedCategories,
                     rawContent,
-                    categoryIds,
-                    postId,
+                    postData,
                     draftMode,
                     getTitle,
                     getDescription,
                     setTouched,
-                    setPostId,
+                    setPostData,
                     setDraftMode,
                     determineReadTime,
-                    setSelectedCategories,
                 } = get();
 
                 // find any new categories that were added
-                const newCategories = pendingCategoryIds.filter(
-                    (id) => !categoryIds.includes(id),
-                );
+                const newCategories = selectedCategories.map(({ id }) => id);
 
                 const newPost: SavePostParams = {
                     title: getTitle(),
@@ -231,17 +207,19 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
 
                 const updatePost: SavePostParams = {
                     ...newPost,
-                    id: postId,
+                    id: postData.id,
                 };
 
                 const savedPost = await postApi.upsertPost(
-                    postId.length > 0 ? updatePost : newPost,
+                    postData.id.length > 0 ? updatePost : newPost,
                 );
 
-                setPostId(savedPost.id);
+                setPostData({
+                    id: savedPost.id,
+                    categoryIds: savedPost.categoryIds,
+                });
                 setTouched(false);
                 setDraftMode(draftModeParam || draftMode);
-                setSelectedCategories([]);
 
                 toast.success('Saved...');
             } catch (err: any) {
