@@ -66,12 +66,17 @@ export const PreviewCard: React.FC<Props> = ({ post }) => {
                 {authUser && (
                     <button
                         type="button"
-                        className="mt-6 flex items-center"
+                        className="mt-6 flex items-center gap-2"
                         onClick={() => router.push(`/editor/${post.id}`)}
                     >
                         <span className="inline-flex items-center rounded-full bg-secondary bg-opacity-30 px-3 py-0.5 text-sm font-medium text-gray-800 hover:scale-110">
                             Edit
                         </span>
+                        {post.status === 'draft' && (
+                            <span className="inline-flex items-center rounded-full bg-alert bg-opacity-30 px-3 py-0.5 text-sm font-medium text-gray-800 hover:scale-110">
+                                Draft
+                            </span>
+                        )}
                     </button>
                 )}
             </div>

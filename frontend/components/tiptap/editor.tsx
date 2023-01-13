@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import {
     useEditor,
     EditorContent,
@@ -40,7 +41,11 @@ const CustomDocument = Document.extend({
 
 export const TipTap: React.FC<Props> = ({ isEditable, data }) => {
     const { authUser } = useFirebaseAuth();
+    const router = useRouter();
 
+    const selectedCategories = useEditorStore(
+        useCallback((state) => state.selectedCategories, []),
+    );
     const triggerDelayedSave = useEditorStore(
         useCallback((state) => state.triggerDelayedSave, []),
     );
@@ -49,6 +54,9 @@ export const TipTap: React.FC<Props> = ({ isEditable, data }) => {
     );
     const setRawContent = useEditorStore(
         useCallback((state) => state.setRawContent, []),
+    );
+    const setHtmlContent = useEditorStore(
+        useCallback((state) => state.setHtmlContent, []),
     );
     const savePost = useEditorStore(useCallback((state) => state.savePost, []));
     const setCharCount = useEditorStore(
@@ -93,6 +101,7 @@ export const TipTap: React.FC<Props> = ({ isEditable, data }) => {
         content: (data?.rawContent as JSONContent) || null,
         onUpdate: (editorObj) => {
             setRawContent(editorObj.editor.getJSON());
+            setHtmlContent(editorObj.editor.getHTML());
             setCharCount(editorObj.editor.getText().length);
             triggerDelayedSave(authUser);
         },
@@ -101,17 +110,32 @@ export const TipTap: React.FC<Props> = ({ isEditable, data }) => {
     return (
         <div className="z-30 mt-10">
             <div className="flex flex-wrap justify-start gap-5">
-                <Button onClick={() => savePost(authUser, false)}>
+                <Button
+                    onClick={() => {
+                        savePost(authUser, 'published');
+                        router.push('/');
+                    }}
+                >
                     Publish
                 </Button>
                 <Button
                     twClasses="bg-tertiary !border-tertiary"
                     secondary
-                    onClick={() => savePost(authUser, true)}
+                    onClick={() => savePost(authUser, 'draft')}
                 >
                     Save as draft
                 </Button>
                 <CategorySelect />
+            </div>
+            <div className="flex flex-row gap-3 mt-5">
+                {selectedCategories.map((category) => (
+                    <span
+                        key={category.name}
+                        className="inline-flex items-center rounded-full bg-secondary bg-opacity-30 px-3 py-0.5 text-sm font-medium text-gray-800"
+                    >
+                        {category.name}
+                    </span>
+                ))}
             </div>
             <div>
                 {editor && (

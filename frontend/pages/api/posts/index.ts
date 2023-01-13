@@ -58,7 +58,8 @@ const upsertPost = async (req: IPostRequest, res: NextApiResponse) => {
                         title: req.body.title,
                         description: req.body.description,
                         rawContent: req.body.rawContent,
-                        draftMode: req.body.draftMode,
+                        htmlContent: req.body.htmlContent,
+                        status: req.body.status,
                         readTime: req.body.readTime,
                         categories: {
                             connect: req.body.categoryIds?.map(
@@ -87,7 +88,8 @@ const upsertPost = async (req: IPostRequest, res: NextApiResponse) => {
                         title: req.body.title,
                         description: req.body.description,
                         rawContent: req.body.rawContent,
-                        draftMode: req.body.draftMode,
+                        htmlContent: req.body.htmlContent,
+                        status: req.body.status,
                         readTime: req.body.readTime,
                         categories: {
                             set: [],
