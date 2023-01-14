@@ -1,4 +1,5 @@
 import { Post } from '@prisma/client';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React from 'react';
 import { useFirebaseAuth } from '../../utils/contexts/firebaseProvider';
@@ -37,14 +38,18 @@ export const PreviewCard: React.FC<Props> = ({ post }) => {
                             </span>
                         ))}
                     </div>
-                    <p className="text-xl mt-3 font-semibold text-gray-900">
-                        {post.title}
-                    </p>
-                    <p className="mt-3 text-base text-gray-500">
-                        {post.description}
-                    </p>
+                    <Link href={`/posts/${post.id}`}>
+                        <div className="h-full cursor-pointer">
+                            <p className="mt-3 cursor-pointer text-xl font-semibold text-gray-900">
+                                {post.title}
+                            </p>
+                            <p className="mt-3 text-base text-gray-500 line-clamp-5">
+                                {post.description}
+                            </p>
+                        </div>
+                    </Link>
                 </div>
-                <div className="mt-6 flex items-center">
+                <div className="mt-2 flex items-center">
                     <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-tertiary bg-opacity-30">
                         <span className="text-xl font-medium leading-none text-gray-800">
                             {post.user.firstName[0]}

@@ -106,12 +106,12 @@ export const Auth: React.FC<AuthProps> = ({ open, setOpen, mode }) => {
                     leaveFrom="opacity-100"
                     leaveTo="opacity-0"
                 >
-                    <div className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
+                    <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
                 </Transition.Child>
 
                 <div className="fixed inset-0 overflow-hidden">
                     <div className="absolute inset-0 overflow-hidden">
-                        <div className="fixed inset-y-0 right-0 flex max-w-full pl-10 pointer-events-none">
+                        <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
                             <Transition.Child
                                 as={Fragment}
                                 enter="transform transition ease-in-out duration-200"
@@ -121,8 +121,8 @@ export const Auth: React.FC<AuthProps> = ({ open, setOpen, mode }) => {
                                 leaveFrom="translate-x-0"
                                 leaveTo="translate-x-full"
                             >
-                                <Dialog.Panel className="w-screen max-w-md pointer-events-auto">
-                                    <div className="flex flex-col h-full py-6 overflow-y-scroll bg-white shadow-xl">
+                                <Dialog.Panel className="pointer-events-auto w-screen max-w-md">
+                                    <div className="flex h-full flex-col overflow-y-scroll bg-white py-6 shadow-xl">
                                         <div className="px-4 sm:px-6">
                                             <div className="flex items-start justify-between">
                                                 <Dialog.Title className="text-2xl font-thin text-sky-900">
@@ -130,23 +130,23 @@ export const Auth: React.FC<AuthProps> = ({ open, setOpen, mode }) => {
                                                         ? 'Sign In'
                                                         : 'Sign Up'}
                                                 </Dialog.Title>
-                                                <div className="flex items-center ml-3 h-7">
+                                                <div className="ml-3 flex h-7 items-center">
                                                     <button
                                                         type="button"
-                                                        className="text-gray-400 bg-white rounded-md hover:text-gray-500 focus:outline-none"
+                                                        className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none"
                                                         onClick={() =>
                                                             setOpen(false)
                                                         }
                                                     >
                                                         <XIcon
-                                                            className="w-6 h-6"
+                                                            className="h-6 w-6"
                                                             aria-hidden="true"
                                                         />
                                                     </button>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="relative flex-1 px-4 mt-6 sm:px-6">
+                                        <div className="relative mt-6 flex-1 px-4 sm:px-6">
                                             <form
                                                 className="mt-8 space-y-6"
                                                 onSubmit={(e) =>
@@ -181,7 +181,7 @@ export const Auth: React.FC<AuthProps> = ({ open, setOpen, mode }) => {
                                                                 name="firstName"
                                                                 type="text"
                                                                 required
-                                                                className="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-none appearance-none rounded-t-md focus:outline-none focus:ring-tertiary focus:border-tertiary focus:z-10 sm:text-sm"
+                                                                className="relative block w-full appearance-none rounded-none rounded-t-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-tertiary focus:outline-none focus:ring-tertiary sm:text-sm"
                                                                 placeholder="First Name"
                                                             />
                                                         </div>
@@ -206,7 +206,7 @@ export const Auth: React.FC<AuthProps> = ({ open, setOpen, mode }) => {
                                                                 name="lastName"
                                                                 type="text"
                                                                 required
-                                                                className="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-none appearance-none rounded-b-md focus:outline-none focus:ring-highlight focus:border-highlight focus:z-10 sm:text-sm"
+                                                                className="relative block w-full appearance-none rounded-none rounded-b-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-highlight focus:outline-none focus:ring-highlight sm:text-sm"
                                                                 placeholder="Last Name"
                                                             />
                                                         </div>
@@ -235,7 +235,7 @@ export const Auth: React.FC<AuthProps> = ({ open, setOpen, mode }) => {
                                                             type="email"
                                                             autoComplete="email"
                                                             required
-                                                            className="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-none appearance-none rounded-t-md focus:outline-none focus:ring-tertiary focus:border-tertiary focus:z-10 sm:text-sm"
+                                                            className="relative block w-full appearance-none rounded-none rounded-t-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-tertiary focus:outline-none focus:ring-tertiary sm:text-sm"
                                                             placeholder="Email address"
                                                         />
                                                     </div>
@@ -261,7 +261,7 @@ export const Auth: React.FC<AuthProps> = ({ open, setOpen, mode }) => {
                                                             type="password"
                                                             autoComplete="current-password"
                                                             required
-                                                            className="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-none appearance-none rounded-b-md focus:outline-none focus:ring-highlight focus:border-highlight focus:z-10 sm:text-sm"
+                                                            className="relative block w-full appearance-none rounded-none rounded-b-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-highlight focus:outline-none focus:ring-highlight sm:text-sm"
                                                             placeholder="Password"
                                                         />
                                                     </div>
@@ -272,11 +272,11 @@ export const Auth: React.FC<AuthProps> = ({ open, setOpen, mode }) => {
                                                             id="remember-me"
                                                             name="remember-me"
                                                             type="checkbox"
-                                                            className="w-4 h-4 rounded border-secondary text-primary"
+                                                            className="h-4 w-4 rounded border-secondary text-primary"
                                                         />
                                                         <label
                                                             htmlFor="remember-me"
-                                                            className="block ml-2 text-sm text-primary"
+                                                            className="ml-2 block text-sm text-primary"
                                                         >
                                                             Remember Me
                                                         </label>
@@ -297,11 +297,11 @@ export const Auth: React.FC<AuthProps> = ({ open, setOpen, mode }) => {
                                                 <div>
                                                     <button
                                                         type="submit"
-                                                        className="relative flex justify-center w-full px-4 py-2 text-sm font-medium text-white border border-transparent rounded-md group bg-tertiary hover:bg-secondary hover:bg-opacity-70 focus:outline-none"
+                                                        className="group relative flex w-full justify-center rounded-md border border-transparent bg-tertiary px-4 py-2 text-sm font-medium text-white hover:bg-secondary hover:bg-opacity-70 focus:outline-none"
                                                     >
                                                         <span className="absolute inset-y-0 left-0 flex items-center pl-3">
                                                             <LockClosedIcon
-                                                                className="w-5 h-5 text-secondary group-hover:text-primary"
+                                                                className="h-5 w-5 text-secondary group-hover:text-primary"
                                                                 aria-hidden="true"
                                                             />
                                                         </span>
