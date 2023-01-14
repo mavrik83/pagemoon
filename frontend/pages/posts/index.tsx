@@ -5,6 +5,7 @@ import {
     PreviewCard,
 } from '../../components/preview/previewCard';
 import { useFirebaseAuth } from '../../utils/contexts/firebaseProvider';
+import prisma from '../../lib/prisma';
 
 interface Props {
     posts: IPostPreview[];
