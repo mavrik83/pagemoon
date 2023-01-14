@@ -7,6 +7,7 @@ const nextConfig = {
             'via.placeholder.com',
             'dummyimage.com',
             'images.unsplash.com',
+            'source.unsplash.com',
         ],
     },
 };

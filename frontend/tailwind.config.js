@@ -22,6 +22,9 @@ module.exports = {
             boxShadow: {
                 '3xl': '0 35px 60px -15px rgba(0, 0, 0, 0.3)',
             },
+            height: {
+                'screen-1/2': '50vh',
+            },
         },
     },
     plugins: [
@@ -30,5 +33,6 @@ module.exports = {
             strategy: 'class', // only generate classes
         }),
         require('@tailwindcss/aspect-ratio'),
+        require('@tailwindcss/line-clamp'),
     ],
 };

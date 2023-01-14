@@ -2,6 +2,13 @@ import { Category } from '@prisma/client';
 import { JSONContent } from '@tiptap/react';
 import { toast } from 'react-hot-toast';
 import create from 'zustand';
+import StarterKit from '@tiptap/starter-kit';
+import Document from '@tiptap/extension-document';
+import Underline from '@tiptap/extension-underline';
+import Placeholder from '@tiptap/extension-placeholder';
+import Typography from '@tiptap/extension-typography';
+import TextAlign from '@tiptap/extension-text-align';
+import { generateHTML } from '@tiptap/html';
 import { SavePostParams } from '../../utils/api/Posts';
 import { categoryApi, postApi } from '../../utils/api';
 import { FUser } from '../../utils/contexts/firebaseProvider';
@@ -188,7 +195,6 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
                 const {
                     selectedCategories,
                     rawContent,
-                    htmlContent,
                     postData,
                     status,
                     getTitle,
@@ -196,8 +202,18 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
                     setTouched,
                     setPostData,
                     setStatus,
+                    setHtmlContent,
                     determineReadTime,
                 } = get();
+
+                const htmlContentGen = generateHTML(rawContent, [
+                    StarterKit,
+                    Document,
+                    Underline,
+                    Placeholder,
+                    TextAlign,
+                    Typography,
+                ]);
 
                 // find any new categories that were added
                 const newCategories = selectedCategories.map(({ id }) => id);
@@ -206,7 +222,7 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
                     title: getTitle(),
                     description: getDescription(),
                     rawContent,
-                    htmlContent,
+                    htmlContent: htmlContentGen,
                     status: statusParam || status,
                     categoryIds: newCategories,
                     userUid: authUser.uid,
@@ -228,6 +244,7 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
                 });
                 setTouched(false);
                 setStatus(statusParam || status);
+                setHtmlContent(savedPost.htmlContent || '');
 
                 toast.success('Saved...');
             } catch (err: any) {
