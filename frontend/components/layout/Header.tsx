@@ -72,9 +72,11 @@ export const Header: React.FC<Props> = () => {
                                 ))}
                         </div>
                     </div>
-                    <div className='ml-10 hidden space-x-8 text-lg text-tertiary sm:block'>
-                        Hi, {authUser?.email}
-                    </div>
+                    {authUser && (
+                        <div className='ml-10 hidden space-x-8 text-lg text-tertiary sm:block'>
+                            Hi, {authUser?.email}
+                        </div>
+                    )}
                     <Menu
                         as='div'
                         className='relative inline-block text-left sm:hidden'
