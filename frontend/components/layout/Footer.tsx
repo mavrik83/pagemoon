@@ -20,29 +20,20 @@ export const Footer: FC<Props> = ({ setAuthModalOpen, setMode }) => {
                     aria-label='Footer'
                 >
                     <Link href='/' className='pb-6'>
-                        <a
-                            href='/'
-                            className='text-sm leading-6 text-neutral-600 hover:text-neutral-900'
-                        >
+                        <div className='cursor-pointer text-sm leading-6 text-neutral-600 hover:text-neutral-900'>
                             Home
-                        </a>
+                        </div>
                     </Link>
                     <Link href='/posts' className='pb-6'>
-                        <a
-                            href='/posts'
-                            className='text-sm leading-6 text-neutral-600 hover:text-neutral-900'
-                        >
+                        <div className='cursor-pointer text-sm leading-6 text-neutral-600 hover:text-neutral-900'>
                             All Reviews
-                        </a>
+                        </div>
                     </Link>
                     {authUser && (
                         <Link href='/editor' className='pb-6'>
-                            <a
-                                href='/editor'
-                                className='text-sm leading-6 text-neutral-600 hover:text-neutral-900'
-                            >
+                            <div className='cursor-pointer text-sm leading-6 text-neutral-600 hover:text-neutral-900'>
                                 Create New
-                            </a>
+                            </div>
                         </Link>
                     )}
                     {!authUser ? (
