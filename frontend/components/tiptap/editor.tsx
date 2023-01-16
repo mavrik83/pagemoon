@@ -92,7 +92,7 @@ export const TipTap: React.FC<Props> = ({ isEditable, data }) => {
         ],
         editorProps: {
             attributes: {
-                class: 'prose prose-lg prose-stone my-10 outline-none prose-p:leading-none prose-li:leading-none prose-h1:text-3xl prose-h1:font-light prose-h2:font-light prose-h3:font-light prose-h2:text-2xl prose-h3:text-xl placeholder-text:text-gray-500 prose-strong:font-extrabold font-light',
+                class: 'prose prose-lg prose-neutral my-10 outline-none prose-p:leading-normal prose-li:leading-none prose-h1:text-3xl prose-h1:font-light prose-h2:font-light prose-h3:font-light prose-h2:text-2xl prose-h3:text-xl placeholder-text:text-neutral-500 prose-strong:font-extrabold font-light',
             },
         },
         content: (data?.rawContent as JSONContent) || null,
@@ -104,8 +104,8 @@ export const TipTap: React.FC<Props> = ({ isEditable, data }) => {
     });
 
     return (
-        <div className="z-30 mt-10">
-            <div className="flex flex-wrap justify-start gap-5">
+        <div className='z-30 mt-10'>
+            <div className='flex flex-wrap justify-start gap-5'>
                 <Button
                     onClick={() => {
                         savePost(authUser, 'published');
@@ -115,7 +115,7 @@ export const TipTap: React.FC<Props> = ({ isEditable, data }) => {
                     Publish
                 </Button>
                 <Button
-                    twClasses="bg-tertiary !border-tertiary"
+                    twClasses='bg-tertiary !border-tertiary'
                     secondary
                     onClick={() => savePost(authUser, 'draft')}
                 >
@@ -123,11 +123,11 @@ export const TipTap: React.FC<Props> = ({ isEditable, data }) => {
                 </Button>
                 <CategorySelect />
             </div>
-            <div className="mt-5 flex flex-row gap-3">
+            <div className='mt-5 grid grid-cols-4 gap-3 sm:flex sm:flex-row'>
                 {selectedCategories.map((category) => (
                     <span
                         key={category.name}
-                        className="inline-flex items-center rounded-full bg-secondary bg-opacity-30 px-3 py-0.5 text-sm font-medium text-gray-800"
+                        className='inline-flex items-center rounded-full bg-secondary bg-opacity-30 px-3 py-0.5 text-sm font-medium'
                     >
                         {category.name}
                     </span>
@@ -137,17 +137,17 @@ export const TipTap: React.FC<Props> = ({ isEditable, data }) => {
                 {editor && (
                     <div>
                         <BubbleMenu
-                            className="flex gap-2 rounded-lg border border-secondary bg-secondary bg-opacity-50 p-1 backdrop-blur-sm focus:rounded-lg "
+                            className='flex gap-2 rounded-lg border border-secondary bg-secondary bg-opacity-50 p-1 backdrop-blur-sm focus:rounded-lg '
                             tippyOptions={{ duration: 100, zIndex: 20 }}
                             editor={editor}
                         >
                             <button
-                                type="button"
+                                type='button'
                                 onClick={() =>
                                     editor.chain().focus().toggleBold().run()
                                 }
                                 className={classNames(
-                                    'border-none bg-none px-1 py-0 text-sm font-extrabold text-black opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
+                                    'border-none bg-none px-1 py-0 text-sm font-extrabold opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
                                     editor.isActive('bold')
                                         ? 'rounded-lg bg-secondary opacity-60'
                                         : '',
@@ -156,12 +156,12 @@ export const TipTap: React.FC<Props> = ({ isEditable, data }) => {
                                 <TbBold />
                             </button>
                             <button
-                                type="button"
+                                type='button'
                                 onClick={() =>
                                     editor.chain().focus().toggleItalic().run()
                                 }
                                 className={classNames(
-                                    'border-none bg-none px-1 py-0 text-sm font-extrabold text-black opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
+                                    'border-none bg-none px-1 py-0 text-sm font-extrabold opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
                                     editor.isActive('italic')
                                         ? 'rounded-lg bg-secondary opacity-60'
                                         : '',
@@ -170,7 +170,7 @@ export const TipTap: React.FC<Props> = ({ isEditable, data }) => {
                                 <TbItalic />
                             </button>
                             <button
-                                type="button"
+                                type='button'
                                 onClick={() =>
                                     editor
                                         .chain()
@@ -179,7 +179,7 @@ export const TipTap: React.FC<Props> = ({ isEditable, data }) => {
                                         .run()
                                 }
                                 className={classNames(
-                                    'border-none bg-none px-1 py-0 text-sm font-extrabold text-black opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
+                                    'border-none bg-none px-1 py-0 text-sm font-extrabold opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
                                     editor.isActive('underline')
                                         ? 'rounded-lg bg-secondary opacity-60'
                                         : '',
@@ -188,7 +188,7 @@ export const TipTap: React.FC<Props> = ({ isEditable, data }) => {
                                 <TbUnderline />
                             </button>
                             <button
-                                type="button"
+                                type='button'
                                 onClick={() =>
                                     editor
                                         .chain()
@@ -197,7 +197,7 @@ export const TipTap: React.FC<Props> = ({ isEditable, data }) => {
                                         .run()
                                 }
                                 className={classNames(
-                                    'border-none bg-none px-1 py-0 text-sm font-extrabold text-black opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
+                                    'border-none bg-none px-1 py-0 text-sm font-extrabold opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
                                     editor.isActive('blockquote')
                                         ? 'rounded-lg bg-secondary opacity-60'
                                         : '',
@@ -212,7 +212,7 @@ export const TipTap: React.FC<Props> = ({ isEditable, data }) => {
                 {editor && (
                     <div>
                         <FloatingMenu
-                            className="flex gap-2 rounded-lg border border-secondary bg-secondary bg-opacity-50 p-1 focus:rounded-lg"
+                            className='flex gap-2 rounded-lg border border-secondary bg-secondary bg-opacity-50 p-1 focus:rounded-lg'
                             tippyOptions={{
                                 duration: 100,
                                 placement: 'bottom-start',
@@ -221,7 +221,7 @@ export const TipTap: React.FC<Props> = ({ isEditable, data }) => {
                             editor={editor}
                         >
                             <button
-                                type="button"
+                                type='button'
                                 onClick={() =>
                                     editor
                                         .chain()
@@ -230,7 +230,7 @@ export const TipTap: React.FC<Props> = ({ isEditable, data }) => {
                                         .run()
                                 }
                                 className={classNames(
-                                    'inline-flex items-center justify-center border-none bg-none px-1 py-0 text-sm font-medium text-black opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
+                                    'inline-flex items-center justify-center border-none bg-none px-1 py-0 text-sm font-medium opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
                                     editor.isActive('heading', { level: 1 })
                                         ? 'rounded-lg bg-secondary opacity-60'
                                         : '',
@@ -239,7 +239,7 @@ export const TipTap: React.FC<Props> = ({ isEditable, data }) => {
                                 <TbHeading />1
                             </button>
                             <button
-                                type="button"
+                                type='button'
                                 onClick={() =>
                                     editor
                                         .chain()
@@ -248,7 +248,7 @@ export const TipTap: React.FC<Props> = ({ isEditable, data }) => {
                                         .run()
                                 }
                                 className={classNames(
-                                    'inline-flex items-center justify-center border-none bg-none px-1 py-0 text-sm font-medium text-black opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
+                                    'inline-flex items-center justify-center border-none bg-none px-1 py-0 text-sm font-medium opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
                                     editor.isActive('heading', { level: 2 })
                                         ? 'rounded-lg bg-secondary opacity-60'
                                         : '',
@@ -257,7 +257,7 @@ export const TipTap: React.FC<Props> = ({ isEditable, data }) => {
                                 <TbHeading />2
                             </button>
                             <button
-                                type="button"
+                                type='button'
                                 onClick={() =>
                                     editor
                                         .chain()
@@ -266,7 +266,7 @@ export const TipTap: React.FC<Props> = ({ isEditable, data }) => {
                                         .run()
                                 }
                                 className={classNames(
-                                    'inline-flex items-center justify-center border-none bg-none px-1 py-0 text-sm font-medium text-black opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
+                                    'inline-flex items-center justify-center border-none bg-none px-1 py-0 text-sm font-medium opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
                                     editor.isActive('heading', { level: 3 })
                                         ? 'rounded-lg bg-secondary opacity-60'
                                         : '',
@@ -275,7 +275,7 @@ export const TipTap: React.FC<Props> = ({ isEditable, data }) => {
                                 <TbHeading />3
                             </button>
                             <button
-                                type="button"
+                                type='button'
                                 onClick={() =>
                                     editor
                                         .chain()
@@ -284,7 +284,7 @@ export const TipTap: React.FC<Props> = ({ isEditable, data }) => {
                                         .run()
                                 }
                                 className={classNames(
-                                    'inline-flex items-center justify-center border-none bg-none px-1 py-0 text-sm font-medium text-black opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
+                                    'inline-flex items-center justify-center border-none bg-none px-1 py-0 text-sm font-medium opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
                                     editor.isActive('bulletlist')
                                         ? 'rounded-lg bg-secondary opacity-60'
                                         : '',
@@ -293,7 +293,7 @@ export const TipTap: React.FC<Props> = ({ isEditable, data }) => {
                                 <TbList />
                             </button>
                             <button
-                                type="button"
+                                type='button'
                                 onClick={() =>
                                     editor
                                         .chain()
@@ -302,7 +302,7 @@ export const TipTap: React.FC<Props> = ({ isEditable, data }) => {
                                         .run()
                                 }
                                 className={classNames(
-                                    'inline-flex items-center justify-center border-none bg-none px-1 py-0 text-sm font-medium text-black opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
+                                    'inline-flex items-center justify-center border-none bg-none px-1 py-0 text-sm font-medium opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
                                     editor.isActive('orderedlist')
                                         ? 'rounded-lg bg-secondary opacity-60'
                                         : '',
@@ -311,7 +311,7 @@ export const TipTap: React.FC<Props> = ({ isEditable, data }) => {
                                 <TbListNumbers />
                             </button>
                             <button
-                                type="button"
+                                type='button'
                                 onClick={() =>
                                     editor
                                         .chain()
@@ -320,7 +320,7 @@ export const TipTap: React.FC<Props> = ({ isEditable, data }) => {
                                         .run()
                                 }
                                 className={classNames(
-                                    'inline-flex items-center justify-center border-none bg-none px-1 py-0 text-sm font-medium text-black opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
+                                    'inline-flex items-center justify-center border-none bg-none px-1 py-0 text-sm font-medium opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
                                     editor.isActive('blockquote')
                                         ? 'rounded-lg bg-secondary opacity-60'
                                         : '',

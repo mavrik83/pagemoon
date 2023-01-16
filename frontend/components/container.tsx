@@ -10,6 +10,7 @@ const Container: React.FC<Props> = ({ children, twClasses = '' }) => {
     const baseClasses = twc`
         max-w-7xl
         mx-auto
+        min-h-screen
         px-4
         sm:px-6
         lg:px-8

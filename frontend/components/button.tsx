@@ -27,7 +27,7 @@ const Button: React.FC<Props> = ({
         primary:
             'text-white bg-secondary hover:bg-opacity-90 border border-secondary',
         secondary:
-            'text-black bg-secondary bg-opacity-20 border border-secondary hover:opacity-90',
+            'text-neutral-800 bg-secondary bg-opacity-20 border border-secondary hover:opacity-90',
         default: 'text-white bg-primary hover:opacity-90 border border-primary',
     };
 
@@ -60,7 +60,7 @@ const Button: React.FC<Props> = ({
     const classes = classNames(mergeStrings(baseClasses, twClasses));
 
     return (
-        <button type="button" className={classes} onClick={onClick}>
+        <button type='button' className={classes} onClick={onClick}>
             {children}
         </button>
     );

@@ -96,74 +96,74 @@ export const Auth: React.FC<AuthProps> = ({ open, setOpen, mode }) => {
 
     return (
         <Transition.Root show={open} as={Fragment}>
-            <Dialog as="div" className="relative z-50" onClose={setOpen}>
+            <Dialog as='div' className='relative z-50' onClose={setOpen}>
                 <Transition.Child
                     as={Fragment}
-                    enter="ease-in-out duration-200"
-                    enterFrom="opacity-0"
-                    enterTo="opacity-100"
-                    leave="ease-in-out duration-200"
-                    leaveFrom="opacity-100"
-                    leaveTo="opacity-0"
+                    enter='ease-in-out duration-200'
+                    enterFrom='opacity-0'
+                    enterTo='opacity-100'
+                    leave='ease-in-out duration-200'
+                    leaveFrom='opacity-100'
+                    leaveTo='opacity-0'
                 >
-                    <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+                    <div className='fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity' />
                 </Transition.Child>
 
-                <div className="fixed inset-0 overflow-hidden">
-                    <div className="absolute inset-0 overflow-hidden">
-                        <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
+                <div className='fixed inset-0 overflow-hidden'>
+                    <div className='absolute inset-0 overflow-hidden'>
+                        <div className='pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10'>
                             <Transition.Child
                                 as={Fragment}
-                                enter="transform transition ease-in-out duration-200"
-                                enterFrom="translate-x-full"
-                                enterTo="translate-x-0"
-                                leave="transform transition ease-in-out duration-200"
-                                leaveFrom="translate-x-0"
-                                leaveTo="translate-x-full"
+                                enter='transform transition ease-in-out duration-200'
+                                enterFrom='translate-x-full'
+                                enterTo='translate-x-0'
+                                leave='transform transition ease-in-out duration-200'
+                                leaveFrom='translate-x-0'
+                                leaveTo='translate-x-full'
                             >
-                                <Dialog.Panel className="pointer-events-auto w-screen max-w-md">
-                                    <div className="flex h-full flex-col overflow-y-scroll bg-white py-6 shadow-xl">
-                                        <div className="px-4 sm:px-6">
-                                            <div className="flex items-start justify-between">
-                                                <Dialog.Title className="text-2xl font-thin text-sky-900">
+                                <Dialog.Panel className='pointer-events-auto w-screen max-w-md'>
+                                    <div className='flex h-full flex-col overflow-y-scroll bg-white py-6 shadow-xl'>
+                                        <div className='px-4 sm:px-6'>
+                                            <div className='flex items-start justify-between'>
+                                                <Dialog.Title className='text-2xl font-thin text-sky-900'>
                                                     {mode === 'signin'
                                                         ? 'Sign In'
                                                         : 'Sign Up'}
                                                 </Dialog.Title>
-                                                <div className="ml-3 flex h-7 items-center">
+                                                <div className='ml-3 flex h-7 items-center'>
                                                     <button
-                                                        type="button"
-                                                        className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none"
+                                                        type='button'
+                                                        className='rounded-md bg-white hover:text-neutral-900 focus:outline-none'
                                                         onClick={() =>
                                                             setOpen(false)
                                                         }
                                                     >
                                                         <XIcon
-                                                            className="h-6 w-6"
-                                                            aria-hidden="true"
+                                                            className='h-6 w-6'
+                                                            aria-hidden='true'
                                                         />
                                                     </button>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="relative mt-6 flex-1 px-4 sm:px-6">
+                                        <div className='relative mt-6 flex-1 px-4 sm:px-6'>
                                             <form
-                                                className="mt-8 space-y-6"
+                                                className='mt-8 space-y-6'
                                                 onSubmit={(e) =>
                                                     handlers.handleSubmit(e)
                                                 }
                                             >
                                                 <input
-                                                    type="hidden"
-                                                    name="remember"
-                                                    defaultValue="true"
+                                                    type='hidden'
+                                                    name='remember'
+                                                    defaultValue='true'
                                                 />
                                                 {mode === 'signup' && (
-                                                    <div className="-space-y-px rounded-md shadow-sm">
+                                                    <div className='-space-y-px rounded-md shadow-sm'>
                                                         <div>
                                                             <label
-                                                                htmlFor="first-name"
-                                                                className="sr-only"
+                                                                htmlFor='first-name'
+                                                                className='sr-only'
                                                             >
                                                                 First Name
                                                             </label>
@@ -177,18 +177,18 @@ export const Auth: React.FC<AuthProps> = ({ open, setOpen, mode }) => {
                                                                         e,
                                                                     )
                                                                 }
-                                                                id="first-name"
-                                                                name="firstName"
-                                                                type="text"
+                                                                id='first-name'
+                                                                name='firstName'
+                                                                type='text'
                                                                 required
-                                                                className="relative block w-full appearance-none rounded-none rounded-t-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-tertiary focus:outline-none focus:ring-tertiary sm:text-sm"
-                                                                placeholder="First Name"
+                                                                className='relative block w-full appearance-none rounded-none rounded-t-md border border-gray-300 px-3 py-2 placeholder-gray-500 focus:z-10 focus:border-tertiary focus:outline-none focus:ring-tertiary sm:text-sm'
+                                                                placeholder='First Name'
                                                             />
                                                         </div>
                                                         <div>
                                                             <label
-                                                                htmlFor="last-name"
-                                                                className="sr-only"
+                                                                htmlFor='last-name'
+                                                                className='sr-only'
                                                             >
                                                                 Last Name
                                                             </label>
@@ -202,21 +202,21 @@ export const Auth: React.FC<AuthProps> = ({ open, setOpen, mode }) => {
                                                                         e,
                                                                     )
                                                                 }
-                                                                id="last-name"
-                                                                name="lastName"
-                                                                type="text"
+                                                                id='last-name'
+                                                                name='lastName'
+                                                                type='text'
                                                                 required
-                                                                className="relative block w-full appearance-none rounded-none rounded-b-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-highlight focus:outline-none focus:ring-highlight sm:text-sm"
-                                                                placeholder="Last Name"
+                                                                className='relative block w-full appearance-none rounded-none rounded-b-md border border-gray-300 px-3 py-2  placeholder-gray-500 focus:z-10 focus:border-highlight focus:outline-none focus:ring-highlight sm:text-sm'
+                                                                placeholder='Last Name'
                                                             />
                                                         </div>
                                                     </div>
                                                 )}
-                                                <div className="-space-y-px rounded-md shadow-sm">
+                                                <div className='-space-y-px rounded-md shadow-sm'>
                                                     <div>
                                                         <label
-                                                            htmlFor="email-address"
-                                                            className="sr-only"
+                                                            htmlFor='email-address'
+                                                            className='sr-only'
                                                         >
                                                             Email address
                                                         </label>
@@ -230,19 +230,19 @@ export const Auth: React.FC<AuthProps> = ({ open, setOpen, mode }) => {
                                                                     e,
                                                                 )
                                                             }
-                                                            id="email-address"
-                                                            name="email"
-                                                            type="email"
-                                                            autoComplete="email"
+                                                            id='email-address'
+                                                            name='email'
+                                                            type='email'
+                                                            autoComplete='email'
                                                             required
-                                                            className="relative block w-full appearance-none rounded-none rounded-t-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-tertiary focus:outline-none focus:ring-tertiary sm:text-sm"
-                                                            placeholder="Email address"
+                                                            className='relative block w-full appearance-none rounded-none rounded-t-md border border-gray-300 px-3 py-2 placeholder-gray-500 focus:z-10 focus:border-tertiary focus:outline-none focus:ring-tertiary sm:text-sm'
+                                                            placeholder='Email address'
                                                         />
                                                     </div>
                                                     <div>
                                                         <label
-                                                            htmlFor="password"
-                                                            className="sr-only"
+                                                            htmlFor='password'
+                                                            className='sr-only'
                                                         >
                                                             Password
                                                         </label>
@@ -256,36 +256,36 @@ export const Auth: React.FC<AuthProps> = ({ open, setOpen, mode }) => {
                                                                     e,
                                                                 )
                                                             }
-                                                            id="password"
-                                                            name="password"
-                                                            type="password"
-                                                            autoComplete="current-password"
+                                                            id='password'
+                                                            name='password'
+                                                            type='password'
+                                                            autoComplete='current-password'
                                                             required
-                                                            className="relative block w-full appearance-none rounded-none rounded-b-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-highlight focus:outline-none focus:ring-highlight sm:text-sm"
-                                                            placeholder="Password"
+                                                            className='relative block w-full appearance-none rounded-none rounded-b-md border border-gray-300 px-3 py-2  placeholder-gray-500 focus:z-10 focus:border-highlight focus:outline-none focus:ring-highlight sm:text-sm'
+                                                            placeholder='Password'
                                                         />
                                                     </div>
                                                 </div>
-                                                <div className="flex items-center justify-between">
-                                                    <div className="flex items-center">
+                                                <div className='flex items-center justify-between'>
+                                                    <div className='flex items-center'>
                                                         <input
-                                                            id="remember-me"
-                                                            name="remember-me"
-                                                            type="checkbox"
-                                                            className="h-4 w-4 rounded border-secondary text-primary"
+                                                            id='remember-me'
+                                                            name='remember-me'
+                                                            type='checkbox'
+                                                            className='h-4 w-4 rounded border-secondary text-primary'
                                                         />
                                                         <label
-                                                            htmlFor="remember-me"
-                                                            className="ml-2 block text-sm text-primary"
+                                                            htmlFor='remember-me'
+                                                            className='ml-2 block text-sm text-primary'
                                                         >
                                                             Remember Me
                                                         </label>
                                                     </div>
                                                     {mode === 'signin' && (
-                                                        <div className="text-sm">
+                                                        <div className='text-sm'>
                                                             <a
-                                                                href="/forgot-password"
-                                                                className="font-medium text-primary hover:text-opacity-70"
+                                                                href='/forgot-password'
+                                                                className='font-medium text-primary hover:text-opacity-70'
                                                             >
                                                                 Forgot your
                                                                 password?
@@ -296,13 +296,13 @@ export const Auth: React.FC<AuthProps> = ({ open, setOpen, mode }) => {
 
                                                 <div>
                                                     <button
-                                                        type="submit"
-                                                        className="group relative flex w-full justify-center rounded-md border border-transparent bg-tertiary px-4 py-2 text-sm font-medium text-white hover:bg-secondary hover:bg-opacity-70 focus:outline-none"
+                                                        type='submit'
+                                                        className='group relative flex w-full justify-center rounded-md border border-transparent bg-tertiary px-4 py-2 text-sm font-medium text-white hover:bg-secondary hover:bg-opacity-70 focus:outline-none'
                                                     >
-                                                        <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+                                                        <span className='absolute inset-y-0 left-0 flex items-center pl-3'>
                                                             <LockClosedIcon
-                                                                className="h-5 w-5 text-secondary group-hover:text-primary"
-                                                                aria-hidden="true"
+                                                                className='h-5 w-5 text-secondary group-hover:text-primary'
+                                                                aria-hidden='true'
                                                             />
                                                         </span>
                                                         {mode === 'signin'
