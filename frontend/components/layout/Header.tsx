@@ -20,8 +20,8 @@ interface MenuProps {
 }
 
 const navigation = [
-    { name: 'Create Article', href: '/editor' },
-    { name: 'All Reviews', href: '/posts' },
+    { name: 'Create Article', href: '/editor', adminOnly: true },
+    { name: 'All Reviews', href: '/posts', adminOnly: false },
 ];
 
 export const MyLink = forwardRef((props: ComponentPropsWithRef<any>, ref) => {
@@ -50,27 +50,30 @@ export const Header: React.FC = () => {
     return (
         <>
             <Auth open={open} setOpen={setOpen} mode={mode} />
-            <header className="sticky top-0 z-40 bg-white bg-opacity-50 font-light shadow-xl backdrop-blur-sm">
+            <header className='sticky top-0 z-40 bg-white bg-opacity-50 font-light shadow-xl backdrop-blur-sm'>
                 <nav
-                    className="mx-auto max-w-7xl px-4 pb-2 backdrop-blur-sm sm:px-6 lg:px-8"
-                    aria-label="Top"
+                    className='mx-auto max-w-7xl px-4 pb-2 backdrop-blur-sm sm:px-6 lg:px-8'
+                    aria-label='Top'
                 >
-                    <div className="flex w-full items-center justify-between py-2">
-                        <div className="flex items-center">
-                            <MyLink href="/">
-                                <WiMoonAltWaxingCrescent3 className="h-14 w-auto rotate-45 text-primary lg:transition-colors lg:duration-300 lg:ease-in-out lg:hover:text-secondary lg:hover:text-opacity-90" />
+                    <div className='flex w-full items-center justify-between py-2'>
+                        <div className='flex items-center'>
+                            <MyLink href='/'>
+                                <WiMoonAltWaxingCrescent3 className='h-14 w-auto rotate-45 text-primary lg:transition-colors lg:duration-300 lg:ease-in-out lg:hover:text-secondary lg:hover:text-opacity-90' />
                             </MyLink>
-                            <MyLink href="/">
-                                <div className="hidden text-3xl text-primary sm:block">
+                            <MyLink href='/'>
+                                <div className='hidden text-3xl text-primary sm:block'>
                                     PageMoon
                                 </div>
                             </MyLink>
-                            <div className="ml-10 hidden space-x-8 sm:block">
+                            <div className='ml-10 hidden space-x-8 sm:block'>
                                 {navigation.map((link) => (
                                     <MyLink
                                         key={link.name}
                                         href={link.href}
-                                        className="text-lg text-secondary transition-colors duration-300 ease-in-out hover:text-tertiary "
+                                        className={classNames(
+                                            link.adminOnly ? 'hidden' : '',
+                                            'text-lg text-secondary transition-colors duration-300 ease-in-out hover:text-tertiary',
+                                        )}
                                     >
                                         {link.name}
                                     </MyLink>
@@ -80,18 +83,18 @@ export const Header: React.FC = () => {
                         {!authLoading ? (
                             <div>
                                 {authUser ? (
-                                    <div className="group hidden flex-shrink-0 sm:block">
-                                        <div className="flex items-center">
-                                            <div className="inline-block h-10 w-10 overflow-hidden rounded">
+                                    <div className='group hidden flex-shrink-0 sm:block'>
+                                        <div className='flex items-center'>
+                                            <div className='inline-block h-10 w-10 overflow-hidden rounded'>
                                                 <MyLink
                                                     href={`user/${authUser.uid}`}
                                                 >
-                                                    <SiAboutdotme className="h-10 w-auto text-primary" />
+                                                    <SiAboutdotme className='h-10 w-auto text-primary' />
                                                 </MyLink>
                                             </div>
-                                            <div className="ml-3">
+                                            <div className='ml-3'>
                                                 <button
-                                                    type="button"
+                                                    type='button'
                                                     onClick={() =>
                                                         auth
                                                             .signOut()
@@ -106,7 +109,7 @@ export const Header: React.FC = () => {
                                                             })
                                                     }
                                                 >
-                                                    <span className="inline-flex items-center rounded-full bg-tertiary bg-opacity-30 px-3 py-0.5 text-sm text-black">
+                                                    <span className='inline-flex items-center rounded-full bg-tertiary bg-opacity-30 px-3 py-0.5 text-sm text-black'>
                                                         Sign Out
                                                     </span>
                                                 </button>
@@ -114,7 +117,7 @@ export const Header: React.FC = () => {
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="ml-10 hidden space-x-4 sm:block">
+                                    <div className='ml-10 hidden space-x-4 sm:block'>
                                         <Button
                                             onClick={() => {
                                                 setMode('signin');
@@ -135,38 +138,41 @@ export const Header: React.FC = () => {
                                 )}
                             </div>
                         ) : (
-                            <div className="h-10 w-10 animate-spin rounded-full border-l-2 border-highlight" />
+                            <div className='h-10 w-10 animate-spin rounded-full border-l-2 border-highlight' />
                         )}
                         <Menu
-                            as="div"
-                            className="relative inline-block text-left sm:hidden"
+                            as='div'
+                            className='relative inline-block text-left sm:hidden'
                         >
                             <div>
-                                <Menu.Button className="flex items-center text-secondary focus:outline-none ">
+                                <Menu.Button className='flex items-center text-secondary focus:outline-none '>
                                     <MenuIcon
-                                        className="h-8 w-auto"
-                                        aria-hidden="true"
+                                        className='h-8 w-auto'
+                                        aria-hidden='true'
                                     />
                                 </Menu.Button>
                             </div>
 
                             <Transition
                                 as={Fragment}
-                                enter="transition ease-out duration-100"
-                                enterFrom="transform opacity-0 scale-95"
-                                enterTo="transform opacity-100 scale-100"
-                                leave="transition ease-in duration-75"
-                                leaveFrom="transform opacity-100 scale-100"
-                                leaveTo="transform opacity-0 scale-95"
+                                enter='transition ease-out duration-100'
+                                enterFrom='transform opacity-0 scale-95'
+                                enterTo='transform opacity-100 scale-100'
+                                leave='transition ease-in duration-75'
+                                leaveFrom='transform opacity-100 scale-100'
+                                leaveTo='transform opacity-0 scale-95'
                             >
-                                <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-highlight rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                                    <div className="py-1">
+                                <Menu.Items className='absolute right-0 mt-2 w-56 origin-top-right divide-y divide-highlight rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none'>
+                                    <div className='py-1'>
                                         {navigation.map((link) => (
                                             <Menu.Item key={link.name}>
                                                 {({ active }: MenuProps) => (
                                                     <MyLink
                                                         href={link.href}
                                                         className={classNames(
+                                                            link.adminOnly
+                                                                ? 'hidden'
+                                                                : '',
                                                             active
                                                                 ? 'bg-gray-100 text-secondary'
                                                                 : 'text-primary',
@@ -179,7 +185,7 @@ export const Header: React.FC = () => {
                                             </Menu.Item>
                                         ))}
                                     </div>
-                                    <div className="py-1">
+                                    <div className='py-1'>
                                         {!authLoading ? (
                                             <div>
                                                 {!authUser ? (
@@ -197,7 +203,7 @@ export const Header: React.FC = () => {
                                                                             true,
                                                                         );
                                                                     }}
-                                                                    type="button"
+                                                                    type='button'
                                                                     className={classNames(
                                                                         active
                                                                             ? 'bg-gray-100 text-sky-700'
@@ -222,7 +228,7 @@ export const Header: React.FC = () => {
                                                                             true,
                                                                         );
                                                                     }}
-                                                                    type="button"
+                                                                    type='button'
                                                                     className={classNames(
                                                                         active
                                                                             ? 'bg-gray-100 text-sky-700'
@@ -244,7 +250,7 @@ export const Header: React.FC = () => {
                                                                 onClick={() =>
                                                                     auth.signOut()
                                                                 }
-                                                                type="button"
+                                                                type='button'
                                                                 className={classNames(
                                                                     active
                                                                         ? 'bg-gray-100 text-sky-700'
