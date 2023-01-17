@@ -1,6 +1,6 @@
 import React from 'react';
 import { Post as PostModel } from '@prisma/client';
-import { GetStaticProps, NextPage } from 'next';
+import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
 import parse from 'html-react-parser';
 import Head from 'next/head';
 import prisma from '../../lib/prisma';
@@ -46,7 +46,7 @@ const Post: NextPage<Props> = ({ post }: Props) => (
     </div>
 );
 
-export const getStaticPaths = async () => {
+export const getStaticPaths: GetStaticPaths = async () => {
     const posts = await prisma.post.findMany({
         select: {
             id: true,
@@ -57,7 +57,7 @@ export const getStaticPaths = async () => {
         params: { id: post.id },
     }));
 
-    return { paths, fallback: true };
+    return { paths, fallback: 'blocking' };
 };
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
