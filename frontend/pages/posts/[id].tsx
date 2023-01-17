@@ -29,7 +29,10 @@ const Post: NextPage<Props> = ({ post }: Props) => (
         <article className='mx-auto max-w-2xl space-y-12 px-6 py-24'>
             <div className='mx-auto w-full space-y-4 text-center'>
                 {post.categories.map((category) => (
-                    <span className='mx-2 inline-flex cursor-pointer items-center rounded-full bg-secondary bg-opacity-30 px-2 py-[0.1rem] text-xs font-light'>
+                    <span
+                        key={category.name}
+                        className='mx-2 inline-flex cursor-pointer items-center rounded-full bg-secondary bg-opacity-30 px-2 py-[0.1rem] text-xs font-light'
+                    >
                         {category.name}
                     </span>
                 ))}
@@ -39,7 +42,7 @@ const Post: NextPage<Props> = ({ post }: Props) => (
                 </h1>
                 <p className='text-sm font-light'>{`by ${post.user.firstName} ${post.user.lastName}`}</p>
             </div>
-            <div className='placeholder-text:text-neutral-500 prose prose-lg prose-neutral my-10 font-light outline-none prose-h1:hidden prose-h1:text-3xl prose-h2:text-2xl prose-h2:font-light prose-h3:text-xl prose-h3:font-light prose-p:leading-normal prose-strong:font-extrabold prose-li:leading-none'>
+            <div className='placeholder-text:text-neutral-500 prose prose-lg prose-neutral my-10 font-light outline-none prose-h1:hidden prose-h1:text-3xl prose-h2:text-2xl prose-h2:font-light prose-h3:text-xl prose-h3:font-light prose-p:leading-normal prose-strong:font-extrabold prose-ol:leading-3 prose-ul:leading-3 prose-li:leading-3'>
                 {parse(post.htmlContent!)}
             </div>
         </article>

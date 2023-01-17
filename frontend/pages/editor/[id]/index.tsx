@@ -3,7 +3,7 @@ import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { Post } from '@prisma/client';
 import { useFirebaseAuth } from '../../../utils/contexts/firebaseProvider';
-import { TipTap } from '../../../components/tiptap/editor';
+import { TipTap } from '../../../components/tiptapEditor/editor';
 import { postApi } from '../../../utils/api';
 
 const Editor: NextPage = () => {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { classNames, mergeStrings, twc } from '../utils/helpers/classNames';
+import { classNames, mergeStrings, twc } from '../../utils/helpers/classNames';
 
 interface Props {
     children: React.ReactNode;

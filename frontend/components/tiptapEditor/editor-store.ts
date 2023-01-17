@@ -14,7 +14,7 @@ import { categoryApi, postApi } from '../../utils/api';
 import { FUser } from '../../utils/contexts/firebaseProvider';
 import { debounce } from '../../utils/helpers/debounce';
 
-interface IOption {
+export interface IOption {
     id: string;
     name: string;
 }
@@ -33,7 +33,6 @@ interface IEditorState {
     categoryStatus: 'done' | 'loading' | 'error' | 'idle';
     options: IOption[];
     selectedCategories: IOption[];
-    isLoadingCategories: boolean;
     charCount: number;
 }
 
@@ -47,7 +46,6 @@ interface IEditorActions {
     setTouched: (touched: boolean) => void;
     setOptions: (categoryData?: Category[]) => void;
     setSelectedCategories: (selectedCategories: IOption[]) => void;
-    setIsLoadingCategories: (isLoadingCategories: boolean) => void;
     getTitle: () => string;
     getDescription: () => string;
     savePost: (authUser: FUser, status?: IEditorState['status']) => void;
@@ -69,20 +67,15 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
         categoryStatus: 'idle',
         options: [],
         selectedCategories: [],
-        isLoadingCategories: false,
         charCount: 0,
         // Actions
         fetchCategories: async () => {
             set({ categoryStatus: 'loading' });
-            set({ isLoadingCategories: true });
             categoryApi
                 .getCategories()
                 .then((res) => {
                     useEditorStore.getState().setOptions(res);
                     set({ categoryStatus: 'done' });
-                })
-                .then(() => {
-                    set({ isLoadingCategories: false });
                 })
                 .catch(() => {
                     set({ categoryStatus: 'error' });
@@ -143,9 +136,6 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
         },
         setSelectedCategories: (selectedCategories) => {
             set({ selectedCategories });
-        },
-        setIsLoadingCategories: (isLoadingCategories) => {
-            set({ isLoadingCategories });
         },
         getTitle: () => {
             const { rawContent } = get();

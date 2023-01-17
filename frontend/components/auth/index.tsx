@@ -70,7 +70,6 @@ export const Auth: React.FC<AuthProps> = ({ open, setOpen, mode }) => {
                             .createUser({
                                 authUid: userCred.user.uid,
                                 email: userCred.user.email,
-                                password: authForm.password,
                                 firstName: authForm.firstName,
                                 lastName: authForm.lastName,
                             })
@@ -106,7 +105,7 @@ export const Auth: React.FC<AuthProps> = ({ open, setOpen, mode }) => {
                     leaveFrom='opacity-100'
                     leaveTo='opacity-0'
                 >
-                    <div className='fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity' />
+                    <div className='fixed inset-0 bg-neutral-800 bg-opacity-75 backdrop-blur-sm transition-opacity' />
                 </Transition.Child>
 
                 <div className='fixed inset-0 overflow-hidden'>

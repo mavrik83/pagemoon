@@ -1,8 +1,10 @@
 import { Post } from '@prisma/client';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import React from 'react';
+import React, { useRef } from 'react';
 import { useFirebaseAuth } from '../../utils/contexts/firebaseProvider';
+import { classNames } from '../../utils/helpers';
+import { useOverflow } from '../../utils/hooks/useOverflow';
 
 export interface IPostPreview extends Partial<Post> {
     user: {
@@ -20,15 +22,25 @@ interface Props {
 export const PreviewCard: React.FC<Props> = ({ post }) => {
     const { authUser } = useFirebaseAuth();
     const router = useRouter();
+    const ref = useRef<HTMLDivElement>(null);
+    const isOverflowing = useOverflow(ref);
 
     return (
         <div
             key={post.id}
-            className='flex flex-col overflow-hidden rounded-lg shadow-lg'
+            className='flex flex-col overflow-hidden rounded-lg border border-primary bg-white shadow-lg hover:border-secondary'
         >
-            <div className='flex flex-1 flex-col justify-between bg-white p-6'>
+            <div className='flex flex-1 flex-col justify-between bg-primary bg-opacity-5 p-6'>
                 <div className='flex-1'>
-                    <div className='flex flex-row gap-3'>
+                    <div
+                        ref={ref}
+                        className={classNames(
+                            isOverflowing
+                                ? 'grid grid-cols-4'
+                                : 'flex flex-row',
+                            'gap-3',
+                        )}
+                    >
                         {post.categories.map((category) => (
                             <Link
                                 href={{
@@ -39,7 +51,7 @@ export const PreviewCard: React.FC<Props> = ({ post }) => {
                                 }}
                                 key={category.name}
                             >
-                                <span className='inline-flex cursor-pointer items-center rounded-full bg-secondary bg-opacity-30 px-3 py-0.5 text-sm font-medium'>
+                                <span className='inline-flex cursor-pointer items-center justify-self-center rounded-full bg-secondary bg-opacity-30 px-3 py-0.5 text-sm font-medium'>
                                     {category.name}
                                 </span>
                             </Link>
@@ -78,7 +90,7 @@ export const PreviewCard: React.FC<Props> = ({ post }) => {
                 {authUser && (
                     <button
                         type='button'
-                        className='mt-6 flex items-center gap-2'
+                        className='mt-6 flex w-fit items-center gap-2'
                         onClick={() => router.push(`/editor/${post.id}`)}
                     >
                         <span className='inline-flex items-center rounded-full bg-secondary bg-opacity-30 px-3 py-0.5 text-sm font-medium hover:scale-110'>

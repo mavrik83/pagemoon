@@ -25,8 +25,8 @@ import {
 import { Post } from '@prisma/client';
 import { useFirebaseAuth } from '../../utils/contexts/firebaseProvider';
 import { classNames } from '../../utils/helpers';
-import Button from '../button';
-import { CategorySelect } from '../categorySelect';
+import Button from '../reusable/button';
+import { CategorySelect } from './categorySelect';
 import { useEditorStore } from './editor-store';
 
 interface Props {
@@ -62,6 +62,12 @@ export const TipTap: React.FC<Props> = ({ isEditable, data }) => {
     const setPostData = useEditorStore(
         useCallback((state) => state.setPostData, []),
     );
+    const setSelectedCategories = useEditorStore(
+        (state) => state.setSelectedCategories,
+    );
+    const options = useEditorStore((state) => state.options);
+
+    const categoryStatus = useEditorStore((state) => state.categoryStatus);
 
     useEffect(() => {
         if (data) {
@@ -121,7 +127,13 @@ export const TipTap: React.FC<Props> = ({ isEditable, data }) => {
                 >
                     Save as draft
                 </Button>
-                <CategorySelect />
+                <CategorySelect
+                    selectedCategories={selectedCategories}
+                    categoryStatus={categoryStatus}
+                    options={options}
+                    setSelectedCategories={setSelectedCategories}
+                    theme='secondary'
+                />
             </div>
             <div className='mt-5 grid grid-cols-4 gap-3 sm:flex sm:flex-row'>
                 {selectedCategories.map((category) => (

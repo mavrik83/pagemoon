@@ -10,26 +10,35 @@ interface IPostReqBody extends Partial<Post> {
     userUid?: string;
 }
 
-const getPosts = async (req: NextApiRequest, res: NextApiResponse) => {
+const getAllPosts = async (req: NextApiRequest, res: NextApiResponse) => {
     try {
-        if (req.query.id) {
-            const post = await prisma.post
-                .findFirst({
-                    where: {
-                        id: req.query.id as string,
-                    },
-                })
-                .catch(() => {
-                    throw new Error('Post not found');
-                });
+        const posts = await prisma.post.findMany().catch(() => {
+            throw new Error('failed to get posts');
+        });
 
-            res.status(200).send(post);
+        res.send(posts);
+    } catch (error) {
+        if (error instanceof Error) {
+            res.status(400).send(error.message);
         } else {
-            const posts = await prisma.post.findMany().catch(() => {
-                throw new Error('failed to get posts');
-            });
-            res.send(posts);
+            res.status(500).send('Internal server error');
         }
+    }
+};
+
+const getSinglePost = async (req: NextApiRequest, res: NextApiResponse) => {
+    try {
+        const post = await prisma.post
+            .findFirst({
+                where: {
+                    id: req.query.id as string,
+                },
+            })
+            .catch(() => {
+                throw new Error('Post not found');
+            });
+
+        res.status(200).send(post);
     } catch (error) {
         if (error instanceof Error) {
             res.status(400).send(error.message);
@@ -116,12 +125,63 @@ const upsertPost = async (req: IPostRequest, res: NextApiResponse) => {
     }
 };
 
+const deletePost = async (req: NextApiRequest, res: NextApiResponse) => {
+    try {
+        const categories = await prisma.post
+            .findFirst({
+                where: {
+                    id: req.query.id as string,
+                },
+                include: {
+                    categories: true,
+                },
+            })
+            .categories();
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const post = await prisma.post.update({
+            where: {
+                id: req.query.id as string,
+            },
+            data: {
+                categories: {
+                    disconnect: categories.map((category) => ({
+                        id: category.id,
+                    })),
+                },
+                user: {
+                    disconnect: true,
+                },
+            },
+        });
+
+        const deletedPost = await prisma.post.delete({
+            where: {
+                id: req.query.id as string,
+            },
+        });
+
+        res.status(200).send(deletedPost);
+    } catch (error) {
+        if (error instanceof Error) {
+            res.status(400).send(error.message);
+        } else {
+            res.status(500).send('Internal server error');
+        }
+    }
+};
+
 export default async (req: NextApiRequest, res: NextApiResponse) => {
     switch (req.method) {
         case 'GET':
-            return getPosts(req, res);
+            if (req.query.id) {
+                return getSinglePost(req, res);
+            }
+            return getAllPosts(req, res);
         case 'POST':
             return upsertPost(req, res);
+        case 'DELETE':
+            return deletePost(req, res);
         default:
             return res.status(405).json({
                 error: `Method ${req.method} not allowed`,

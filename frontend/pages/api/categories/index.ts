@@ -62,12 +62,75 @@ const createCategory = async (req: ICategoryRequest, res: NextApiResponse) => {
     }
 };
 
+const deleteCategory = async (req: ICategoryRequest, res: NextApiResponse) => {
+    try {
+        const category = await prisma.category
+            .findFirst({
+                where: {
+                    id: req.query.id as string,
+                },
+                include: {
+                    books: true,
+                    posts: true,
+                },
+            })
+            .catch(() => {
+                throw new Error('Category not found');
+            });
+
+        const updatedCategory = await prisma.category
+            .update({
+                where: {
+                    id: category!.id,
+                },
+                data: {
+                    books: {
+                        disconnect: category!.books.map((book) => ({
+                            id: book.id,
+                        })),
+                    },
+                    posts: {
+                        disconnect: category!.posts.map((post) => ({
+                            id: post.id,
+                        })),
+                    },
+                    user: {
+                        disconnect: true,
+                    },
+                },
+            })
+            .catch(() => {
+                throw new Error('failed to update category');
+            });
+
+        const deletedCategory = await prisma.category
+            .delete({
+                where: {
+                    id: updatedCategory!.id,
+                },
+            })
+            .catch(() => {
+                throw new Error('failed to delete category');
+            });
+
+        res.status(200).send(deletedCategory);
+    } catch (error) {
+        if (error instanceof Error) {
+            res.status(400).send(error.message);
+        } else {
+            res.status(500).send('Internal server error');
+        }
+    }
+};
+
 export default async (req: NextApiRequest, res: NextApiResponse) => {
     switch (req.method) {
         case 'GET':
             return getCategories(req, res);
         case 'POST':
             return createCategory(req, res);
+        case 'DELETE':
+            return deleteCategory(req, res);
         default:
             return res.status(405).json({
                 error: `Method ${req.method} not allowed`,

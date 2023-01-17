@@ -12,14 +12,9 @@ interface MenuProps {
 
 interface Props {
     // eslint-disable-next-line react/no-unused-prop-types
-    authModalOpen: boolean;
-    setAuthModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    addBookModalOpen: boolean;
+    setAddBookModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
-
-const navigation = [
-    { name: 'Create Review', href: '/editor', adminOnly: true },
-    { name: 'All Reviews', href: '/posts', adminOnly: false },
-];
 
 export const MyLink = forwardRef((props: ComponentPropsWithRef<any>, ref) => {
     const { href, children, ...rest } = props;
@@ -37,8 +32,19 @@ MyLink.displayName = 'myLink';
 
 const classNames = (...classes: string[]) => classes.filter(Boolean).join(' ');
 
-export const Header: React.FC<Props> = () => {
+export const Header: React.FC<Props> = ({ setAddBookModalOpen }: Props) => {
     const { authUser } = useFirebaseAuth();
+
+    const navigation = [
+        { name: 'Create Review', href: '/editor', adminOnly: true },
+        {
+            name: 'Add Book',
+            href: 'modal',
+            adminOnly: true,
+            cb: setAddBookModalOpen,
+        },
+        { name: 'All Reviews', href: '/posts', adminOnly: false },
+    ];
 
     return (
         <header className='sticky top-0 z-40 bg-white bg-opacity-50 font-light shadow-xl backdrop-blur-sm'>
@@ -61,15 +67,26 @@ export const Header: React.FC<Props> = () => {
                                 .filter((link) =>
                                     authUser ? true : !link.adminOnly,
                                 )
-                                .map((link) => (
-                                    <MyLink
-                                        key={link.name}
-                                        href={link.href}
-                                        className='text-lg text-secondary transition-colors duration-300 ease-in-out hover:text-tertiary'
-                                    >
-                                        {link.name}
-                                    </MyLink>
-                                ))}
+                                .map((link) =>
+                                    link.href === 'modal' ? (
+                                        <button
+                                            type='button'
+                                            key={link.name}
+                                            className='text-lg text-secondary transition-colors duration-300 ease-in-out hover:text-tertiary'
+                                            onClick={() => link.cb!(true)}
+                                        >
+                                            {link.name}
+                                        </button>
+                                    ) : (
+                                        <MyLink
+                                            key={link.name}
+                                            href={link.href}
+                                            className='text-lg text-secondary transition-colors duration-300 ease-in-out hover:text-tertiary'
+                                        >
+                                            {link.name}
+                                        </MyLink>
+                                    ),
+                                )}
                         </div>
                     </div>
                     {authUser && (
@@ -107,19 +124,37 @@ export const Header: React.FC<Props> = () => {
                                         )
                                         .map((link) => (
                                             <Menu.Item key={link.name}>
-                                                {({ active }: MenuProps) => (
-                                                    <MyLink
-                                                        href={link.href}
-                                                        className={classNames(
-                                                            active
-                                                                ? 'bg-gray-100 text-secondary'
-                                                                : 'text-primary',
-                                                            'block px-4 py-2 text-sm',
-                                                        )}
-                                                    >
-                                                        {link.name}
-                                                    </MyLink>
-                                                )}
+                                                {({ active }: MenuProps) =>
+                                                    link.href === 'modal' ? (
+                                                        <button
+                                                            type='button'
+                                                            key={link.name}
+                                                            className={classNames(
+                                                                active
+                                                                    ? 'bg-gray-100 text-secondary'
+                                                                    : 'text-primary',
+                                                                'block px-4 py-2 text-sm',
+                                                            )}
+                                                            onClick={() =>
+                                                                link.cb!(true)
+                                                            }
+                                                        >
+                                                            {link.name}
+                                                        </button>
+                                                    ) : (
+                                                        <MyLink
+                                                            href={link.href}
+                                                            className={classNames(
+                                                                active
+                                                                    ? 'bg-gray-100 text-secondary'
+                                                                    : 'text-primary',
+                                                                'block px-4 py-2 text-sm',
+                                                            )}
+                                                        >
+                                                            {link.name}
+                                                        </MyLink>
+                                                    )
+                                                }
                                             </Menu.Item>
                                         ))}
                                 </div>

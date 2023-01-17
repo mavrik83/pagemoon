@@ -2,8 +2,10 @@ import React, { ReactNode, useState } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { BsPinFill } from 'react-icons/bs';
 import { MdError } from 'react-icons/md';
+import { useFirebaseAuth } from '../../utils/contexts/firebaseProvider';
+import { twc } from '../../utils/helpers';
+import AddBook from '../addBook';
 import { Auth, AuthProps } from '../auth';
-import { Container } from '../index';
 import { Footer } from './Footer';
 import { Header } from './Header';
 
@@ -11,10 +13,23 @@ interface LayoutProps {
     children: ReactNode;
 }
 
+const containerClasses = twc`
+    max-w-7xl
+    mx-auto
+    min-h-screen
+    px-4
+    sm:px-6
+    lg:px-8
+`;
+
 export const Layout = ({ children }: LayoutProps) => {
     const [authModalOpen, setAuthModalOpen] = useState(false);
 
+    const [addBookModalOpen, setAddBookModalOpen] = useState(false);
+
     const [mode, setMode] = useState<AuthProps['mode']>('signin');
+
+    const { authUser } = useFirebaseAuth();
 
     return (
         <>
@@ -41,11 +56,17 @@ export const Layout = ({ children }: LayoutProps) => {
                 }}
             />
             <Auth open={authModalOpen} setOpen={setAuthModalOpen} mode={mode} />
+            {authUser && (
+                <AddBook
+                    open={addBookModalOpen}
+                    setOpen={setAddBookModalOpen}
+                />
+            )}
             <Header
-                authModalOpen={authModalOpen}
-                setAuthModalOpen={setAuthModalOpen}
+                addBookModalOpen={addBookModalOpen}
+                setAddBookModalOpen={setAddBookModalOpen}
             />
-            <Container>{children}</Container>
+            <div className={containerClasses}>{children}</div>
             <Footer setAuthModalOpen={setAuthModalOpen} setMode={setMode} />
         </>
     );
