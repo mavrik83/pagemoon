@@ -25,17 +25,17 @@ export const PreviewCard: React.FC<Props> = ({ post }) => {
     const ref = useRef<HTMLDivElement>(null);
     const isOverflowing = useOverflow(ref);
 
-    const [updatedAt, setUpdatedAt] = React.useState<string>(
-        post.updatedAt!.toUTCString(),
+    const [createdAt, setCreatedAt] = React.useState<string>(
+        post.createdAt!.toUTCString(),
     );
 
     React.useEffect(() => {
         const interval = setInterval(() => {
-            setUpdatedAt(post.updatedAt!.toDateString());
+            setCreatedAt(post.createdAt!.toDateString());
         }, 1000);
 
         return () => clearInterval(interval);
-    }, [post.updatedAt]);
+    }, [post.createdAt]);
 
     return (
         <div
@@ -91,7 +91,7 @@ export const PreviewCard: React.FC<Props> = ({ post }) => {
                             {post.user.firstName}
                         </p>
                         <div className='flex space-x-1 text-sm text-neutral-500'>
-                            <time dateTime={updatedAt}>{updatedAt}</time>
+                            <time dateTime={createdAt}>{createdAt}</time>
                             <span aria-hidden='true'>&middot;</span>
                             <span>{post.readTime?.toString()} minute read</span>
                         </div>
