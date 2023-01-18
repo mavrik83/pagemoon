@@ -3,7 +3,7 @@ import { Toaster } from 'react-hot-toast';
 import { BsPinFill } from 'react-icons/bs';
 import { MdError } from 'react-icons/md';
 import { twc } from '../../utils/helpers';
-import AddBook from '../addBook';
+// import AddBook from '../addBook';
 import { Auth, AuthProps } from '../auth';
 import { Footer } from './Footer';
 import { Header } from './Header';
@@ -54,7 +54,7 @@ export const Layout = ({ children }: LayoutProps) => {
             />
             <Auth open={authModalOpen} setOpen={setAuthModalOpen} mode={mode} />
 
-            <AddBook open={addBookModalOpen} setOpen={setAddBookModalOpen} />
+            {/* <AddBook open={addBookModalOpen} setOpen={setAddBookModalOpen} /> */}
             <Header
                 addBookModalOpen={addBookModalOpen}
                 setAddBookModalOpen={setAddBookModalOpen}
