@@ -55,6 +55,16 @@ const AddBook: FC<Props> = ({ open, setOpen }: Props) => {
     } = useForm<FormInputs>({
         mode: 'onTouched',
         reValidateMode: 'onChange',
+        defaultValues: {
+            title: '',
+            author: '',
+            isbn: '',
+            publisher: '',
+            language: '',
+            pages: 0,
+            readingAge: '',
+            gradeLevel: '',
+        },
     });
 
     const handlers: Handlers = {
