@@ -91,7 +91,9 @@ export const Header: React.FC<Props> = ({ setAddBookModalOpen }: Props) => {
                     </div>
                     {authUser && (
                         <div className='ml-10 hidden space-x-8 text-lg text-tertiary sm:block'>
-                            Hi, {authUser?.displayName}
+                            {authUser.displayName?.length
+                                ? `Hi, ${authUser.displayName}`
+                                : `Welcome Back`}
                         </div>
                     )}
                     <Menu
@@ -117,6 +119,13 @@ export const Header: React.FC<Props> = ({ setAddBookModalOpen }: Props) => {
                             leaveTo='transform opacity-0 scale-95'
                         >
                             <Menu.Items className='absolute right-0 mt-2 w-56 origin-top-right divide-y divide-highlight rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none'>
+                                {authUser && (
+                                    <div className='space-x-8 py-2 px-4 text-sm text-primary'>
+                                        {authUser.displayName?.length
+                                            ? `Hi, ${authUser.displayName}`
+                                            : `Welcome Back`}
+                                    </div>
+                                )}
                                 <div className='py-1'>
                                     {navigation
                                         .filter((link) =>
