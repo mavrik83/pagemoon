@@ -11,7 +11,7 @@ interface Props {
 }
 
 export const getStaticProps = async () => {
-    const posts = await prisma.post.findMany({
+    const prePosts = await prisma.post.findMany({
         select: {
             id: true,
             title: true,
@@ -34,6 +34,13 @@ export const getStaticProps = async () => {
             createdAt: 'desc',
         },
     });
+
+    const posts = prePosts.map((post) => ({
+        ...post,
+        readTime: post.readTime!.toString(),
+        updatedAt: post.updatedAt!.toISOString(),
+    }));
+
     return {
         props: {
             posts,

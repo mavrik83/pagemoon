@@ -34,9 +34,9 @@ const AddBook: FC<Props> = ({ open, setOpen }: Props) => {
         useCallback((state) => state.selectedCategories, []),
     );
 
-    // const fetchCategories = useBookStore(
-    //     useCallback((state) => state.fetchCategories, []),
-    // );
+    const fetchCategories = useBookStore(
+        useCallback((state) => state.fetchCategories, []),
+    );
 
     const setSelectedCategories = useBookStore(
         useCallback((state) => state.setSelectedCategories, []),
@@ -86,10 +86,10 @@ const AddBook: FC<Props> = ({ open, setOpen }: Props) => {
         },
     };
 
-    // useEffect(() => {
-    //     fetchCategories();
-    //     // eslint-disable-next-line react-hooks/exhaustive-deps
-    // }, []);
+    useEffect(() => {
+        fetchCategories();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     useEffect(() => {
         if (!open) {
