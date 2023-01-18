@@ -16,7 +16,7 @@ export const getStaticProps = async () => {
             id: true,
             title: true,
             description: true,
-            updatedAt: true,
+            createdAt: true,
             readTime: true,
             status: true,
             user: {
