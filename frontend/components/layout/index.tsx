@@ -2,7 +2,6 @@ import React, { ReactNode, useState } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { BsPinFill } from 'react-icons/bs';
 import { MdError } from 'react-icons/md';
-import { useFirebaseAuth } from '../../utils/contexts/firebaseProvider';
 import { twc } from '../../utils/helpers';
 import AddBook from '../addBook';
 import { Auth, AuthProps } from '../auth';
@@ -28,8 +27,6 @@ export const Layout = ({ children }: LayoutProps) => {
     const [addBookModalOpen, setAddBookModalOpen] = useState(false);
 
     const [mode, setMode] = useState<AuthProps['mode']>('signin');
-
-    const { authUser } = useFirebaseAuth();
 
     return (
         <>
