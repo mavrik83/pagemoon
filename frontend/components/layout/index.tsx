@@ -56,12 +56,8 @@ export const Layout = ({ children }: LayoutProps) => {
                 }}
             />
             <Auth open={authModalOpen} setOpen={setAuthModalOpen} mode={mode} />
-            {authUser && (
-                <AddBook
-                    open={addBookModalOpen}
-                    setOpen={setAddBookModalOpen}
-                />
-            )}
+
+            <AddBook open={addBookModalOpen} setOpen={setAddBookModalOpen} />
             <Header
                 addBookModalOpen={addBookModalOpen}
                 setAddBookModalOpen={setAddBookModalOpen}
