@@ -73,6 +73,7 @@ const Home: NextPage<Props> = ({ posts }: Props) => (
                     className='rounded-lg bg-gray-500 shadow-md'
                     width={500}
                     height={500}
+                    priority
                 />
             </div>
             <RecentPosts posts={posts} />
