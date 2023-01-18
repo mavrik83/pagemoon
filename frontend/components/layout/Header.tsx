@@ -91,7 +91,7 @@ export const Header: React.FC<Props> = ({ setAddBookModalOpen }: Props) => {
                     </div>
                     {authUser && (
                         <div className='ml-10 hidden space-x-8 text-lg text-tertiary sm:block'>
-                            Hi, {authUser?.email}
+                            Hi, {authUser?.displayName}
                         </div>
                     )}
                     <Menu

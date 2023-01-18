@@ -65,9 +65,7 @@ export const Footer: FC<Props> = ({ setAuthModalOpen, setMode }) => {
                             className='cursor-pointer pb-6 text-sm leading-6 text-neutral-600 hover:text-neutral-900'
                             onClick={() => {
                                 auth.signOut();
-                                toast.success('Logged out!', {
-                                    position: 'top-center',
-                                });
+                                toast.success('Logged out!');
                             }}
                         >
                             Sign Out

@@ -2,9 +2,12 @@
 import React, { Fragment, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { LockClosedIcon, XIcon } from '@heroicons/react/outline';
+import { FcGoogle } from 'react-icons/fc';
 import {
+    GoogleAuthProvider,
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
+    signInWithPopup,
 } from 'firebase/auth';
 import toast from 'react-hot-toast';
 import { useFirebaseAuth } from '../../utils/contexts/firebaseProvider';
@@ -25,6 +28,7 @@ interface AuthState {
 
 export const Auth: React.FC<AuthProps> = ({ open, setOpen, mode }) => {
     const { auth } = useFirebaseAuth();
+    const googleProvider = new GoogleAuthProvider();
 
     const [authForm, setAuthForm] = useState<AuthState>({
         email: '',
@@ -47,15 +51,11 @@ export const Auth: React.FC<AuthProps> = ({ open, setOpen, mode }) => {
                     authForm.password,
                 )
                     .then((userCred) => {
-                        toast.success(`Signed in as: ${userCred.user.email}`, {
-                            position: 'top-center',
-                        });
+                        toast.success(`Signed in as: ${userCred.user.email}`);
                         setOpen(false);
                     })
                     .catch((err) => {
-                        toast.error(`${err.message}`, {
-                            position: 'top-center',
-                        });
+                        toast.error(`${err.message}`);
                     });
             }
 
@@ -74,22 +74,35 @@ export const Auth: React.FC<AuthProps> = ({ open, setOpen, mode }) => {
                                 lastName: authForm.lastName,
                             })
                             .then((user) => {
-                                toast.success(`Saved new user: ${user.email}`, {
-                                    position: 'top-center',
-                                });
+                                toast.success(`Saved new user: ${user.email}`);
                                 setOpen(false);
                             });
                     })
                     .catch((err) => {
-                        toast.error(`${err.message}`, {
-                            position: 'top-center',
-                        });
+                        toast.error(`${err.message}`);
                     });
             }
         },
+        handleGoogleLogin: () => {
+            signInWithPopup(auth, googleProvider).then(async (result) => {
+                const user = await userApi.findUser(result.user.uid);
+                if (!user) {
+                    userApi.createUser({
+                        authUid: result.user.uid,
+                        email: result.user.email,
+                        firstName: result.user.displayName,
+                        lastName: '',
+                    });
+                }
+
+                toast.success(`Signed in as: ${result.user.email}`);
+
+                setOpen(false);
+            });
+        },
         handleLogout: () => {
             auth.signOut();
-            toast.success('Logged out!', { position: 'top-center' });
+            toast.success('Logged out!');
         },
     };
 
@@ -307,6 +320,21 @@ export const Auth: React.FC<AuthProps> = ({ open, setOpen, mode }) => {
                                                         {mode === 'signin'
                                                             ? 'Sign In'
                                                             : 'Sign Up'}
+                                                    </button>
+                                                    <button
+                                                        onClick={() =>
+                                                            handlers.handleGoogleLogin()
+                                                        }
+                                                        type='button'
+                                                        className='group relative mt-10 flex w-full justify-center rounded-md border border-transparent bg-tertiary px-4 py-2 text-sm font-medium text-white hover:bg-secondary hover:bg-opacity-70 focus:outline-none'
+                                                    >
+                                                        <span className='absolute inset-y-0 left-0 flex items-center pl-3'>
+                                                            <FcGoogle
+                                                                className='h-5 w-5'
+                                                                aria-hidden='true'
+                                                            />
+                                                        </span>
+                                                        Continue with Google
                                                     </button>
                                                 </div>
                                             </form>

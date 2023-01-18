@@ -52,7 +52,7 @@ const Home: NextPage<Props> = ({ posts }: Props) => (
         </Head>
         <section className='my-5'>
             <div className='rounded-md bg-tertiary'>
-                <div className='container mx-auto flex flex-col items-center px-4 py-16 pb-24 text-center md:py-32 md:px-10 lg:px-32 lg:pb-56'>
+                <div className='container mx-auto flex flex-col items-center px-4 py-16 text-center md:py-32 md:px-10 lg:px-32 lg:pb-56'>
                     <h1 className='text-5xl leading-none sm:text-6xl xl:max-w-3xl'>
                         Welcome to PageMoon
                     </h1>
@@ -66,7 +66,7 @@ const Home: NextPage<Props> = ({ posts }: Props) => (
                     </p>
                 </div>
             </div>
-            <div className='mx-auto mb-12 -mt-20 w-5/6 sm:w-fit lg:-mt-40'>
+            <div className='mx-auto mb-12 hidden w-5/6 sm:w-fit lg:-mt-56 lg:block'>
                 <Image
                     src='https://source.unsplash.com/random/500x500/?children,reading,books'
                     alt='random unsplash of children reading books'
@@ -76,7 +76,12 @@ const Home: NextPage<Props> = ({ posts }: Props) => (
                     priority
                 />
             </div>
-            <RecentPosts posts={posts} />
+            <div className='mt-20'>
+                <h3 className='text-3xl font-light tracking-tight sm:text-4xl lg:text-5xl'>
+                    Latest Reviews
+                </h3>
+                <RecentPosts posts={posts} />
+            </div>
         </section>
     </div>
 );

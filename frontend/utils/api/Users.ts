@@ -10,4 +10,8 @@ export const userApi = {
         const newUser = await apiRequest.post<null, User>('/api/users', params);
         return newUser;
     },
+    findUser: async (id: User['authUid']) => {
+        const user = await apiRequest.get<null, User>(`/api/users/${id}`);
+        return user;
+    },
 };
