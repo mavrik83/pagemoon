@@ -77,10 +77,14 @@ const AddBook: FC<Props> = ({ open, setOpen }: Props) => {
     };
 
     useEffect(() => {
+        fetchCategories();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    useEffect(() => {
         if (!open) {
             reset();
         }
-        fetchCategories();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [open]);
 
