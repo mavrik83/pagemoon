@@ -79,9 +79,11 @@ export const PreviewCard: React.FC<Props> = ({ post }) => {
                             {post.user.firstName}
                         </p>
                         <div className='flex space-x-1 text-sm text-neutral-500'>
-                            <time>{post.updatedAt as unknown as string}</time>
+                            {/* <time dateTime={post.updatedAt?.toDateString()}>
+                                {post.updatedAt?.toDateString()}
+                            </time> */}
                             <span aria-hidden='true'>&middot;</span>
-                            <span>{post.readTime} minute read</span>
+                            <span>{post.readTime?.toString()} minute read</span>
                         </div>
                     </div>
                 </div>
