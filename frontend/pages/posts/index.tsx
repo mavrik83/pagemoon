@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/label-has-associated-control */
 import React from 'react';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
@@ -50,20 +51,46 @@ const Posts: NextPage<Props> = ({ posts }: Props) => {
 
     return (
         <>
-            <div className='mt-5 flex h-screen-1/2 items-center justify-center rounded-md bg-secondary bg-opacity-20'>
-                <h1 className='-mt-36 text-3xl leading-none sm:mt-0 sm:text-4xl xl:max-w-3xl'>
-                    {router.query.category ? (
-                        <span className='block text-4xl font-extrabold tracking-tight sm:text-5xl'>
-                            Category: {router.query.category}
-                        </span>
-                    ) : (
-                        <span className='block text-4xl font-extrabold tracking-tight sm:text-5xl'>
+            <div className='mt-5 rounded-md bg-secondary bg-opacity-30'>
+                <div className='sm:py-18 mx-auto max-w-7xl py-16 px-6 lg:flex lg:justify-between lg:px-8'>
+                    <div className='max-w-xl'>
+                        <h2 className='text-4xl font-light tracking-tight sm:text-5xl lg:text-6xl'>
                             All Reviews
-                        </span>
-                    )}
-                </h1>
+                        </h2>
+                        <p className='mt-5 text-xl'>
+                            Click on any category to filter the reviews.
+                        </p>
+                        {router.query.category && (
+                            <div className='mt-5 block text-sm font-light'>
+                                <p>
+                                    Sorting by:{' '}
+                                    {(
+                                        router.query.category as string
+                                    ).toUpperCase()}
+                                </p>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className='mt-10 w-full max-w-xs'>
+                        <label
+                            htmlFor='search'
+                            className='ml-3 block text-sm font-light'
+                        >
+                            Search for Anything
+                        </label>
+                        <div className='relative mt-1.5'>
+                            <input
+                                id='search'
+                                type='text'
+                                className='relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-neutral-400 focus:z-10 focus:border-tertiary focus:outline-none focus:ring-tertiary sm:text-sm'
+                                placeholder='Start typing...'
+                            />
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div className='mx-5 -mt-48 grid max-w-lg gap-5 lg:max-w-none lg:grid-cols-3'>
+            <div className='mx-5 mt-5 grid max-w-lg gap-5 lg:max-w-none lg:grid-cols-3'>
                 {posts
                     .filter((post) =>
                         // if user is logged in, show all posts. Otherwise, only show published posts

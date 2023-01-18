@@ -39,7 +39,7 @@ export const CategorySelect: FC<Props> = ({
                             ? 'Category Select'
                             : 'Loading...'}
                     </span>
-                    <span className='ml-2 rounded-xl bg-tertiary bg-opacity-30'>
+                    <span className='ml-2'>
                         <TbDirection
                             className='h-6 w-auto'
                             aria-hidden='true'
