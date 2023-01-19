@@ -39,7 +39,7 @@ model Book {
   createdAt   DateTime?  @default(now())
   updatedAt   DateTime?  @updatedAt
   postIds     String[]   @db.ObjectId
-  posts       Post[]     @relation(fields: [postIds], references: [id])
+  posts       Post[]
   categoryIds String[]   @db.ObjectId
   categories  Category[] @relation(fields: [categoryIds], references: [id])
 
@@ -58,8 +58,8 @@ model Post {
   updatedAt   DateTime?  @updatedAt
   userId      String?    @db.ObjectId
   user        User?      @relation(fields: [userId], references: [id])
-  bookIds     String[]   @db.ObjectId
-  books       Book[]     @relation(fields: [bookIds], references: [id])
+  bookId      String?    @db.ObjectId
+  book        Book?      @relation(fields: [bookId], references: [id])
   categoryIds String[]   @db.ObjectId
   categories  Category[] @relation(fields: [categoryIds], references: [id])
 

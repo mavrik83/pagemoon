@@ -1,29 +1,41 @@
+/* eslint-disable react/require-default-props */
 import React, { FC, Fragment } from 'react';
 import { Listbox, Transition } from '@headlessui/react';
 import { TbCheck, TbDirection } from 'react-icons/tb';
-import { IOption } from './editor-store';
 import { classNames } from '../../utils/helpers';
 
-interface Props {
-    selectedCategories: IOption[];
-    setSelectedCategories: (selectedCategories: IOption[]) => void;
-    options: IOption[];
-    categoryStatus: 'done' | 'loading' | 'error' | 'idle';
-    theme: 'primary' | 'secondary' | 'tertiary';
+export interface ListOption {
+    id: string;
+    name: string;
 }
 
-export const CategorySelect: FC<Props> = ({
-    selectedCategories,
-    setSelectedCategories,
+// conditional type to check if the type is a single select or multi select
+export type SelectType<T> = T extends ListOption ? ListOption : ListOption[];
+
+interface Props {
+    selectedOptions: ListOption[] | ListOption;
+    setSelectedOptions: (selectedOptions: ListOption[] | ListOption) => void;
+    options: ListOption[];
+    loadingStatus: 'done' | 'loading' | 'error' | 'idle';
+    theme: 'primary' | 'secondary' | 'tertiary';
+    label: string;
+    isMulti?: boolean;
+}
+
+export const SingleMultiSelect: FC<Props> = ({
+    selectedOptions,
+    setSelectedOptions,
     options,
-    categoryStatus,
+    loadingStatus,
     theme,
+    label,
+    isMulti = true,
 }) => (
     <div className='z-30'>
         <Listbox
-            value={selectedCategories}
-            onChange={setSelectedCategories}
-            multiple
+            value={selectedOptions}
+            onChange={setSelectedOptions}
+            multiple={isMulti}
         >
             <div className='relative'>
                 <Listbox.Button
@@ -35,9 +47,7 @@ export const CategorySelect: FC<Props> = ({
                     )}
                 >
                     <span>
-                        {categoryStatus === 'done'
-                            ? 'Category Select'
-                            : 'Loading...'}
+                        {loadingStatus === 'done' ? `${label}` : 'Loading...'}
                     </span>
                     <span className='ml-2'>
                         <TbDirection
@@ -52,12 +62,12 @@ export const CategorySelect: FC<Props> = ({
                     leaveFrom='opacity-100'
                     leaveTo='opacity-0'
                 >
-                    <Listbox.Options className='absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm'>
-                        {categoryStatus === 'done' &&
+                    <Listbox.Options className='absolute z-50 mt-1 max-h-60 w-fit overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm'>
+                        {loadingStatus === 'done' &&
                             options &&
-                            options.map((category) => (
+                            options.map((option) => (
                                 <Listbox.Option
-                                    key={category.name}
+                                    key={option.name}
                                     className={({ active }) =>
                                         `relative cursor-default select-none py-2 pl-10 pr-4 ${
                                             active
@@ -65,7 +75,7 @@ export const CategorySelect: FC<Props> = ({
                                                 : 'text-neutral-600'
                                         }`
                                     }
-                                    value={category}
+                                    value={option}
                                 >
                                     {({ selected }) => (
                                         <>
@@ -76,7 +86,7 @@ export const CategorySelect: FC<Props> = ({
                                                         : 'font-normal'
                                                 }`}
                                             >
-                                                {category.name}
+                                                {option.name}
                                             </span>
                                             {selected ? (
                                                 <span className='absolute inset-y-0 left-0 flex items-center pl-3 text-secondary'>

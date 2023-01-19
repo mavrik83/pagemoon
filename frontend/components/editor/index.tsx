@@ -25,8 +25,7 @@ import {
 import { Post } from '@prisma/client';
 import { useFirebaseAuth } from '../../utils/contexts/firebaseProvider';
 import { classNames } from '../../utils/helpers';
-import Button from '../reusable/button';
-import { CategorySelect } from './categorySelect';
+import { Button, SingleMultiSelect } from '../reusable';
 import { useEditorStore } from './editor-store';
 
 interface Props {
@@ -39,18 +38,12 @@ const CustomDocument = Document.extend({
     content: 'heading block*',
 });
 
-export const TipTap: React.FC<Props> = ({ isEditable, data }) => {
+export const Editor: React.FC<Props> = ({ isEditable, data }) => {
     const { authUser } = useFirebaseAuth();
     const router = useRouter();
 
-    const selectedCategories = useEditorStore(
-        useCallback((state) => state.selectedCategories, []),
-    );
     const triggerDelayedSave = useEditorStore(
         useCallback((state) => state.triggerDelayedSave, []),
-    );
-    const fetchCategories = useEditorStore(
-        useCallback((state) => state.fetchCategories, []),
     );
     const setRawContent = useEditorStore(
         useCallback((state) => state.setRawContent, []),
@@ -62,24 +55,56 @@ export const TipTap: React.FC<Props> = ({ isEditable, data }) => {
     const setPostData = useEditorStore(
         useCallback((state) => state.setPostData, []),
     );
+    // Category state
+    const fetchCategories = useEditorStore(
+        useCallback((state) => state.fetchCategories, []),
+    );
     const setSelectedCategories = useEditorStore(
         (state) => state.setSelectedCategories,
+    );
+    const selectedCategories = useEditorStore(
+        useCallback((state) => state.selectedCategories, []),
     );
     const options = useEditorStore((state) => state.options);
 
     const categoryStatus = useEditorStore((state) => state.categoryStatus);
 
+    // Book state
+    const fetchBooks = useEditorStore(
+        useCallback((state) => state.fetchBooks, []),
+    );
+    const setSelectedBook = useEditorStore(
+        useCallback((state) => state.setSelectedBook, []),
+    );
+    const selectedBook = useEditorStore((state) => state.selectedBook);
+    const bookOptions = useEditorStore(
+        useCallback((state) => state.bookOptions, []),
+    );
+    const bookStatus = useEditorStore(
+        useCallback((state) => state.bookStatus, []),
+    );
+
     useEffect(() => {
         if (data) {
             setRawContent(data.rawContent as JSONContent);
-            setPostData({ id: data.id, categoryIds: data.categoryIds });
+            setPostData({
+                id: data.id,
+                categoryIds: data.categoryIds,
+                bookId: data.bookId as string,
+            });
         }
         fetchCategories();
+        fetchBooks();
+
+        return () => {
+            setSelectedBook({ id: '', name: '' });
+            setSelectedCategories([]);
+        };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const editor = useEditor({
-        editable: isEditable,
+        editable: !!(isEditable && authUser),
         extensions: [
             CustomDocument,
             StarterKit.configure({ document: false }),
@@ -111,6 +136,11 @@ export const TipTap: React.FC<Props> = ({ isEditable, data }) => {
 
     return (
         <div className='z-30 mt-10'>
+            <div className='my-2'>
+                {selectedBook.name
+                    ? `You are writing a review for ${selectedBook?.name}`
+                    : 'Select a book to write a review or add a new book if it is not in the list'}
+            </div>
             <div className='flex flex-wrap justify-start gap-5'>
                 <Button
                     onClick={() => {
@@ -121,18 +151,28 @@ export const TipTap: React.FC<Props> = ({ isEditable, data }) => {
                     Publish
                 </Button>
                 <Button
-                    twClasses='bg-tertiary !border-tertiary'
+                    twClasses='!bg-tertiary !bg-opacity-30 !border-tertiary '
                     secondary
                     onClick={() => savePost(authUser, 'draft')}
                 >
                     Save as draft
                 </Button>
-                <CategorySelect
-                    selectedCategories={selectedCategories}
-                    categoryStatus={categoryStatus}
+                <SingleMultiSelect
+                    selectedOptions={selectedCategories}
+                    loadingStatus={categoryStatus}
                     options={options}
-                    setSelectedCategories={setSelectedCategories}
+                    setSelectedOptions={setSelectedCategories as any}
                     theme='secondary'
+                    label='Categories'
+                />
+                <SingleMultiSelect
+                    selectedOptions={selectedBook}
+                    loadingStatus={bookStatus}
+                    options={bookOptions}
+                    setSelectedOptions={setSelectedBook as any}
+                    theme='secondary'
+                    label='Books'
+                    isMulti={false}
                 />
             </div>
             <div className='mt-5 grid grid-cols-4 gap-3 sm:flex sm:flex-row'>

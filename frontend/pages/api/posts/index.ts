@@ -82,6 +82,11 @@ const upsertPost = async (req: IPostRequest, res: NextApiResponse) => {
                                 id: user!.id,
                             },
                         },
+                        book: {
+                            connect: {
+                                id: req.body.bookId as string,
+                            },
+                        },
                     },
                 })
                 .catch(() => {
@@ -107,6 +112,11 @@ const upsertPost = async (req: IPostRequest, res: NextApiResponse) => {
                                     id,
                                 }),
                             ),
+                        },
+                        book: {
+                            connect: {
+                                id: req.body.bookId as string,
+                            },
                         },
                     },
                 })

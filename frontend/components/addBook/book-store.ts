@@ -1,25 +1,21 @@
 import create from 'zustand';
 import { Category } from '@prisma/client';
 import { categoryApi } from '../../utils/api';
-
-export interface IOption {
-    id: string;
-    name: string;
-}
+import { ListOption } from '../reusable/singleMultiSelect';
 
 interface BookStoreState {
-    options: IOption[];
-    selectedCategories: IOption[];
+    options: ListOption[];
+    selectedCategories: ListOption[];
     categoryStatus: 'done' | 'loading' | 'error' | 'idle';
 }
 
 interface BookStoreActions {
-    setSelectedCategories: (selectedCategories: IOption[]) => void;
+    setSelectedCategories: (selectedCategories: ListOption[]) => void;
     fetchCategories: () => void;
 }
 
 export const useBookStore = create<BookStoreState & BookStoreActions>()(
-    (set) => ({
+    (set, get) => ({
         // State
         options: [],
         selectedCategories: [],
@@ -30,11 +26,16 @@ export const useBookStore = create<BookStoreState & BookStoreActions>()(
         },
         fetchCategories: async () => {
             set({ categoryStatus: 'loading' });
+            const { options: checkOptions } = get();
+            if (checkOptions.length > 0) {
+                set({ categoryStatus: 'done' });
+                return;
+            }
             try {
                 categoryApi
                     .getCategories()
                     .then((res) => {
-                        const options: IOption[] = res.map(
+                        const options: ListOption[] = res.map(
                             (category: Category) => ({
                                 id: category.id as string,
                                 name: category.name as string,

@@ -3,10 +3,10 @@ import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { Post } from '@prisma/client';
 import { useFirebaseAuth } from '../../../utils/contexts/firebaseProvider';
-import { TipTap } from '../../../components/tiptapEditor/editor';
+import { Editor } from '../../../components/editor';
 import { postApi } from '../../../utils/api';
 
-const Editor: NextPage = () => {
+const EditorEdit: NextPage = () => {
     const router = useRouter();
     const { authUser, authLoading } = useFirebaseAuth();
     const [post, setPost] = React.useState<Post>();
@@ -24,7 +24,7 @@ const Editor: NextPage = () => {
         }
     }, [authUser, router, authLoading]);
 
-    return <div>{authUser && post && <TipTap isEditable data={post} />}</div>;
+    return <div>{authUser && post && <Editor isEditable data={post} />}</div>;
 };
 
-export default Editor;
+export default EditorEdit;

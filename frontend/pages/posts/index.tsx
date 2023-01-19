@@ -32,6 +32,11 @@ export const getStaticProps = async () => {
                     name: true,
                 },
             },
+            book: {
+                select: {
+                    title: true,
+                },
+            },
         },
         orderBy: {
             createdAt: 'desc',
@@ -81,16 +86,17 @@ const Posts: NextPage<Props> = ({ posts }: Props) => {
                         </label>
                         <div className='relative mt-1.5'>
                             <input
+                                disabled
                                 id='search'
                                 type='text'
                                 className='relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-neutral-400 focus:z-10 focus:border-tertiary focus:outline-none focus:ring-tertiary sm:text-sm'
-                                placeholder='Start typing...'
+                                placeholder='Comming Soon'
                             />
                         </div>
                     </div>
                 </div>
             </div>
-            <div className='mx-5 mt-5 grid max-w-lg gap-5 lg:max-w-none lg:grid-cols-3'>
+            <div className='mx-5 mt-5 grid max-w-lg gap-5 lg:max-w-none lg:grid-cols-2'>
                 {posts
                     .filter((post) =>
                         // if user is logged in, show all posts. Otherwise, only show published posts

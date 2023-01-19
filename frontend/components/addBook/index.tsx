@@ -1,3 +1,4 @@
+/* eslint-disable react/button-has-type */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import { Dialog, Transition } from '@headlessui/react';
 import { XIcon } from '@heroicons/react/outline';
@@ -6,7 +7,9 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
 import { TbBookUpload } from 'react-icons/tb';
 import { bookApi } from '../../utils/api';
-import { CategorySelect } from '../tiptapEditor/categorySelect';
+import { fileToBase64 } from '../../utils/helpers/base64';
+import { useEditorStore } from '../editor/editor-store';
+import { SingleMultiSelect } from '../reusable';
 import { useBookStore } from './book-store';
 
 interface Props {
@@ -27,11 +30,16 @@ interface FormInputs {
     pages: number;
     readingAge: string;
     gradeLevel: string;
+    cover: File;
 }
 
 const AddBook: FC<Props> = ({ open, setOpen }: Props) => {
     const selectedCategories = useBookStore(
         useCallback((state) => state.selectedCategories, []),
+    );
+
+    const fetchBooks = useEditorStore(
+        useCallback((state) => state.fetchBooks, []),
     );
 
     const fetchCategories = useBookStore(
@@ -70,12 +78,24 @@ const AddBook: FC<Props> = ({ open, setOpen }: Props) => {
     const handlers: Handlers = {
         handleSubmit: (data) => {
             try {
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const coverImage = fileToBase64(data.cover)
+                    .then((res) => {
+                        console.log(res);
+                    })
+                    .catch((err) => {
+                        console.log('error', err);
+                    });
+
                 const categoryIds = selectedCategories.map(
                     (category) => category.id,
                 );
                 const newBook = { ...data, categoryIds };
 
-                bookApi.createBook(newBook).then(() => {
+                bookApi.createBook(newBook).then((res) => {
+                    if (res.title === data.title) {
+                        fetchBooks();
+                    }
                     toast.success('Book added successfully');
                 });
             } catch (error) {
@@ -90,7 +110,9 @@ const AddBook: FC<Props> = ({ open, setOpen }: Props) => {
         if (!open) {
             reset();
         }
-        fetchCategories();
+        if (open) {
+            fetchCategories();
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [open]);
 
@@ -489,22 +511,37 @@ const AddBook: FC<Props> = ({ open, setOpen }: Props) => {
                                                         >
                                                             Add Categories
                                                         </label>
-                                                        <CategorySelect
-                                                            selectedCategories={
+                                                        <SingleMultiSelect
+                                                            selectedOptions={
                                                                 selectedCategories
                                                             }
-                                                            categoryStatus={
+                                                            loadingStatus={
                                                                 categoryStatus
                                                             }
                                                             options={options}
-                                                            setSelectedCategories={
-                                                                setSelectedCategories
+                                                            setSelectedOptions={
+                                                                setSelectedCategories as any
                                                             }
                                                             theme='primary'
+                                                            label='Categories'
                                                         />
                                                     </div>
                                                 </div>
-                                                <div className='py-1'>
+                                                <div className='w-full py-1'>
+                                                    <label
+                                                        htmlFor='upload-cover'
+                                                        className='ml-3 block text-sm font-light'
+                                                    >
+                                                        Upload Cover
+                                                    </label>
+                                                    <input
+                                                        {...register('cover')}
+                                                        id='upload-cover'
+                                                        type='file'
+                                                        className='inline-flex w-full items-center justify-center whitespace-nowrap rounded-md border border-primary bg-tertiary text-sm font-medium file:rounded-md file:border-none file:bg-primary file:px-3 file:py-2 file:shadow-lg file:hover:scale-105 file:active:scale-100 file:active:shadow-none'
+                                                    />
+                                                </div>
+                                                <div className='mt-5'>
                                                     <button
                                                         disabled={!isValid}
                                                         type='submit'

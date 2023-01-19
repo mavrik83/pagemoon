@@ -4,6 +4,7 @@ import { apiRequest } from '../../lib/axios/baseAxios';
 export interface SavePostParams
     extends Partial<Omit<Post, 'userId' | 'createdAt' | 'updatedAt'>> {
     categoryIds?: string[];
+    bookId?: string;
     userUid?: string;
 }
 

@@ -74,4 +74,4 @@ Button.defaultProps = {
     onClick: () => {},
 };
 
-export default Button;
+export { Button };

@@ -29,6 +29,11 @@ export const getStaticProps = async () => {
                     name: true,
                 },
             },
+            book: {
+                select: {
+                    title: true,
+                },
+            },
         },
         orderBy: {
             createdAt: 'desc',

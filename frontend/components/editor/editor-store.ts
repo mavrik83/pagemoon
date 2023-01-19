@@ -1,4 +1,4 @@
-import { Category } from '@prisma/client';
+import { Book, Category } from '@prisma/client';
 import { JSONContent } from '@tiptap/react';
 import { toast } from 'react-hot-toast';
 import create from 'zustand';
@@ -10,18 +10,15 @@ import Typography from '@tiptap/extension-typography';
 import TextAlign from '@tiptap/extension-text-align';
 import { generateHTML } from '@tiptap/html';
 import { SavePostParams } from '../../utils/api/Posts';
-import { categoryApi, postApi } from '../../utils/api';
+import { bookApi, categoryApi, postApi } from '../../utils/api';
 import { FUser } from '../../utils/contexts/firebaseProvider';
 import { debounce } from '../../utils/helpers/debounce';
-
-export interface IOption {
-    id: string;
-    name: string;
-}
+import { ListOption } from '../reusable/singleMultiSelect';
 
 interface PostData {
     id: string;
     categoryIds: string[];
+    bookId: string;
 }
 
 interface IEditorState {
@@ -31,9 +28,12 @@ interface IEditorState {
     status: 'published' | 'draft';
     touched: boolean;
     categoryStatus: 'done' | 'loading' | 'error' | 'idle';
-    options: IOption[];
-    selectedCategories: IOption[];
+    options: ListOption[];
+    selectedCategories: ListOption[];
     charCount: number;
+    bookStatus: 'done' | 'loading' | 'error' | 'idle';
+    bookOptions: ListOption[];
+    selectedBook: ListOption;
 }
 
 interface IEditorActions {
@@ -45,13 +45,16 @@ interface IEditorActions {
     setStatus: (status: IEditorState['status']) => void;
     setTouched: (touched: boolean) => void;
     setOptions: (categoryData?: Category[]) => void;
-    setSelectedCategories: (selectedCategories: IOption[]) => void;
+    setSelectedCategories: (selectedCategories: ListOption[]) => void;
     getTitle: () => string;
     getDescription: () => string;
     savePost: (authUser: FUser, status?: IEditorState['status']) => void;
     triggerDelayedSave: (authUser: FUser) => void;
     setCharCount: (charCount: number) => void;
     determineReadTime: () => number;
+    setBookOptions: (bookData?: Book[]) => void;
+    setSelectedBook: (selectedBook: ListOption) => void;
+    fetchBooks: () => void;
 }
 export const useEditorStore = create<IEditorState & IEditorActions>()(
     (set, get) => ({
@@ -59,7 +62,14 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
         postData: {
             id: '',
             categoryIds: [],
+            bookId: '',
         },
+        bookOptions: [],
+        selectedBook: {
+            id: '',
+            name: '',
+        },
+        bookStatus: 'idle',
         rawContent: {},
         htmlContent: '',
         status: 'draft',
@@ -69,6 +79,41 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
         selectedCategories: [],
         charCount: 0,
         // Actions
+        fetchBooks: async () => {
+            set({ bookStatus: 'loading' });
+            bookApi
+                .getBooks()
+                .then((res) => {
+                    useEditorStore.getState().setBookOptions(res);
+                    set({ bookStatus: 'done' });
+                })
+                .catch(() => {
+                    set({ bookStatus: 'error' });
+                    toast.error('Error fetching books');
+                });
+        },
+        setBookOptions: (bookData) => {
+            const { postData } = get();
+
+            const options =
+                bookData &&
+                bookData.map((book) => ({
+                    name: book.title as string,
+                    id: book.id,
+                }));
+            set({ bookOptions: options });
+
+            if (postData && postData.bookId && options) {
+                // if there is a book in the post, set the selected book
+                const selectedBook = options.find(
+                    (option) => option.id === postData.bookId,
+                );
+                set({ selectedBook });
+            }
+        },
+        setSelectedBook: (selectedBook) => {
+            set({ selectedBook });
+        },
         fetchCategories: async () => {
             set({ categoryStatus: 'loading' });
             categoryApi
@@ -184,6 +229,7 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
 
                 const {
                     selectedCategories,
+                    selectedBook,
                     rawContent,
                     postData,
                     status,
@@ -215,6 +261,7 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
                     htmlContent: htmlContentGen,
                     status: statusParam || status,
                     categoryIds: newCategories,
+                    bookId: selectedBook?.id,
                     userUid: authUser.uid,
                     readTime: determineReadTime(),
                 };
@@ -224,6 +271,11 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
                     id: postData.id,
                 };
 
+                if (!newPost.bookId) {
+                    toast.error('You must select a book');
+                    return;
+                }
+
                 const savedPost = await postApi.upsertPost(
                     postData.id.length > 0 ? updatePost : newPost,
                 );
@@ -231,6 +283,7 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
                 setPostData({
                     id: savedPost.id,
                     categoryIds: savedPost.categoryIds,
+                    bookId: savedPost.bookId as string,
                 });
                 setTouched(false);
                 setStatus(statusParam || status);

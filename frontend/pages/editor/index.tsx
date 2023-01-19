@@ -3,9 +3,9 @@ import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useFirebaseAuth } from '../../utils/contexts/firebaseProvider';
 
-import { TipTap } from '../../components/tiptapEditor/editor';
+import { Editor } from '../../components/editor';
 
-const Editor: NextPage = () => {
+const EditorNew: NextPage = () => {
     const router = useRouter();
     const { authUser, authLoading } = useFirebaseAuth();
 
@@ -15,7 +15,7 @@ const Editor: NextPage = () => {
         }
     }, [authUser, router, authLoading]);
 
-    return <div>{authUser && <TipTap isEditable />}</div>;
+    return <div>{authUser && <Editor isEditable />}</div>;
 };
 
-export default Editor;
+export default EditorNew;
