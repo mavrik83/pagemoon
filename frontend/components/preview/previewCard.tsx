@@ -2,6 +2,7 @@
 import React, { useRef } from 'react';
 import { Post } from '@prisma/client';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { RiQuillPenLine } from 'react-icons/ri';
 import { IoBookOutline } from 'react-icons/io5';
@@ -137,12 +138,13 @@ export const PreviewCard: React.FC<Props> = ({ post, bookCover }) => {
                 )}
             </div>
             <Link href={`/posts/${post.id}`}>
-                <div className='hidden w-28 cursor-pointer bg-tertiary md:block'>
+                <div className='relative hidden h-auto w-28 animate-shimmer cursor-pointer bg-gradient-to-r from-primary via-tertiary to-primary bg-[length:400%_100%] md:block'>
                     {bookCover && (
-                        <img
+                        <Image
                             className='h-full w-full object-cover'
                             src={bookCover.coverImage as string}
                             alt={post.title as string}
+                            layout='fill'
                         />
                     )}
                 </div>
