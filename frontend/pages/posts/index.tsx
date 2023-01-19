@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
-import React from 'react';
+import React, { useEffect } from 'react';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import {
@@ -8,6 +8,7 @@ import {
 } from '../../components/preview/previewCard';
 import { useFirebaseAuth } from '../../utils/contexts/firebaseProvider';
 import prisma from '../../lib/prisma';
+import { bookApi, BookCover } from '../../utils/api/Books';
 
 interface Props {
     posts: IPostPreview[];
@@ -22,6 +23,7 @@ export const getStaticProps = async () => {
             createdAt: true,
             readTime: true,
             status: true,
+            bookId: true,
             user: {
                 select: {
                     firstName: true,
@@ -53,6 +55,15 @@ export const getStaticProps = async () => {
 const Posts: NextPage<Props> = ({ posts }: Props) => {
     const { authUser } = useFirebaseAuth();
     const router = useRouter();
+
+    const [bookCovers, setBookCovers] = React.useState<BookCover[]>([]);
+
+    useEffect(() => {
+        bookApi.getBookCovers().then((res) => {
+            setBookCovers(res);
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     return (
         <>
@@ -90,7 +101,7 @@ const Posts: NextPage<Props> = ({ posts }: Props) => {
                                 id='search'
                                 type='text'
                                 className='relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-neutral-400 focus:z-10 focus:border-tertiary focus:outline-none focus:ring-tertiary sm:text-sm'
-                                placeholder='Comming Soon'
+                                placeholder='Coming Soon... maybe'
                             />
                         </div>
                     </div>
@@ -113,9 +124,18 @@ const Posts: NextPage<Props> = ({ posts }: Props) => {
                             : true,
                     )
 
-                    .map((post) => (
-                        <PreviewCard key={post.id} post={post} />
-                    ))}
+                    .map((post) => {
+                        const bookCover = bookCovers.find(
+                            (book) => book.id === post.bookId,
+                        );
+                        return (
+                            <PreviewCard
+                                key={post.id}
+                                post={post}
+                                bookCover={bookCover as BookCover}
+                            />
+                        );
+                    })}
             </div>
         </>
     );

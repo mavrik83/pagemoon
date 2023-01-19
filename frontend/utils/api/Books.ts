@@ -3,6 +3,12 @@ import { apiRequest } from '../../lib/axios/baseAxios';
 
 export interface SaveBookParams extends Partial<Book> {
     categoryIds?: string[];
+    coverImage?: string;
+}
+
+export interface BookCover {
+    id: Book['id'];
+    coverImage: Book['coverImage'];
 }
 
 export const bookApi = {
@@ -16,5 +22,11 @@ export const bookApi = {
             params,
         );
         return newBook;
+    },
+    getBookCovers: async () => {
+        const book = await apiRequest.get<null, BookCover[]>(
+            `/api/books/get-covers`,
+        );
+        return book;
     },
 };

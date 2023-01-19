@@ -7,7 +7,7 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
 import { TbBookUpload } from 'react-icons/tb';
 import { bookApi } from '../../utils/api';
-import { fileToBase64 } from '../../utils/helpers/base64';
+import { processImage } from '../../utils/helpers/base64';
 import { useEditorStore } from '../editor/editor-store';
 import { SingleMultiSelect } from '../reusable';
 import { useBookStore } from './book-store';
@@ -30,7 +30,7 @@ interface FormInputs {
     pages: number;
     readingAge: string;
     gradeLevel: string;
-    cover: File;
+    cover: FileList;
 }
 
 const AddBook: FC<Props> = ({ open, setOpen }: Props) => {
@@ -76,21 +76,17 @@ const AddBook: FC<Props> = ({ open, setOpen }: Props) => {
     });
 
     const handlers: Handlers = {
-        handleSubmit: (data) => {
+        handleSubmit: async (data) => {
             try {
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                const coverImage = fileToBase64(data.cover)
-                    .then((res) => {
-                        console.log(res);
-                    })
-                    .catch((err) => {
-                        console.log('error', err);
-                    });
+                const coverImage = (await processImage(data.cover).catch(() => {
+                    toast.error('Error processing image');
+                })) as string;
 
                 const categoryIds = selectedCategories.map(
                     (category) => category.id,
                 );
-                const newBook = { ...data, categoryIds };
+                const newBook = { ...data, categoryIds, coverImage };
 
                 bookApi.createBook(newBook).then((res) => {
                     if (res.title === data.title) {

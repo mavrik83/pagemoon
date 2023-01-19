@@ -49,9 +49,6 @@ export const Editor: React.FC<Props> = ({ isEditable, data }) => {
         useCallback((state) => state.setRawContent, []),
     );
     const savePost = useEditorStore(useCallback((state) => state.savePost, []));
-    const setCharCount = useEditorStore(
-        useCallback((state) => state.setCharCount, []),
-    );
     const setPostData = useEditorStore(
         useCallback((state) => state.setPostData, []),
     );
@@ -129,7 +126,6 @@ export const Editor: React.FC<Props> = ({ isEditable, data }) => {
         content: (data?.rawContent as JSONContent) || null,
         onUpdate: (editorObj) => {
             setRawContent(editorObj.editor.getJSON());
-            setCharCount(editorObj.editor.getText().length);
             triggerDelayedSave(authUser);
         },
     });

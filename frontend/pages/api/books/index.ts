@@ -3,9 +3,15 @@ import prisma from '../../../lib/prisma';
 
 const getAllBooks = async (_req: NextApiRequest, res: NextApiResponse) => {
     try {
-        const books = await prisma.book.findMany().catch(() => {
-            throw new Error('failed to get books');
-        });
+        const books = await prisma.book
+            .findMany({
+                orderBy: {
+                    title: 'asc',
+                },
+            })
+            .catch(() => {
+                throw new Error('failed to get books');
+            });
 
         res.send(books);
     } catch (error) {
@@ -52,6 +58,7 @@ const createBook = async (req: NextApiRequest, res: NextApiResponse) => {
                     gradeLevel: req.body.gradeLevel,
                     readingAge: req.body.readingAge,
                     pages: req.body.pages,
+                    coverImage: req.body.coverImage,
                     categories: {
                         connect: req.body.categoryIds?.map((id: string) => ({
                             id,

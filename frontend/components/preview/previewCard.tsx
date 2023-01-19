@@ -7,6 +7,7 @@ import { RiQuillPenLine } from 'react-icons/ri';
 import { IoBookOutline } from 'react-icons/io5';
 import { TbTags, TbWriting, TbSettings } from 'react-icons/tb';
 import { useFirebaseAuth } from '../../utils/contexts/firebaseProvider';
+import { BookCover } from '../../utils/api/Books';
 
 export interface IPostPreview extends Partial<Post> {
     user: {
@@ -22,9 +23,10 @@ export interface IPostPreview extends Partial<Post> {
 
 interface Props {
     post: IPostPreview;
+    bookCover: BookCover;
 }
 
-export const PreviewCard: React.FC<Props> = ({ post }) => {
+export const PreviewCard: React.FC<Props> = ({ post, bookCover }) => {
     const { authUser } = useFirebaseAuth();
     const router = useRouter();
     const ref = useRef<HTMLDivElement>(null);
@@ -83,7 +85,7 @@ export const PreviewCard: React.FC<Props> = ({ post }) => {
                     <Link href={`/posts/${post.id}`}>
                         <div className='mt-3 flex cursor-pointer flex-row gap-2'>
                             <RiQuillPenLine className='shrink-0 grow-0 self-center text-2xl text-tertiary' />
-                            <p className='text-base text-neutral-600 line-clamp-5'>
+                            <p className='text-base text-neutral-600 line-clamp-3'>
                                 {post.description === 'No description'
                                     ? post.title
                                     : post.description}
@@ -118,20 +120,32 @@ export const PreviewCard: React.FC<Props> = ({ post }) => {
                             className='flex w-fit items-center gap-2'
                             onClick={() => router.push(`/editor/${post.id}`)}
                         >
-                            <span className='inline-flex items-center rounded-full bg-secondary bg-opacity-30 px-3 py-0.5 text-sm font-light hover:scale-110'>
+                            <span className='inline-flex items-center rounded-full bg-secondary bg-opacity-30 px-3 py-0.5 text-sm font-light hover:scale-110 hover:cursor-pointer'>
                                 Edit
                             </span>
-                            {post.status === 'draft' && (
-                                <span className='inline-flex items-center rounded-full bg-alert bg-opacity-30 px-3 py-0.5 text-sm font-light hover:scale-110'>
-                                    Draft
-                                </span>
-                            )}
                         </button>
+                        {post.status === 'draft' ? (
+                            <span className='inline-flex items-center rounded-full bg-alert bg-opacity-30 px-3 py-0.5 text-sm font-light'>
+                                Draft
+                            </span>
+                        ) : (
+                            <span className='inline-flex items-center rounded-full bg-success bg-opacity-30 px-3 py-0.5 text-sm font-light'>
+                                Published
+                            </span>
+                        )}
                     </div>
                 )}
             </div>
             <Link href={`/posts/${post.id}`}>
-                <div className='hidden w-28 cursor-pointer bg-tertiary md:block' />
+                <div className='hidden w-28 cursor-pointer bg-tertiary md:block'>
+                    {bookCover && (
+                        <img
+                            className='h-full w-full object-cover'
+                            src={bookCover.coverImage as string}
+                            alt={post.title as string}
+                        />
+                    )}
+                </div>
             </Link>
         </div>
     );

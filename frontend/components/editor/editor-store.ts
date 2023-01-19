@@ -55,30 +55,39 @@ interface IEditorActions {
     setBookOptions: (bookData?: Book[]) => void;
     setSelectedBook: (selectedBook: ListOption) => void;
     fetchBooks: () => void;
+    resetEditorState: () => void;
 }
+
+const initialEditorState: IEditorState = {
+    postData: {
+        id: '',
+        categoryIds: [],
+        bookId: '',
+    },
+    bookOptions: [],
+    selectedBook: {
+        id: '',
+        name: '',
+    },
+    bookStatus: 'idle',
+    rawContent: {},
+    htmlContent: '',
+    status: 'draft',
+    touched: false,
+    categoryStatus: 'idle',
+    options: [],
+    selectedCategories: [],
+    charCount: 0,
+};
+
 export const useEditorStore = create<IEditorState & IEditorActions>()(
     (set, get) => ({
         // State
-        postData: {
-            id: '',
-            categoryIds: [],
-            bookId: '',
-        },
-        bookOptions: [],
-        selectedBook: {
-            id: '',
-            name: '',
-        },
-        bookStatus: 'idle',
-        rawContent: {},
-        htmlContent: '',
-        status: 'draft',
-        touched: false,
-        categoryStatus: 'idle',
-        options: [],
-        selectedCategories: [],
-        charCount: 0,
+        ...initialEditorState,
         // Actions
+        resetEditorState: () => {
+            set(initialEditorState);
+        },
         fetchBooks: async () => {
             set({ bookStatus: 'loading' });
             bookApi
@@ -302,8 +311,27 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
             set({ charCount });
         },
         determineReadTime: () => {
-            const { charCount } = get();
-            return Math.ceil(charCount / 200);
+            const { rawContent } = get();
+            // get the text from the document
+            const text = rawContent
+                .content!.map((item) => {
+                    if (item.type === 'paragraph') {
+                        return item
+                            .content!.map((para) => {
+                                if (para.type === 'text') {
+                                    return para.text;
+                                }
+                                return '';
+                            })
+                            .join('');
+                    }
+                    return '';
+                })
+                .join('');
+            // get a word count
+            const wordCount = text.split(' ').length;
+
+            return Math.ceil(wordCount / 200);
         },
     }),
 );

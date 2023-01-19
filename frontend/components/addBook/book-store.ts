@@ -12,15 +12,23 @@ interface BookStoreState {
 interface BookStoreActions {
     setSelectedCategories: (selectedCategories: ListOption[]) => void;
     fetchCategories: () => void;
+    resetBookState: () => void;
 }
+
+const initialBookState: BookStoreState = {
+    options: [],
+    selectedCategories: [],
+    categoryStatus: 'idle',
+};
 
 export const useBookStore = create<BookStoreState & BookStoreActions>()(
     (set, get) => ({
         // State
-        options: [],
-        selectedCategories: [],
-        categoryStatus: 'idle',
+        ...initialBookState,
         // Actions
+        resetBookState: () => {
+            set(initialBookState);
+        },
         setSelectedCategories: (selectedCategories) => {
             set({ selectedCategories });
         },
