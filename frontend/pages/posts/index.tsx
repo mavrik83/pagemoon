@@ -107,7 +107,7 @@ const Posts: NextPage<Props> = ({ posts }: Props) => {
                     </div>
                 </div>
             </div>
-            <div className='mx-5 mt-5 grid max-w-lg gap-5 lg:max-w-none lg:grid-cols-2'>
+            <div className='mx-5 mt-5 grid max-w-lg gap-5 pb-10 lg:max-w-none lg:grid-cols-2'>
                 {posts
                     .filter((post) =>
                         // if user is logged in, show all posts. Otherwise, only show published posts
