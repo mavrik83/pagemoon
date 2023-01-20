@@ -68,7 +68,7 @@ const Posts: NextPage<Props> = ({ posts }: Props) => {
     return (
         <>
             <div className='mt-5 rounded-md bg-secondary bg-opacity-30'>
-                <div className='sm:py-18 mx-auto max-w-7xl py-16 px-6 lg:flex lg:justify-between lg:px-8'>
+                <div className='mx-auto max-w-7xl py-8 px-6 lg:flex lg:justify-between lg:px-8'>
                     <div className='max-w-xl'>
                         <h2 className='text-4xl font-light tracking-tight sm:text-5xl lg:text-6xl'>
                             All Reviews

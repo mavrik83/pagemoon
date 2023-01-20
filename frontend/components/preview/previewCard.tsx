@@ -49,7 +49,17 @@ export const PreviewCard: React.FC<Props> = ({ post, bookCover }) => {
             key={post.id}
             className='flex flex-row overflow-hidden rounded-lg border border-primary bg-white shadow-lg hover:border-secondary'
         >
-            <div className='flex flex-1 flex-col justify-between bg-primary bg-opacity-5 p-3'>
+            <div className='flex flex-1 flex-col justify-between bg-primary bg-opacity-10 p-3'>
+                <div className='relative -m-3 mb-5 h-28 w-auto animate-shimmer cursor-pointer bg-gradient-to-r from-primary via-tertiary to-primary bg-[length:400%_100%] md:hidden'>
+                    {bookCover && (
+                        <Image
+                            className='h-full w-full rounded-b-lg object-cover'
+                            src={bookCover.coverImage as string}
+                            alt={post.title as string}
+                            layout='fill'
+                        />
+                    )}
+                </div>
                 <div className='flex-1'>
                     <Link href={`/posts/${post.id}`}>
                         <div className='flex cursor-pointer flex-row items-center gap-2 '>
@@ -84,7 +94,7 @@ export const PreviewCard: React.FC<Props> = ({ post, bookCover }) => {
                         </div>
                     </div>
                     <Link href={`/posts/${post.id}`}>
-                        <div className='mt-3 flex cursor-pointer flex-row gap-2'>
+                        <div className='mt-3 hidden cursor-pointer flex-row gap-2 md:flex'>
                             <RiQuillPenLine className='shrink-0 grow-0 self-center text-2xl text-tertiary' />
                             <p className='text-base text-neutral-600 line-clamp-3'>
                                 {post.description === 'No description'
@@ -138,7 +148,7 @@ export const PreviewCard: React.FC<Props> = ({ post, bookCover }) => {
                 )}
             </div>
             <Link href={`/posts/${post.id}`}>
-                <div className='relative hidden h-auto w-28 animate-shimmer cursor-pointer bg-gradient-to-r from-primary via-tertiary to-primary bg-[length:400%_100%] md:block'>
+                <div className='hidden h-auto w-28 animate-shimmer cursor-pointer bg-gradient-to-r from-primary via-tertiary to-primary bg-[length:400%_100%] md:relative md:block'>
                     {bookCover && (
                         <Image
                             className='h-full w-full object-cover'

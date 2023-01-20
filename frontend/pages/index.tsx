@@ -66,12 +66,12 @@ const Home: NextPage<Props> = ({ posts }: Props) => {
         <div>
             <Head>
                 <title>PageMoon</title>
-                <meta name='description' content='Future home of PageMoon' />
+                <meta name='description' content='PageMoon' />
                 <link rel='icon' href='/favicon.ico' />
             </Head>
             <section className='my-5'>
                 <div className='rounded-md bg-tertiary'>
-                    <div className='container mx-auto flex flex-col items-center px-4 py-16 text-center md:py-32 md:px-10 lg:px-32 lg:pb-56'>
+                    <div className='container mx-auto flex flex-col items-center px-4 py-8 text-center md:py-12 md:px-10 lg:px-32 lg:pb-52'>
                         <h1 className='text-5xl leading-none sm:text-6xl xl:max-w-3xl'>
                             Welcome to PageMoon
                         </h1>
@@ -85,13 +85,12 @@ const Home: NextPage<Props> = ({ posts }: Props) => {
                         </p>
                     </div>
                 </div>
-                <div className='mx-auto mb-12 hidden w-5/6 sm:w-fit lg:-mt-56 lg:block'>
+                <div className='relative mx-auto mb-12 hidden h-[300px] w-[500px] lg:-mt-56 lg:block'>
                     <Image
-                        src='https://source.unsplash.com/random/500x500/?children,reading,books'
+                        src='https://source.unsplash.com/random/500x500/?children,books'
                         alt='random unsplash of children reading books'
-                        className='rounded-lg bg-gray-500 shadow-md'
-                        width={500}
-                        height={500}
+                        className='h-full w-full rounded-lg bg-gray-500 object-cover shadow-md'
+                        layout='fill'
                         priority
                     />
                 </div>

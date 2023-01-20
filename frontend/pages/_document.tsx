@@ -9,6 +9,7 @@ const Document = () => (
                 href='https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:wght@300;400&display=swap'
                 rel='stylesheet'
             />
+            <link rel='icon' href='/favicon.ico' />
         </Head>
         <body className='text-neutral-800'>
             <Main />

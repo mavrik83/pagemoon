@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import { Menu, Transition } from '@headlessui/react';
 import { MenuIcon } from '@heroicons/react/solid';
-import { WiMoonAltWaxingCrescent3 } from 'react-icons/wi';
 import React, { ComponentPropsWithRef, forwardRef, Fragment } from 'react';
 import { useFirebaseAuth } from '../../utils/contexts/firebaseProvider';
+import { PageMoonIcon } from '../reusable/pageMoonIcon';
 
 interface MenuProps {
     // eslint-disable-next-line react/no-unused-prop-types
@@ -49,16 +49,16 @@ export const Header: React.FC<Props> = ({ setAddBookModalOpen }: Props) => {
     return (
         <header className='sticky top-0 z-40 bg-white bg-opacity-50 font-light shadow-xl backdrop-blur-sm'>
             <nav
-                className='mx-auto max-w-7xl px-4 pb-2 backdrop-blur-sm sm:px-6 lg:px-8'
+                className='mx-auto max-w-7xl px-4 backdrop-blur-sm sm:px-6 lg:px-8'
                 aria-label='Top'
             >
-                <div className='flex w-full items-center justify-between py-2'>
+                <div className='flex w-full items-center justify-between py-1'>
                     <div className='flex items-center'>
                         <MyLink href='/'>
-                            <WiMoonAltWaxingCrescent3 className='h-14 w-auto rotate-45 text-primary lg:transition-colors lg:duration-300 lg:ease-in-out lg:hover:text-secondary lg:hover:text-opacity-90' />
+                            <PageMoonIcon className='h-14 w-auto fill-primary stroke-primary p-1 lg:transition-colors lg:duration-300 lg:ease-in-out lg:hover:fill-secondary lg:hover:stroke-secondary lg:hover:text-opacity-90' />
                         </MyLink>
                         <MyLink href='/'>
-                            <div className='hidden text-3xl text-primary sm:block'>
+                            <div className='text-3xl text-primary'>
                                 PageMoon
                             </div>
                         </MyLink>
