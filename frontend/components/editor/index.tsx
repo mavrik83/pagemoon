@@ -171,7 +171,7 @@ export const Editor: React.FC<Props> = ({ isEditable, data }) => {
                     isMulti={false}
                 />
             </div>
-            <div className='mt-5 grid grid-cols-4 gap-3 sm:flex sm:flex-row'>
+            <div className='mt-5 flex flex-row flex-wrap gap-3'>
                 {selectedCategories.map((category) => (
                     <span
                         key={category.name}
