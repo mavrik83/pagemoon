@@ -51,7 +51,7 @@ export const PreviewCard: React.FC<Props> = ({ post, bookCover }) => {
         >
             <div className='flex flex-1 flex-col justify-between bg-primary bg-opacity-10 p-3'>
                 <Link href={`/posts/${post.id}`}>
-                    <div className='relative -m-3 mb-5 h-28 w-auto animate-shimmer cursor-pointer bg-gradient-to-r from-primary via-tertiary to-primary bg-[length:400%_100%] md:hidden'>
+                    <div className='relative -m-3 mb-5 h-28 w-auto animate-shimmer cursor-pointer rounded-b-lg bg-gradient-to-r from-primary via-tertiary to-primary bg-[length:400%_100%] md:hidden'>
                         {bookCover && (
                             <Image
                                 className='h-full w-full rounded-b-lg object-cover'
