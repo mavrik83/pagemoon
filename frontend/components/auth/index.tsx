@@ -87,11 +87,18 @@ export const Auth: React.FC<AuthProps> = ({ open, setOpen, mode }) => {
             signInWithPopup(auth, googleProvider).then(async (result) => {
                 const user = await userApi.findUser(result.user.uid);
                 if (!user) {
+                    const { displayName, uid, email } =
+                        result && result.user && result.user;
+
                     userApi.createUser({
-                        authUid: result.user.uid,
-                        email: result.user.email,
-                        firstName: result.user.displayName,
-                        lastName: '',
+                        authUid: uid,
+                        email: email as string,
+                        firstName: displayName?.split(' ')[0] as string,
+                        // the rest of the name is the last name
+                        lastName: displayName
+                            ?.split(' ')
+                            .slice(1)
+                            .join(' ') as string,
                     });
                 }
 
