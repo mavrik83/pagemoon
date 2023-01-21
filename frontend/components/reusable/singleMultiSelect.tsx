@@ -8,10 +8,6 @@ export interface ListOption {
     id: string;
     name: string;
 }
-
-// conditional type to check if the type is a single select or multi select
-export type SelectType<T> = T extends ListOption ? ListOption : ListOption[];
-
 interface Props {
     selectedOptions: ListOption[] | ListOption;
     setSelectedOptions: (selectedOptions: ListOption[] | ListOption) => void;

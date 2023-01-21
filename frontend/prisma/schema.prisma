@@ -27,22 +27,27 @@ model User {
 }
 
 model Book {
-  id          String     @id @default(auto()) @map("_id") @db.ObjectId
-  title       String?
-  author      String?
-  isbn        String?
-  publisher   String?
-  language    String?
-  pages       Int?
-  readingAge  String?
-  gradeLevel  String?
-  coverImage  String?
-  createdAt   DateTime?  @default(now())
-  updatedAt   DateTime?  @updatedAt
-  postIds     String[]   @db.ObjectId
-  posts       Post[]
-  categoryIds String[]   @db.ObjectId
-  categories  Category[] @relation(fields: [categoryIds], references: [id])
+  id            String     @id @default(auto()) @map("_id") @db.ObjectId
+  title         String?
+  authors       String?
+  isbn          String?
+  publisher     String?
+  datePublished String?
+  edition       String?
+  language      String?
+  pages         Int?
+  synopsis      String?
+  binding       String?
+  readingAge    String?
+  gradeLevel    String?
+  coverImage    String?
+  coverLink     String?
+  createdAt     DateTime?  @default(now())
+  updatedAt     DateTime?  @updatedAt
+  postIds       String[]   @db.ObjectId
+  posts         Post[]
+  categoryIds   String[]   @db.ObjectId
+  categories    Category[] @relation(fields: [categoryIds], references: [id])
 
   @@map("books")
 }

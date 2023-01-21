@@ -5,7 +5,7 @@ import Image from 'next/image';
 import prisma from '../lib/prisma';
 import { bookApi } from '../utils/api';
 import { RecentPosts } from '../components/preview/recentPosts';
-import { IPostPreview } from '../components/preview/previewCard';
+import { IPostPreview } from '../models/posts';
 import { BookCover } from '../utils/api/Books';
 
 interface Props {
@@ -35,7 +35,7 @@ export const getStaticProps = async () => {
             book: {
                 select: {
                     title: true,
-                    id: true,
+                    isbn: true,
                 },
             },
         },

@@ -51,7 +51,7 @@ const createBook = async (req: NextApiRequest, res: NextApiResponse) => {
             .create({
                 data: {
                     title: req.body.title,
-                    author: req.body.author,
+                    authors: req.body.authors,
                     isbn: req.body.isbn,
                     language: req.body.language,
                     publisher: req.body.publisher,
@@ -59,6 +59,11 @@ const createBook = async (req: NextApiRequest, res: NextApiResponse) => {
                     readingAge: req.body.readingAge,
                     pages: req.body.pages,
                     coverImage: req.body.coverImage,
+                    edition: req.body.edition,
+                    binding: req.body.binding,
+                    synopsis: req.body.synopsis,
+                    datePublished: req.body.datePublished,
+                    coverLink: req.body.coverLink,
                     categories: {
                         connect: req.body.categoryIds?.map((id: string) => ({
                             id,

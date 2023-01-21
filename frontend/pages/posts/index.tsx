@@ -2,13 +2,11 @@
 import React, { useEffect } from 'react';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import {
-    IPostPreview,
-    PreviewCard,
-} from '../../components/preview/previewCard';
+import { PreviewCard } from '../../components/preview/previewCard';
 import { useFirebaseAuth } from '../../utils/contexts/firebaseProvider';
 import prisma from '../../lib/prisma';
 import { bookApi, BookCover } from '../../utils/api/Books';
+import { IPostPreview } from '../../models/posts';
 
 interface Props {
     posts: IPostPreview[];

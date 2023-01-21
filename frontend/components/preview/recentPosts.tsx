@@ -1,9 +1,10 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 /* eslint-disable @next/next/no-img-element */
 import React from 'react';
+import { IPostPreview } from '../../models/posts';
 import { BookCover } from '../../utils/api/Books';
 import { useFirebaseAuth } from '../../utils/contexts/firebaseProvider';
-import { PreviewCard, IPostPreview } from './previewCard';
+import { PreviewCard } from './previewCard';
 
 interface Props {
     posts: IPostPreview[];

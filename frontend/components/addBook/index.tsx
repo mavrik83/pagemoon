@@ -2,7 +2,7 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import { Dialog, Transition } from '@headlessui/react';
 import { XIcon } from '@heroicons/react/outline';
-import React, { FC, Fragment, useCallback, useEffect } from 'react';
+import React, { FC, Fragment, useCallback, useEffect, useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
 import { TbBookUpload } from 'react-icons/tb';
@@ -19,11 +19,12 @@ interface Props {
 
 interface Handlers {
     handleSubmit: SubmitHandler<FormInputs>;
+    handleSearch: (searchTerm: string) => void;
 }
 
 interface FormInputs {
     title: string;
-    author: string;
+    authors: string;
     isbn: string;
     publisher: string;
     language: string;
@@ -37,7 +38,9 @@ const AddBook: FC<Props> = ({ open, setOpen }: Props) => {
     const selectedCategories = useBookStore(
         useCallback((state) => state.selectedCategories, []),
     );
-
+    const resetBookState = useBookStore(
+        useCallback((state) => state.resetBookState, []),
+    );
     const fetchBooks = useEditorStore(
         useCallback((state) => state.fetchBooks, []),
     );
@@ -49,23 +52,31 @@ const AddBook: FC<Props> = ({ open, setOpen }: Props) => {
     const setSelectedCategories = useBookStore(
         useCallback((state) => state.setSelectedCategories, []),
     );
+    const setIsbnData = useBookStore(
+        useCallback((state) => state.setIsbnData, []),
+    );
+    const isbnData = useBookStore(useCallback((state) => state.isbnData, []));
     const options = useBookStore(useCallback((state) => state.options, []));
 
     const categoryStatus = useBookStore(
         useCallback((state) => state.categoryStatus, []),
     );
 
+    const [hasResults, setHasResults] = useState<boolean>(false);
+    const [isbn, setIsbn] = useState<string>('');
+
     const {
         register,
         handleSubmit,
         reset,
+        setValue,
         formState: { errors, isValid },
     } = useForm<FormInputs>({
         mode: 'onTouched',
         reValidateMode: 'onChange',
         defaultValues: {
             title: '',
-            author: '',
+            authors: '',
             isbn: '',
             publisher: '',
             language: '',
@@ -78,7 +89,6 @@ const AddBook: FC<Props> = ({ open, setOpen }: Props) => {
     const handlers: Handlers = {
         handleSubmit: async (data) => {
             try {
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 const coverImage = (await processImage(data.cover).catch(() => {
                     toast.error('Error processing image');
                 })) as string;
@@ -86,7 +96,12 @@ const AddBook: FC<Props> = ({ open, setOpen }: Props) => {
                 const categoryIds = selectedCategories.map(
                     (category) => category.id,
                 );
-                const newBook = { ...data, categoryIds, coverImage };
+                const newBook = {
+                    ...data,
+                    ...isbnData,
+                    categoryIds,
+                    coverImage,
+                };
 
                 bookApi.createBook(newBook).then((res) => {
                     if (res.title === data.title) {
@@ -100,11 +115,38 @@ const AddBook: FC<Props> = ({ open, setOpen }: Props) => {
                 setOpen(false);
             }
         },
+        handleSearch: async (searchTerm: string) => {
+            try {
+                await bookApi
+                    .searchIsbnDb(searchTerm)
+                    .then((res) => setIsbnData(res))
+                    .then(() => {
+                        setHasResults(true);
+                    });
+            } catch (err) {
+                toast.error('Error searching ISBN');
+            }
+        },
     };
+
+    useEffect(() => {
+        if (isbnData && hasResults) {
+            setValue('title', isbnData.title as string);
+            setValue('authors', isbnData.authors as string);
+            setValue('isbn', isbnData.isbn as string);
+            setValue('publisher', isbnData.publisher as string as string);
+            setValue('language', isbnData.language as string);
+            setValue('pages', isbnData.pages as number);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [hasResults]);
 
     useEffect(() => {
         if (!open) {
             reset();
+            resetBookState();
+            setHasResults(false);
+            setIsbn('');
         }
         if (open) {
             fetchCategories();
@@ -163,396 +205,497 @@ const AddBook: FC<Props> = ({ open, setOpen }: Props) => {
                                             </div>
                                         </div>
                                         <div className='relative mt-6 flex-1 px-4 sm:px-6'>
-                                            <form
-                                                className='mt-6 w-fit max-w-screen-md rounded-md bg-secondary bg-opacity-30 p-10'
-                                                onSubmit={handleSubmit(
-                                                    handlers.handleSubmit,
-                                                )}
-                                            >
-                                                <div className='max-w-sm py-1'>
-                                                    <label
-                                                        htmlFor='title'
-                                                        className='ml-3 block text-sm font-light'
-                                                    >
-                                                        Title
-                                                    </label>
-                                                    <input
-                                                        {...register('title', {
-                                                            required: {
-                                                                value: true,
-                                                                message:
-                                                                    'Title is required',
-                                                            },
-                                                            minLength: {
-                                                                value: 3,
-                                                                message:
-                                                                    'Title must be at least 3 characters',
-                                                            },
-                                                            maxLength: {
-                                                                value: 80,
-                                                                message:
-                                                                    'Title must be less than 80 characters',
-                                                            },
-                                                        })}
-                                                        id='title'
-                                                        type='text'
-                                                        className='relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-neutral-400 focus:z-10 focus:border-tertiary focus:outline-none focus:ring-tertiary sm:text-sm'
-                                                        placeholder='Alice in Wonderland'
-                                                    />
-                                                    {errors.title && (
-                                                        <p
-                                                            className='ml-3 mt-0.5 text-xs font-light text-alert'
-                                                            id='title-error'
-                                                        >
-                                                            {
-                                                                errors.title
-                                                                    .message
-                                                            }
-                                                        </p>
-                                                    )}
-                                                </div>
-                                                <div className='max-w-sm py-1'>
-                                                    <label
-                                                        htmlFor='author'
-                                                        className='ml-3 block text-sm font-light'
-                                                    >
-                                                        Author
-                                                    </label>
-                                                    <input
-                                                        {...register('author', {
-                                                            required: {
-                                                                value: true,
-                                                                message:
-                                                                    'Author is required',
-                                                            },
-                                                            maxLength: {
-                                                                value: 80,
-                                                                message:
-                                                                    'Author must be less than 80 characters',
-                                                            },
-                                                        })}
-                                                        id='author'
-                                                        type='text'
-                                                        className='relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-neutral-400 focus:z-10 focus:border-tertiary focus:outline-none focus:ring-tertiary sm:text-sm'
-                                                        placeholder='Lewis Carroll'
-                                                    />
-                                                    {errors.author && (
-                                                        <p
-                                                            className='ml-3 mt-0.5 text-xs font-light text-alert'
-                                                            id='author-error'
-                                                        >
-                                                            {
-                                                                errors.author
-                                                                    .message
-                                                            }
-                                                        </p>
-                                                    )}
-                                                </div>
-                                                <div className='max-w-sm py-1'>
-                                                    <label
-                                                        htmlFor='isbn'
-                                                        className='ml-3 block text-sm font-light'
-                                                    >
-                                                        ISBN
-                                                    </label>
-                                                    <input
-                                                        {...register('isbn', {
-                                                            required: {
-                                                                value: true,
-                                                                message:
-                                                                    'ISBN is required',
-                                                            },
-                                                            maxLength: {
-                                                                value: 17,
-                                                                message:
-                                                                    'ISBN must be less than 17 characters',
-                                                            },
-                                                            pattern: {
-                                                                value: /^(?=(?:[^0-9]*[0-9]){10}(?:(?:[^0-9]*[0-9]){3})?$)[\d-]+$/,
-                                                                message:
-                                                                    'Must be a valid ISBN-10 or ISBN-13',
-                                                            },
-                                                        })}
-                                                        id='isbn'
-                                                        type='text'
-                                                        className='relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-neutral-400 focus:z-10 focus:border-tertiary focus:outline-none focus:ring-tertiary sm:text-sm'
-                                                        placeholder='0147509076 -or- 978-0147509079'
-                                                    />
-                                                    {errors.isbn && (
-                                                        <p
-                                                            className='ml-3 mt-0.5 text-xs font-light text-alert'
-                                                            id='isbn-error'
-                                                        >
-                                                            {
-                                                                errors.isbn
-                                                                    .message
-                                                            }
-                                                        </p>
-                                                    )}
-                                                </div>
-                                                <div className='max-w-sm py-1'>
-                                                    <label
-                                                        htmlFor='publisher'
-                                                        className='ml-3 block text-sm font-light'
-                                                    >
-                                                        Publisher
-                                                    </label>
-                                                    <input
-                                                        {...register(
-                                                            'publisher',
-                                                            {
-                                                                required: {
-                                                                    value: true,
-                                                                    message:
-                                                                        'Publisher is required',
-                                                                },
-                                                                maxLength: {
-                                                                    value: 80,
-                                                                    message:
-                                                                        'Publisher must be less than 80 characters',
-                                                                },
-                                                            },
-                                                        )}
-                                                        id='publisher'
-                                                        type='text'
-                                                        className='relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-neutral-400 focus:z-10 focus:border-tertiary focus:outline-none focus:ring-tertiary sm:text-sm'
-                                                        placeholder='Penguin Classics'
-                                                    />
-                                                    {errors.publisher && (
-                                                        <p
-                                                            className='ml-3 mt-0.5 text-xs font-light text-alert'
-                                                            id='publisher-error'
-                                                        >
-                                                            {
-                                                                errors.publisher
-                                                                    .message
-                                                            }
-                                                        </p>
-                                                    )}
-                                                </div>
-                                                <div className='flex max-w-sm flex-row gap-2 py-1'>
-                                                    <div className='basis-1/2'>
+                                            {!hasResults && (
+                                                <form
+                                                    onSubmit={(e) => {
+                                                        e.preventDefault();
+                                                        handlers.handleSearch(
+                                                            isbn,
+                                                        );
+                                                    }}
+                                                    className='mt-6 w-full rounded-md bg-secondary bg-opacity-30 p-10'
+                                                >
+                                                    <div className='max-w-sm py-1'>
                                                         <label
-                                                            htmlFor='language'
+                                                            htmlFor='isbn'
                                                             className='ml-3 block text-sm font-light'
                                                         >
-                                                            Language
+                                                            ISBN
+                                                        </label>
+                                                        <input
+                                                            value={isbn || ''}
+                                                            onChange={(e) =>
+                                                                setIsbn(
+                                                                    e.target
+                                                                        .value,
+                                                                )
+                                                            }
+                                                            id='isbn'
+                                                            type='text'
+                                                            className='relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-neutral-400 focus:z-10 focus:border-tertiary focus:outline-none focus:ring-tertiary sm:text-sm'
+                                                            placeholder='Search by ISBN'
+                                                        />
+                                                    </div>
+                                                    <div className='max-w-sm py-1'>
+                                                        <button
+                                                            type='submit'
+                                                            className='group relative flex w-full justify-center rounded-md border border-transparent bg-tertiary px-4 py-2 text-sm font-medium text-white hover:bg-secondary hover:bg-opacity-70 focus:outline-none disabled:bg-neutral-500 disabled:text-neutral-800'
+                                                        >
+                                                            <span className='absolute inset-y-0 left-0 flex items-center pl-3'>
+                                                                <TbBookUpload
+                                                                    className='h-5 w-5 text-secondary group-hover:text-primary'
+                                                                    aria-hidden='true'
+                                                                />
+                                                            </span>
+                                                            Search
+                                                        </button>
+                                                    </div>
+                                                    <div className='mt-6 max-w-sm py-1'>
+                                                        <label
+                                                            htmlFor='isbn'
+                                                            className='ml-3 block text-sm font-light'
+                                                        >
+                                                            Don&apos;t know the
+                                                            ISBN?
+                                                        </label>
+                                                        <button
+                                                            onClick={() => {
+                                                                reset();
+                                                                setHasResults(
+                                                                    true,
+                                                                );
+                                                            }}
+                                                            type='button'
+                                                            className='group relative flex w-full justify-center rounded-md border border-transparent bg-tertiary px-4 py-2 text-sm font-medium text-white hover:bg-secondary hover:bg-opacity-70 focus:outline-none disabled:bg-neutral-500 disabled:text-neutral-800'
+                                                        >
+                                                            <span className='absolute inset-y-0 left-0 flex items-center pl-3'>
+                                                                <TbBookUpload
+                                                                    className='h-5 w-5 text-secondary group-hover:text-primary'
+                                                                    aria-hidden='true'
+                                                                />
+                                                            </span>
+                                                            Fill in the details
+                                                            manually
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            )}
+                                            {hasResults && (
+                                                <form
+                                                    className='mt-6 w-fit max-w-screen-md rounded-md bg-secondary bg-opacity-30 p-10'
+                                                    onSubmit={handleSubmit(
+                                                        handlers.handleSubmit,
+                                                    )}
+                                                >
+                                                    <div className='max-w-sm py-1'>
+                                                        <label
+                                                            htmlFor='title'
+                                                            className='ml-3 block text-sm font-light'
+                                                        >
+                                                            Title
                                                         </label>
                                                         <input
                                                             {...register(
-                                                                'language',
+                                                                'title',
                                                                 {
                                                                     required: {
                                                                         value: true,
                                                                         message:
-                                                                            'Language is required',
+                                                                            'Title is required',
+                                                                    },
+                                                                    minLength: {
+                                                                        value: 3,
+                                                                        message:
+                                                                            'Title must be at least 3 characters',
                                                                     },
                                                                     maxLength: {
                                                                         value: 80,
                                                                         message:
-                                                                            'Language must be less than 80 characters',
+                                                                            'Title must be less than 80 characters',
                                                                     },
                                                                 },
                                                             )}
-                                                            id='language'
+                                                            id='title'
                                                             type='text'
                                                             className='relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-neutral-400 focus:z-10 focus:border-tertiary focus:outline-none focus:ring-tertiary sm:text-sm'
-                                                            placeholder='English'
+                                                            placeholder='Alice in Wonderland'
                                                         />
-                                                        {errors.language && (
+                                                        {errors.title && (
                                                             <p
                                                                 className='ml-3 mt-0.5 text-xs font-light text-alert'
-                                                                id='language-error'
+                                                                id='title-error'
                                                             >
                                                                 {
-                                                                    errors
-                                                                        .language
+                                                                    errors.title
                                                                         .message
                                                                 }
                                                             </p>
                                                         )}
                                                     </div>
-                                                    <div className='basis-1/2'>
+                                                    <div className='max-w-sm py-1'>
                                                         <label
-                                                            htmlFor='pages'
+                                                            htmlFor='author'
                                                             className='ml-3 block text-sm font-light'
                                                         >
-                                                            Number of Pages
+                                                            Author
                                                         </label>
                                                         <input
                                                             {...register(
-                                                                'pages',
+                                                                'authors',
                                                                 {
                                                                     required: {
                                                                         value: true,
                                                                         message:
-                                                                            'Number of pages is required',
+                                                                            'Author is required',
                                                                     },
-                                                                    valueAsNumber:
-                                                                        true,
+                                                                    maxLength: {
+                                                                        value: 80,
+                                                                        message:
+                                                                            'Author must be less than 80 characters',
+                                                                    },
+                                                                },
+                                                            )}
+                                                            id='author'
+                                                            type='text'
+                                                            className='relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-neutral-400 focus:z-10 focus:border-tertiary focus:outline-none focus:ring-tertiary sm:text-sm'
+                                                            placeholder='Lewis Carroll'
+                                                        />
+                                                        {errors.authors && (
+                                                            <p
+                                                                className='ml-3 mt-0.5 text-xs font-light text-alert'
+                                                                id='author-error'
+                                                            >
+                                                                {
+                                                                    errors
+                                                                        .authors
+                                                                        .message
+                                                                }
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                    <div className='max-w-sm py-1'>
+                                                        <label
+                                                            htmlFor='isbn'
+                                                            className='ml-3 block text-sm font-light'
+                                                        >
+                                                            ISBN
+                                                        </label>
+                                                        <input
+                                                            {...register(
+                                                                'isbn',
+                                                                {
+                                                                    required: {
+                                                                        value: true,
+                                                                        message:
+                                                                            'ISBN is required',
+                                                                    },
+                                                                    maxLength: {
+                                                                        value: 17,
+                                                                        message:
+                                                                            'ISBN must be less than 17 characters',
+                                                                    },
                                                                     pattern: {
-                                                                        value: /^[0-9]*$/,
+                                                                        value: /^(?=(?:[^0-9]*[0-9]){10}(?:(?:[^0-9]*[0-9]){3})?$)[\d-]+$/,
                                                                         message:
-                                                                            'Must be a number',
+                                                                            'Must be a valid ISBN-10 or ISBN-13',
                                                                     },
                                                                 },
                                                             )}
-                                                            id='pages'
-                                                            type='number'
+                                                            id='isbn'
+                                                            type='text'
                                                             className='relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-neutral-400 focus:z-10 focus:border-tertiary focus:outline-none focus:ring-tertiary sm:text-sm'
-                                                            placeholder='268'
+                                                            placeholder='0147509076 -or- 978-0147509079'
                                                         />
-                                                        {errors.pages && (
+                                                        {errors.isbn && (
                                                             <p
                                                                 className='ml-3 mt-0.5 text-xs font-light text-alert'
-                                                                id='pages-error'
+                                                                id='isbn-error'
                                                             >
                                                                 {
-                                                                    errors.pages
+                                                                    errors.isbn
                                                                         .message
                                                                 }
                                                             </p>
                                                         )}
                                                     </div>
-                                                </div>
-                                                <div className='flex max-w-sm flex-row gap-2 py-1'>
-                                                    <div className='basis-1/2'>
+                                                    <div className='max-w-sm py-1'>
                                                         <label
-                                                            htmlFor='reading-age'
+                                                            htmlFor='publisher'
                                                             className='ml-3 block text-sm font-light'
                                                         >
-                                                            Reading Age
+                                                            Publisher
                                                         </label>
                                                         <input
                                                             {...register(
-                                                                'readingAge',
+                                                                'publisher',
                                                                 {
                                                                     required: {
                                                                         value: true,
                                                                         message:
-                                                                            'Reading Age is required',
+                                                                            'Publisher is required',
                                                                     },
                                                                     maxLength: {
                                                                         value: 80,
                                                                         message:
-                                                                            'Reading Age must be less than 80 characters',
+                                                                            'Publisher must be less than 80 characters',
                                                                     },
                                                                 },
                                                             )}
-                                                            id='reading-age'
+                                                            id='publisher'
                                                             type='text'
                                                             className='relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-neutral-400 focus:z-10 focus:border-tertiary focus:outline-none focus:ring-tertiary sm:text-sm'
-                                                            placeholder='8'
+                                                            placeholder='Penguin Classics'
                                                         />
-                                                        {errors.readingAge && (
+                                                        {errors.publisher && (
                                                             <p
                                                                 className='ml-3 mt-0.5 text-xs font-light text-alert'
-                                                                id='readingAge-error'
+                                                                id='publisher-error'
                                                             >
                                                                 {
                                                                     errors
-                                                                        .readingAge
+                                                                        .publisher
                                                                         .message
                                                                 }
                                                             </p>
                                                         )}
                                                     </div>
-                                                    <div className='basis-1/2'>
-                                                        <label
-                                                            htmlFor='grade-level'
-                                                            className='ml-3 block text-sm font-light'
-                                                        >
-                                                            Grade Level
-                                                        </label>
-                                                        <input
-                                                            {...register(
-                                                                'gradeLevel',
-                                                                {
-                                                                    required: {
-                                                                        value: true,
-                                                                        message:
-                                                                            'Grade Level is required',
-                                                                    },
-                                                                    maxLength: {
-                                                                        value: 80,
-                                                                        message:
-                                                                            'Grade Level must be less than 80 characters',
-                                                                    },
-                                                                },
-                                                            )}
-                                                            id='grade-level'
-                                                            type='text'
-                                                            className='relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-neutral-400 focus:z-10 focus:border-tertiary focus:outline-none focus:ring-tertiary sm:text-sm'
-                                                            placeholder='4'
-                                                        />
-                                                        {errors.gradeLevel && (
-                                                            <p
-                                                                className='ml-3 mt-0.5 text-xs font-light text-alert'
-                                                                id='gradeLevel-error'
+                                                    <div className='flex max-w-sm flex-row gap-2 py-1'>
+                                                        <div className='basis-1/2'>
+                                                            <label
+                                                                htmlFor='language'
+                                                                className='ml-3 block text-sm font-light'
                                                             >
-                                                                {
-                                                                    errors
-                                                                        .gradeLevel
-                                                                        .message
-                                                                }
-                                                            </p>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                                <div className='flex max-w-sm flex-row gap-2 py-1'>
-                                                    <div className='basis-1/2'>
-                                                        <label
-                                                            htmlFor='grade-level'
-                                                            className='ml-3 block text-sm font-light'
-                                                        >
-                                                            Add Categories
-                                                        </label>
-                                                        <SingleMultiSelect
-                                                            selectedOptions={
-                                                                selectedCategories
-                                                            }
-                                                            loadingStatus={
-                                                                categoryStatus
-                                                            }
-                                                            options={options}
-                                                            setSelectedOptions={
-                                                                setSelectedCategories as any
-                                                            }
-                                                            theme='primary'
-                                                            label='Categories'
-                                                        />
-                                                    </div>
-                                                </div>
-                                                <div className='w-full py-1'>
-                                                    <label
-                                                        htmlFor='upload-cover'
-                                                        className='ml-3 block text-sm font-light'
-                                                    >
-                                                        Upload Cover
-                                                    </label>
-                                                    <input
-                                                        {...register('cover')}
-                                                        id='upload-cover'
-                                                        type='file'
-                                                        className='inline-flex w-full items-center justify-center whitespace-nowrap rounded-md border border-primary bg-tertiary text-sm font-medium file:rounded-md file:border-none file:bg-primary file:px-3 file:py-2 file:shadow-lg file:hover:scale-105 file:active:scale-100 file:active:shadow-none'
-                                                    />
-                                                </div>
-                                                <div className='mt-5'>
-                                                    <button
-                                                        disabled={!isValid}
-                                                        type='submit'
-                                                        className='group relative flex w-full justify-center rounded-md border border-transparent bg-tertiary px-4 py-2 text-sm font-medium text-white hover:bg-secondary hover:bg-opacity-70 focus:outline-none disabled:bg-neutral-500 disabled:text-neutral-800'
-                                                    >
-                                                        <span className='absolute inset-y-0 left-0 flex items-center pl-3'>
-                                                            <TbBookUpload
-                                                                className='h-5 w-5 text-secondary group-hover:text-primary'
-                                                                aria-hidden='true'
+                                                                Language
+                                                            </label>
+                                                            <input
+                                                                {...register(
+                                                                    'language',
+                                                                    {
+                                                                        required:
+                                                                            {
+                                                                                value: true,
+                                                                                message:
+                                                                                    'Language is required',
+                                                                            },
+                                                                        maxLength:
+                                                                            {
+                                                                                value: 80,
+                                                                                message:
+                                                                                    'Language must be less than 80 characters',
+                                                                            },
+                                                                    },
+                                                                )}
+                                                                id='language'
+                                                                type='text'
+                                                                className='relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-neutral-400 focus:z-10 focus:border-tertiary focus:outline-none focus:ring-tertiary sm:text-sm'
+                                                                placeholder='English'
                                                             />
-                                                        </span>
-                                                        Add Book
-                                                    </button>
-                                                </div>
-                                            </form>
+                                                            {errors.language && (
+                                                                <p
+                                                                    className='ml-3 mt-0.5 text-xs font-light text-alert'
+                                                                    id='language-error'
+                                                                >
+                                                                    {
+                                                                        errors
+                                                                            .language
+                                                                            .message
+                                                                    }
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                        <div className='basis-1/2'>
+                                                            <label
+                                                                htmlFor='pages'
+                                                                className='ml-3 block text-sm font-light'
+                                                            >
+                                                                Number of Pages
+                                                            </label>
+                                                            <input
+                                                                {...register(
+                                                                    'pages',
+                                                                    {
+                                                                        required:
+                                                                            {
+                                                                                value: true,
+                                                                                message:
+                                                                                    'Number of pages is required',
+                                                                            },
+                                                                        valueAsNumber:
+                                                                            true,
+                                                                        pattern:
+                                                                            {
+                                                                                value: /^[0-9]*$/,
+                                                                                message:
+                                                                                    'Must be a number',
+                                                                            },
+                                                                    },
+                                                                )}
+                                                                id='pages'
+                                                                type='number'
+                                                                className='relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-neutral-400 focus:z-10 focus:border-tertiary focus:outline-none focus:ring-tertiary sm:text-sm'
+                                                                placeholder='268'
+                                                            />
+                                                            {errors.pages && (
+                                                                <p
+                                                                    className='ml-3 mt-0.5 text-xs font-light text-alert'
+                                                                    id='pages-error'
+                                                                >
+                                                                    {
+                                                                        errors
+                                                                            .pages
+                                                                            .message
+                                                                    }
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                    <div className='flex max-w-sm flex-row gap-2 py-1'>
+                                                        <div className='basis-1/2'>
+                                                            <label
+                                                                htmlFor='reading-age'
+                                                                className='ml-3 block text-sm font-light'
+                                                            >
+                                                                Reading Age
+                                                            </label>
+                                                            <input
+                                                                {...register(
+                                                                    'readingAge',
+                                                                    {
+                                                                        required:
+                                                                            {
+                                                                                value: true,
+                                                                                message:
+                                                                                    'Reading Age is required',
+                                                                            },
+                                                                        maxLength:
+                                                                            {
+                                                                                value: 80,
+                                                                                message:
+                                                                                    'Reading Age must be less than 80 characters',
+                                                                            },
+                                                                    },
+                                                                )}
+                                                                id='reading-age'
+                                                                type='text'
+                                                                className='relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-neutral-400 focus:z-10 focus:border-tertiary focus:outline-none focus:ring-tertiary sm:text-sm'
+                                                                placeholder='8'
+                                                            />
+                                                            {errors.readingAge && (
+                                                                <p
+                                                                    className='ml-3 mt-0.5 text-xs font-light text-alert'
+                                                                    id='readingAge-error'
+                                                                >
+                                                                    {
+                                                                        errors
+                                                                            .readingAge
+                                                                            .message
+                                                                    }
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                        <div className='basis-1/2'>
+                                                            <label
+                                                                htmlFor='grade-level'
+                                                                className='ml-3 block text-sm font-light'
+                                                            >
+                                                                Grade Level
+                                                            </label>
+                                                            <input
+                                                                {...register(
+                                                                    'gradeLevel',
+                                                                    {
+                                                                        required:
+                                                                            {
+                                                                                value: true,
+                                                                                message:
+                                                                                    'Grade Level is required',
+                                                                            },
+                                                                        maxLength:
+                                                                            {
+                                                                                value: 80,
+                                                                                message:
+                                                                                    'Grade Level must be less than 80 characters',
+                                                                            },
+                                                                    },
+                                                                )}
+                                                                id='grade-level'
+                                                                type='text'
+                                                                className='relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-neutral-400 focus:z-10 focus:border-tertiary focus:outline-none focus:ring-tertiary sm:text-sm'
+                                                                placeholder='4'
+                                                            />
+                                                            {errors.gradeLevel && (
+                                                                <p
+                                                                    className='ml-3 mt-0.5 text-xs font-light text-alert'
+                                                                    id='gradeLevel-error'
+                                                                >
+                                                                    {
+                                                                        errors
+                                                                            .gradeLevel
+                                                                            .message
+                                                                    }
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                    <div className='flex max-w-sm flex-row gap-2 py-1'>
+                                                        <div className='basis-1/2'>
+                                                            <label
+                                                                htmlFor='grade-level'
+                                                                className='ml-3 block text-sm font-light'
+                                                            >
+                                                                Add Categories
+                                                            </label>
+                                                            <SingleMultiSelect
+                                                                selectedOptions={
+                                                                    selectedCategories
+                                                                }
+                                                                loadingStatus={
+                                                                    categoryStatus
+                                                                }
+                                                                options={
+                                                                    options
+                                                                }
+                                                                setSelectedOptions={
+                                                                    setSelectedCategories as any
+                                                                }
+                                                                theme='primary'
+                                                                label='Categories'
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className='w-full py-1'>
+                                                        <label
+                                                            htmlFor='upload-cover'
+                                                            className='ml-3 block text-sm font-light'
+                                                        >
+                                                            Upload Cover
+                                                        </label>
+                                                        <input
+                                                            {...register(
+                                                                'cover',
+                                                            )}
+                                                            id='upload-cover'
+                                                            type='file'
+                                                            className='inline-flex w-full items-center justify-center whitespace-nowrap rounded-md border border-primary bg-tertiary text-sm font-medium file:rounded-md file:border-none file:bg-primary file:px-3 file:py-2 file:shadow-lg file:hover:scale-105 file:active:scale-100 file:active:shadow-none'
+                                                        />
+                                                    </div>
+                                                    <div className='mt-5'>
+                                                        <button
+                                                            disabled={!isValid}
+                                                            type='submit'
+                                                            className='group relative flex w-full justify-center rounded-md border border-transparent bg-tertiary px-4 py-2 text-sm font-medium text-white hover:bg-secondary hover:bg-opacity-70 focus:outline-none disabled:bg-neutral-500 disabled:text-neutral-800'
+                                                        >
+                                                            <span className='absolute inset-y-0 left-0 flex items-center pl-3'>
+                                                                <TbBookUpload
+                                                                    className='h-5 w-5 text-secondary group-hover:text-primary'
+                                                                    aria-hidden='true'
+                                                                />
+                                                            </span>
+                                                            Add Book
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            )}
                                         </div>
                                     </div>
                                 </Dialog.Panel>

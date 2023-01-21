@@ -1,5 +1,6 @@
 import { Book } from '@prisma/client';
 import { apiRequest } from '../../lib/axios/baseAxios';
+import { IsbnBook } from '../../models/books';
 
 export interface SaveBookParams extends Partial<Book> {
     categoryIds?: string[];
@@ -26,6 +27,12 @@ export const bookApi = {
     getBookCovers: async () => {
         const book = await apiRequest.get<null, BookCover[]>(
             `/api/books/get-covers`,
+        );
+        return book;
+    },
+    searchIsbnDb: async (query: string) => {
+        const book = await apiRequest.get<null, IsbnBook>(
+            `/api/books/search-isbndb?q=${query}`,
         );
         return book;
     },
