@@ -1,13 +1,9 @@
-import { Post } from '@prisma/client';
 import { NextApiRequest, NextApiResponse } from 'next';
 import prisma from '../../../lib/prisma';
+import { SavePostParams } from '../../../utils/api/postApi';
 
-interface IPostRequest extends NextApiRequest {
-    body: IPostReqBody;
-}
-
-interface IPostReqBody extends Partial<Post> {
-    userUid?: string;
+interface PostCreatRequest extends NextApiRequest {
+    body: SavePostParams;
 }
 
 const getAllPosts = async (req: NextApiRequest, res: NextApiResponse) => {
@@ -48,7 +44,7 @@ const getSinglePost = async (req: NextApiRequest, res: NextApiResponse) => {
     }
 };
 
-const upsertPost = async (req: IPostRequest, res: NextApiResponse) => {
+const upsertPost = async (req: PostCreatRequest, res: NextApiResponse) => {
     try {
         const user = await prisma.user
             .findFirst({
@@ -70,12 +66,10 @@ const upsertPost = async (req: IPostRequest, res: NextApiResponse) => {
                         htmlContent: req.body.htmlContent,
                         status: req.body.status,
                         readTime: req.body.readTime,
-                        categories: {
-                            connect: req.body.categoryIds?.map(
-                                (id: string) => ({
-                                    id,
-                                }),
-                            ),
+                        tags: {
+                            connect: req.body.tagIds?.map((id: string) => ({
+                                id,
+                            })),
                         },
                         user: {
                             connect: {
@@ -105,13 +99,11 @@ const upsertPost = async (req: IPostRequest, res: NextApiResponse) => {
                         htmlContent: req.body.htmlContent,
                         status: req.body.status,
                         readTime: req.body.readTime,
-                        categories: {
+                        tags: {
                             set: [],
-                            connect: req.body.categoryIds?.map(
-                                (id: string) => ({
-                                    id,
-                                }),
-                            ),
+                            connect: req.body.tagIds?.map((id: string) => ({
+                                id,
+                            })),
                         },
                         book: {
                             connect: {
@@ -122,6 +114,48 @@ const upsertPost = async (req: IPostRequest, res: NextApiResponse) => {
                 })
                 .catch(() => {
                     throw new Error('Failed to update post');
+                });
+
+            const currentBookTags = await prisma.book
+                .findFirst({
+                    where: {
+                        id: req.body.bookId as string,
+                    },
+                    select: {
+                        tagIds: true,
+                    },
+                })
+                .catch(() => {
+                    throw new Error('Failed to get book tags');
+                });
+
+            const newBookTagIds =
+                currentBookTags?.tagIds && currentBookTags?.tagIds?.length > 0
+                    ? req.body.tagIds?.filter(
+                          (id: string) =>
+                              !currentBookTags?.tagIds?.some(
+                                  (tagId) => tagId === id,
+                              ),
+                      )
+                    : req.body.tagIds;
+
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const updateBook = await prisma.book
+                .update({
+                    where: {
+                        id: req.body.bookId as string,
+                    },
+                    data: {
+                        tags: {
+                            set: [],
+                            connect: newBookTagIds?.map((id: string) => ({
+                                id,
+                            })),
+                        },
+                    },
+                })
+                .catch(() => {
+                    throw new Error('Failed to update book tags');
                 });
 
             res.status(200).send(post);
@@ -137,16 +171,16 @@ const upsertPost = async (req: IPostRequest, res: NextApiResponse) => {
 
 const deletePost = async (req: NextApiRequest, res: NextApiResponse) => {
     try {
-        const categories = await prisma.post
+        const tags = await prisma.post
             .findFirst({
                 where: {
                     id: req.query.id as string,
                 },
                 include: {
-                    categories: true,
+                    tags: true,
                 },
             })
-            .categories();
+            .tags();
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const post = await prisma.post.update({
@@ -154,9 +188,9 @@ const deletePost = async (req: NextApiRequest, res: NextApiResponse) => {
                 id: req.query.id as string,
             },
             data: {
-                categories: {
-                    disconnect: categories.map((category) => ({
-                        id: category.id,
+                tags: {
+                    disconnect: tags.map((tag) => ({
+                        id: tag.id,
                     })),
                 },
                 user: {

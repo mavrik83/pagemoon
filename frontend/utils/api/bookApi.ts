@@ -3,8 +3,9 @@ import { apiRequest } from '../../lib/axios/baseAxios';
 import { IsbnBook } from '../../models/books';
 
 export interface SaveBookParams extends Partial<Book> {
-    categoryIds?: string[];
+    themeIds?: string[];
     coverImage?: string;
+    userUid?: string;
 }
 
 export interface BookCover {
@@ -31,7 +32,7 @@ export const bookApi = {
         return book;
     },
     searchIsbnDb: async (query: string) => {
-        const book = await apiRequest.get<null, IsbnBook>(
+        const book = await apiRequest.get<string, IsbnBook>(
             `/api/books/search-isbndb?q=${query}`,
         );
         return book;

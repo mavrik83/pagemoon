@@ -4,7 +4,7 @@ export interface IPostPreview extends Partial<Post> {
     user: {
         firstName: string;
     };
-    categories: {
+    tags: {
         name: string;
     }[];
     book: {

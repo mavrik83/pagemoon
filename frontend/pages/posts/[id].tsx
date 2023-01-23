@@ -6,11 +6,11 @@ import Head from 'next/head';
 import prisma from '../../lib/prisma';
 
 interface Props {
-    post: PostWithCategories;
+    post: PostWithTags;
 }
 
-interface PostWithCategories extends PostModel {
-    categories: {
+interface PostWithTags extends PostModel {
+    tags: {
         name: string;
     }[];
     user: {
@@ -28,12 +28,12 @@ const Post: NextPage<Props> = ({ post }: Props) => (
         </Head>
         <article className='mx-auto max-w-2xl space-y-12 px-6 py-24'>
             <div className='mx-auto w-full space-y-4 text-center'>
-                {post.categories.map((category) => (
+                {post.tags.map((tag) => (
                     <span
-                        key={category.name}
+                        key={tag.name}
                         className='mx-2 inline-flex cursor-pointer items-center rounded-full bg-secondary bg-opacity-30 px-2 py-[0.1rem] text-xs font-light'
                     >
-                        {category.name}
+                        {tag.name}
                     </span>
                 ))}
 
@@ -69,7 +69,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
             id: params?.id as string,
         },
         include: {
-            categories: {
+            tags: {
                 select: {
                     name: true,
                 },

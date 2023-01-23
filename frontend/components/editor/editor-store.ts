@@ -1,4 +1,4 @@
-import { Book, Category } from '@prisma/client';
+import { Book, Tag } from '@prisma/client';
 import { JSONContent } from '@tiptap/react';
 import { toast } from 'react-hot-toast';
 import create from 'zustand';
@@ -9,15 +9,16 @@ import Placeholder from '@tiptap/extension-placeholder';
 import Typography from '@tiptap/extension-typography';
 import TextAlign from '@tiptap/extension-text-align';
 import { generateHTML } from '@tiptap/html';
-import { SavePostParams } from '../../utils/api/Posts';
-import { bookApi, categoryApi, postApi } from '../../utils/api';
+import { SavePostParams } from '../../utils/api/postApi';
+import { bookApi, tagApi, postApi } from '../../utils/api';
 import { FUser } from '../../utils/contexts/firebaseProvider';
 import { debounce } from '../../utils/helpers/debounce';
 import { ListOption } from '../reusable/singleMultiSelect';
+import { capitalize } from '../../utils/helpers';
 
 interface PostData {
     id: string;
-    categoryIds: string[];
+    tagIds: string[];
     bookId: string;
 }
 
@@ -27,9 +28,9 @@ interface IEditorState {
     htmlContent: string;
     status: 'published' | 'draft';
     touched: boolean;
-    categoryStatus: 'done' | 'loading' | 'error' | 'idle';
+    tagStatus: 'done' | 'loading' | 'error' | 'idle';
     options: ListOption[];
-    selectedCategories: ListOption[];
+    selectedTags: ListOption[];
     charCount: number;
     bookStatus: 'done' | 'loading' | 'error' | 'idle';
     bookOptions: ListOption[];
@@ -37,15 +38,15 @@ interface IEditorState {
 }
 
 interface IEditorActions {
-    fetchCategories: () => void;
-    createCategory: (name: string, authUser: FUser) => void;
+    fetchTags: () => void;
+    createTag: (name: string, authUser: FUser) => void;
     setPostData: (postData: PostData) => void;
     setRawContent: (rawContent: JSONContent) => void;
     setHtmlContent: (htmlContent: string) => void;
     setStatus: (status: IEditorState['status']) => void;
     setTouched: (touched: boolean) => void;
-    setOptions: (categoryData?: Category[]) => void;
-    setSelectedCategories: (selectedCategories: ListOption[]) => void;
+    setOptions: (tagData?: Tag[]) => void;
+    setSelectedTags: (selectedTags: ListOption[]) => void;
     getTitle: () => string;
     getDescription: () => string;
     savePost: (authUser: FUser, status?: IEditorState['status']) => void;
@@ -61,7 +62,7 @@ interface IEditorActions {
 const initialEditorState: IEditorState = {
     postData: {
         id: '',
-        categoryIds: [],
+        tagIds: [],
         bookId: '',
     },
     bookOptions: [],
@@ -74,9 +75,9 @@ const initialEditorState: IEditorState = {
     htmlContent: '',
     status: 'draft',
     touched: false,
-    categoryStatus: 'idle',
+    tagStatus: 'idle',
     options: [],
-    selectedCategories: [],
+    selectedTags: [],
     charCount: 0,
 };
 
@@ -123,35 +124,30 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
         setSelectedBook: (selectedBook) => {
             set({ selectedBook });
         },
-        fetchCategories: async () => {
-            set({ categoryStatus: 'loading' });
-            categoryApi
-                .getCategories()
+        fetchTags: async () => {
+            set({ tagStatus: 'loading' });
+            tagApi
+                .getTags()
                 .then((res) => {
                     useEditorStore.getState().setOptions(res);
-                    set({ categoryStatus: 'done' });
+                    set({ tagStatus: 'done' });
                 })
                 .catch(() => {
-                    set({ categoryStatus: 'error' });
-                    toast.error('Error fetching categories');
+                    set({ tagStatus: 'error' });
+                    toast.error('Error fetching tags');
                 });
         },
-        createCategory: async (name, authUser) => {
-            const { fetchCategories } = get();
+        createTag: async (name, authUser) => {
+            const { fetchTags } = get();
 
-            if (!authUser) {
-                toast.error('You must be logged in to create categories');
-                return;
-            }
-
-            categoryApi
-                .createCategory({ name, userUid: authUser.uid })
+            tagApi
+                .createTag({ name, userUid: authUser?.uid })
                 .then(() => {
-                    toast.success('Category created');
-                    fetchCategories();
+                    toast.success('Tag created');
+                    fetchTags();
                 })
                 .catch(() => {
-                    toast.error('Error creating category');
+                    toast.error('Error creating tag');
                 });
         },
         setPostData: (postData) => {
@@ -169,27 +165,27 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
         setTouched: (touched) => {
             set({ touched });
         },
-        setOptions: (categoryData) => {
+        setOptions: (tagData) => {
             const { postData } = get();
 
             const options =
-                categoryData &&
-                categoryData.map((category) => ({
-                    name: category.name as string,
-                    id: category.id,
+                tagData &&
+                tagData.map((tag) => ({
+                    name: capitalize(tag.name as string),
+                    id: tag.id,
                 }));
             set({ options });
 
-            if (postData && postData.categoryIds.length > 0 && options) {
-                // if there are categories in the post, set the selected categories
-                const selectedCategories = options.filter((option) =>
-                    postData.categoryIds.includes(option.id),
+            if (postData && postData.tagIds.length > 0 && options) {
+                // if there are tags in the post, set the selected tags
+                const selectedTags = options.filter((option) =>
+                    postData.tagIds.includes(option.id),
                 );
-                set({ selectedCategories });
+                set({ selectedTags });
             }
         },
-        setSelectedCategories: (selectedCategories) => {
-            set({ selectedCategories });
+        setSelectedTags: (selectedTags) => {
+            set({ selectedTags });
         },
         getTitle: () => {
             const { rawContent } = get();
@@ -237,7 +233,7 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
                 }
 
                 const {
-                    selectedCategories,
+                    selectedTags,
                     selectedBook,
                     rawContent,
                     postData,
@@ -260,8 +256,8 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
                     Typography,
                 ]);
 
-                // find any new categories that were added
-                const newCategories = selectedCategories.map(({ id }) => id);
+                // find any new tags that were added
+                const newTags = selectedTags.map(({ id }) => id);
 
                 const newPost: SavePostParams = {
                     title: getTitle(),
@@ -269,7 +265,7 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
                     rawContent,
                     htmlContent: htmlContentGen,
                     status: statusParam || status,
-                    categoryIds: newCategories,
+                    tagIds: newTags,
                     bookId: selectedBook?.id,
                     userUid: authUser.uid,
                     readTime: determineReadTime(),
@@ -291,7 +287,7 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
 
                 setPostData({
                     id: savedPost.id,
-                    categoryIds: savedPost.categoryIds,
+                    tagIds: savedPost.tagIds,
                     bookId: savedPost.bookId as string,
                 });
                 setTouched(false);
@@ -299,8 +295,8 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
                 setHtmlContent(savedPost.htmlContent || '');
 
                 toast.success('Saved...');
-            } catch (err: any) {
-                toast.error(`Error: ${err.message}`);
+            } catch (err) {
+                toast.error('Error saving post');
             }
         },
         triggerDelayedSave: debounce({ delay: 5000 }, (authUser) => {

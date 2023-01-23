@@ -7,7 +7,7 @@ import { RiQuillPenLine } from 'react-icons/ri';
 import { IoBookOutline } from 'react-icons/io5';
 import { TbTags, TbWriting, TbSettings } from 'react-icons/tb';
 import { useFirebaseAuth } from '../../utils/contexts/firebaseProvider';
-import { BookCover } from '../../utils/api/Books';
+import { BookCover } from '../../utils/api/bookApi';
 import { IPostPreview } from '../../models/posts';
 
 interface Props {
@@ -65,19 +65,18 @@ export const PreviewCard: React.FC<Props> = ({ post, bookCover }) => {
                             ref={ref}
                             className='flex flex-row flex-wrap gap-2'
                         >
-                            {post.categories.map((category) => (
+                            {post.tags.map((tag) => (
                                 <Link
                                     href={{
                                         pathname: '/posts',
                                         query: {
-                                            category:
-                                                category.name.toLowerCase(),
+                                            tag: tag.name.toLowerCase(),
                                         },
                                     }}
-                                    key={category.name}
+                                    key={tag.name}
                                 >
                                     <span className='inline-flex cursor-pointer items-center justify-self-center rounded-full bg-secondary bg-opacity-30 px-2 py-[0.1rem] text-xs font-light'>
-                                        {category.name}
+                                        {tag.name}
                                     </span>
                                 </Link>
                             ))}
@@ -99,7 +98,7 @@ export const PreviewCard: React.FC<Props> = ({ post, bookCover }) => {
                         <TbWriting className='shrink-0 grow-0 self-center text-2xl text-tertiary' />
                         <div>
                             <p className='text-sm font-medium'>
-                                By: {post.user.firstName}
+                                Reviewed by: {post.user.firstName}
                             </p>
                             <div className='flex space-x-1 text-sm text-neutral-500'>
                                 <time dateTime={createdAt as string}>

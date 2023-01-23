@@ -1,4 +1,5 @@
-export { userApi } from './Users';
-export { bookApi } from './Books';
-export { postApi } from './Posts';
-export { categoryApi } from './Categories';
+export { userApi } from './userApi';
+export { bookApi } from './bookApi';
+export { postApi } from './postApi';
+export { tagApi } from './tagApi';
+export { themeApi } from './themeApi';

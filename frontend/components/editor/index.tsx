@@ -21,12 +21,15 @@ import {
     TbList,
     TbListNumbers,
     TbUnderline,
+    TbTags,
 } from 'react-icons/tb';
+import { IoBookOutline } from 'react-icons/io5';
 import { Post } from '@prisma/client';
 import { useFirebaseAuth } from '../../utils/contexts/firebaseProvider';
 import { classNames } from '../../utils/helpers';
-import { Button, SingleMultiSelect } from '../reusable';
+import { Button } from '../reusable';
 import { useEditorStore } from './editor-store';
+import { ComboSelectBox } from '../reusable/comboBoxSelect';
 
 interface Props {
     // eslint-disable-next-line react/require-default-props
@@ -52,19 +55,17 @@ export const Editor: React.FC<Props> = ({ isEditable, data }) => {
     const setPostData = useEditorStore(
         useCallback((state) => state.setPostData, []),
     );
-    // Category state
-    const fetchCategories = useEditorStore(
-        useCallback((state) => state.fetchCategories, []),
+    // Tag state
+    const fetchTags = useEditorStore(
+        useCallback((state) => state.fetchTags, []),
     );
-    const setSelectedCategories = useEditorStore(
-        (state) => state.setSelectedCategories,
-    );
-    const selectedCategories = useEditorStore(
-        useCallback((state) => state.selectedCategories, []),
+    const setSelectedTags = useEditorStore((state) => state.setSelectedTags);
+    const selectedTags = useEditorStore(
+        useCallback((state) => state.selectedTags, []),
     );
     const options = useEditorStore((state) => state.options);
 
-    const categoryStatus = useEditorStore((state) => state.categoryStatus);
+    const tagStatus = useEditorStore((state) => state.tagStatus);
 
     // Book state
     const fetchBooks = useEditorStore(
@@ -80,22 +81,25 @@ export const Editor: React.FC<Props> = ({ isEditable, data }) => {
     const bookStatus = useEditorStore(
         useCallback((state) => state.bookStatus, []),
     );
+    const createTag = useEditorStore(
+        useCallback((state) => state.createTag, []),
+    );
 
     useEffect(() => {
         if (data) {
             setRawContent(data.rawContent as JSONContent);
             setPostData({
                 id: data.id,
-                categoryIds: data.categoryIds,
+                tagIds: data.tagIds,
                 bookId: data.bookId as string,
             });
         }
-        fetchCategories();
+        fetchTags();
         fetchBooks();
 
         return () => {
             setSelectedBook({ id: '', name: '' });
-            setSelectedCategories([]);
+            setSelectedTags([]);
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -131,256 +135,291 @@ export const Editor: React.FC<Props> = ({ isEditable, data }) => {
     });
 
     return (
-        <div className='z-30 mt-10'>
-            <div className='my-2'>
-                {selectedBook.name
-                    ? `You are writing a review for ${selectedBook?.name}`
-                    : 'Select a book to write a review or add a new book if it is not in the list'}
-            </div>
-            <div className='flex flex-wrap justify-start gap-5'>
-                <Button
-                    onClick={() => {
-                        savePost(authUser, 'published');
-                        router.push('/');
-                    }}
-                >
-                    Publish
-                </Button>
-                <Button
-                    twClasses='!bg-tertiary !bg-opacity-30 !border-tertiary '
-                    secondary
-                    onClick={() => savePost(authUser, 'draft')}
-                >
-                    Save as draft
-                </Button>
-                <SingleMultiSelect
-                    selectedOptions={selectedCategories}
-                    loadingStatus={categoryStatus}
-                    options={options}
-                    setSelectedOptions={setSelectedCategories as any}
-                    theme='secondary'
-                    label='Categories'
-                />
-                <SingleMultiSelect
-                    selectedOptions={selectedBook}
-                    loadingStatus={bookStatus}
-                    options={bookOptions}
-                    setSelectedOptions={setSelectedBook as any}
-                    theme='secondary'
-                    label='Books'
-                    isMulti={false}
-                />
-            </div>
-            <div className='mt-5 flex flex-row flex-wrap gap-3'>
-                {selectedCategories.map((category) => (
-                    <span
-                        key={category.name}
-                        className='inline-flex items-center rounded-full bg-secondary bg-opacity-30 px-3 py-0.5 text-sm font-medium'
+        <div className='z-30 mt-10 gap-2 lg:grid lg:grid-cols-5'>
+            <div className='min-h-screen rounded-lg bg-primary bg-opacity-5 p-3 lg:col-span-3'>
+                <div className='flex flex-wrap items-center justify-start gap-5'>
+                    <Button
+                        onClick={() => {
+                            savePost(authUser, 'published');
+                            router.push('/');
+                        }}
                     >
-                        {category.name}
+                        Publish
+                    </Button>
+                    <Button
+                        twClasses='!bg-tertiary !bg-opacity-30 !border-tertiary '
+                        secondary
+                        onClick={() => savePost(authUser, 'draft')}
+                    >
+                        Save as draft
+                    </Button>
+                    <ComboSelectBox
+                        selectedOptions={selectedTags}
+                        loadingStatus={tagStatus}
+                        options={options}
+                        setSelectedOptions={setSelectedTags as any}
+                        theme='secondary'
+                        label='Tags'
+                        creatable
+                        createCallback={createTag}
+                    />
+                    <ComboSelectBox
+                        selectedOptions={selectedBook}
+                        loadingStatus={bookStatus}
+                        options={bookOptions}
+                        setSelectedOptions={setSelectedBook as any}
+                        theme='secondary'
+                        label='Books'
+                        isMulti={false}
+                    />
+                </div>
+                <div
+                    className={classNames(
+                        selectedBook.name ? '' : 'hidden',
+                        'mt-5 flex flex-row flex-wrap items-center gap-3',
+                    )}
+                >
+                    <IoBookOutline className='text-2xl text-tertiary' />
+                    <span className='inline-flex items-center rounded-full bg-tertiary bg-opacity-30 px-3 py-0.5 text-sm font-medium'>
+                        {selectedBook.name}
                     </span>
-                ))}
+                </div>
+                <div
+                    className={classNames(
+                        selectedTags.length > 0 ? '' : 'hidden',
+                        'mt-5 flex items-center gap-3',
+                    )}
+                >
+                    <TbTags className='shrink-0 grow-0 text-2xl text-secondary' />
+                    <div className='flex flex-row flex-wrap items-center gap-3'>
+                        {selectedTags.map((tag) => (
+                            <span
+                                key={tag.name}
+                                className='inline-flex items-center rounded-full bg-secondary bg-opacity-30 px-3 py-0.5 text-sm font-medium'
+                            >
+                                {tag.name}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+                <div>
+                    {editor && (
+                        <div>
+                            <BubbleMenu
+                                className='flex gap-2 rounded-lg border border-secondary bg-secondary bg-opacity-50 p-1 backdrop-blur-sm focus:rounded-lg '
+                                tippyOptions={{ duration: 100, zIndex: 20 }}
+                                editor={editor}
+                            >
+                                <button
+                                    type='button'
+                                    onClick={() =>
+                                        editor
+                                            .chain()
+                                            .focus()
+                                            .toggleBold()
+                                            .run()
+                                    }
+                                    className={classNames(
+                                        'border-none bg-none px-1 py-0 text-sm font-extrabold opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
+                                        editor.isActive('bold')
+                                            ? 'rounded-lg bg-secondary opacity-60'
+                                            : '',
+                                    )}
+                                >
+                                    <TbBold />
+                                </button>
+                                <button
+                                    type='button'
+                                    onClick={() =>
+                                        editor
+                                            .chain()
+                                            .focus()
+                                            .toggleItalic()
+                                            .run()
+                                    }
+                                    className={classNames(
+                                        'border-none bg-none px-1 py-0 text-sm font-extrabold opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
+                                        editor.isActive('italic')
+                                            ? 'rounded-lg bg-secondary opacity-60'
+                                            : '',
+                                    )}
+                                >
+                                    <TbItalic />
+                                </button>
+                                <button
+                                    type='button'
+                                    onClick={() =>
+                                        editor
+                                            .chain()
+                                            .focus()
+                                            .toggleUnderline()
+                                            .run()
+                                    }
+                                    className={classNames(
+                                        'border-none bg-none px-1 py-0 text-sm font-extrabold opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
+                                        editor.isActive('underline')
+                                            ? 'rounded-lg bg-secondary opacity-60'
+                                            : '',
+                                    )}
+                                >
+                                    <TbUnderline />
+                                </button>
+                                <button
+                                    type='button'
+                                    onClick={() =>
+                                        editor
+                                            .chain()
+                                            .focus()
+                                            .toggleBlockquote()
+                                            .run()
+                                    }
+                                    className={classNames(
+                                        'border-none bg-none px-1 py-0 text-sm font-extrabold opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
+                                        editor.isActive('blockquote')
+                                            ? 'rounded-lg bg-secondary opacity-60'
+                                            : '',
+                                    )}
+                                >
+                                    <TbBlockquote />
+                                </button>
+                            </BubbleMenu>
+                        </div>
+                    )}
+
+                    {editor && (
+                        <div>
+                            <FloatingMenu
+                                className='flex gap-2 rounded-lg border border-secondary bg-secondary bg-opacity-50 p-1 focus:rounded-lg'
+                                tippyOptions={{
+                                    duration: 100,
+                                    placement: 'bottom-start',
+                                    zIndex: 20,
+                                }}
+                                editor={editor}
+                            >
+                                <button
+                                    type='button'
+                                    onClick={() =>
+                                        editor
+                                            .chain()
+                                            .focus()
+                                            .toggleHeading({ level: 1 })
+                                            .run()
+                                    }
+                                    className={classNames(
+                                        'inline-flex items-center justify-center border-none bg-none px-1 py-0 text-sm font-medium opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
+                                        editor.isActive('heading', { level: 1 })
+                                            ? 'rounded-lg bg-secondary opacity-60'
+                                            : '',
+                                    )}
+                                >
+                                    <TbHeading />1
+                                </button>
+                                <button
+                                    type='button'
+                                    onClick={() =>
+                                        editor
+                                            .chain()
+                                            .focus()
+                                            .toggleHeading({ level: 2 })
+                                            .run()
+                                    }
+                                    className={classNames(
+                                        'inline-flex items-center justify-center border-none bg-none px-1 py-0 text-sm font-medium opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
+                                        editor.isActive('heading', { level: 2 })
+                                            ? 'rounded-lg bg-secondary opacity-60'
+                                            : '',
+                                    )}
+                                >
+                                    <TbHeading />2
+                                </button>
+                                <button
+                                    type='button'
+                                    onClick={() =>
+                                        editor
+                                            .chain()
+                                            .focus()
+                                            .toggleHeading({ level: 3 })
+                                            .run()
+                                    }
+                                    className={classNames(
+                                        'inline-flex items-center justify-center border-none bg-none px-1 py-0 text-sm font-medium opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
+                                        editor.isActive('heading', { level: 3 })
+                                            ? 'rounded-lg bg-secondary opacity-60'
+                                            : '',
+                                    )}
+                                >
+                                    <TbHeading />3
+                                </button>
+                                <button
+                                    type='button'
+                                    onClick={() =>
+                                        editor
+                                            .chain()
+                                            .focus()
+                                            .toggleBulletList()
+                                            .run()
+                                    }
+                                    className={classNames(
+                                        'inline-flex items-center justify-center border-none bg-none px-1 py-0 text-sm font-medium opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
+                                        editor.isActive('bulletlist')
+                                            ? 'rounded-lg bg-secondary opacity-60'
+                                            : '',
+                                    )}
+                                >
+                                    <TbList />
+                                </button>
+                                <button
+                                    type='button'
+                                    onClick={() =>
+                                        editor
+                                            .chain()
+                                            .focus()
+                                            .toggleOrderedList()
+                                            .run()
+                                    }
+                                    className={classNames(
+                                        'inline-flex items-center justify-center border-none bg-none px-1 py-0 text-sm font-medium opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
+                                        editor.isActive('orderedlist')
+                                            ? 'rounded-lg bg-secondary opacity-60'
+                                            : '',
+                                    )}
+                                >
+                                    <TbListNumbers />
+                                </button>
+                                <button
+                                    type='button'
+                                    onClick={() =>
+                                        editor
+                                            .chain()
+                                            .focus()
+                                            .toggleBlockquote()
+                                            .run()
+                                    }
+                                    className={classNames(
+                                        'inline-flex items-center justify-center border-none bg-none px-1 py-0 text-sm font-medium opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
+                                        editor.isActive('blockquote')
+                                            ? 'rounded-lg bg-secondary opacity-60'
+                                            : '',
+                                    )}
+                                >
+                                    <TbBlockquote />
+                                </button>
+                            </FloatingMenu>
+                        </div>
+                    )}
+
+                    <EditorContent editor={editor} />
+                </div>
             </div>
-            <div>
-                {editor && (
-                    <div>
-                        <BubbleMenu
-                            className='flex gap-2 rounded-lg border border-secondary bg-secondary bg-opacity-50 p-1 backdrop-blur-sm focus:rounded-lg '
-                            tippyOptions={{ duration: 100, zIndex: 20 }}
-                            editor={editor}
-                        >
-                            <button
-                                type='button'
-                                onClick={() =>
-                                    editor.chain().focus().toggleBold().run()
-                                }
-                                className={classNames(
-                                    'border-none bg-none px-1 py-0 text-sm font-extrabold opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
-                                    editor.isActive('bold')
-                                        ? 'rounded-lg bg-secondary opacity-60'
-                                        : '',
-                                )}
-                            >
-                                <TbBold />
-                            </button>
-                            <button
-                                type='button'
-                                onClick={() =>
-                                    editor.chain().focus().toggleItalic().run()
-                                }
-                                className={classNames(
-                                    'border-none bg-none px-1 py-0 text-sm font-extrabold opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
-                                    editor.isActive('italic')
-                                        ? 'rounded-lg bg-secondary opacity-60'
-                                        : '',
-                                )}
-                            >
-                                <TbItalic />
-                            </button>
-                            <button
-                                type='button'
-                                onClick={() =>
-                                    editor
-                                        .chain()
-                                        .focus()
-                                        .toggleUnderline()
-                                        .run()
-                                }
-                                className={classNames(
-                                    'border-none bg-none px-1 py-0 text-sm font-extrabold opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
-                                    editor.isActive('underline')
-                                        ? 'rounded-lg bg-secondary opacity-60'
-                                        : '',
-                                )}
-                            >
-                                <TbUnderline />
-                            </button>
-                            <button
-                                type='button'
-                                onClick={() =>
-                                    editor
-                                        .chain()
-                                        .focus()
-                                        .toggleBlockquote()
-                                        .run()
-                                }
-                                className={classNames(
-                                    'border-none bg-none px-1 py-0 text-sm font-extrabold opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
-                                    editor.isActive('blockquote')
-                                        ? 'rounded-lg bg-secondary opacity-60'
-                                        : '',
-                                )}
-                            >
-                                <TbBlockquote />
-                            </button>
-                        </BubbleMenu>
-                    </div>
-                )}
-
-                {editor && (
-                    <div>
-                        <FloatingMenu
-                            className='flex gap-2 rounded-lg border border-secondary bg-secondary bg-opacity-50 p-1 focus:rounded-lg'
-                            tippyOptions={{
-                                duration: 100,
-                                placement: 'bottom-start',
-                                zIndex: 20,
-                            }}
-                            editor={editor}
-                        >
-                            <button
-                                type='button'
-                                onClick={() =>
-                                    editor
-                                        .chain()
-                                        .focus()
-                                        .toggleHeading({ level: 1 })
-                                        .run()
-                                }
-                                className={classNames(
-                                    'inline-flex items-center justify-center border-none bg-none px-1 py-0 text-sm font-medium opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
-                                    editor.isActive('heading', { level: 1 })
-                                        ? 'rounded-lg bg-secondary opacity-60'
-                                        : '',
-                                )}
-                            >
-                                <TbHeading />1
-                            </button>
-                            <button
-                                type='button'
-                                onClick={() =>
-                                    editor
-                                        .chain()
-                                        .focus()
-                                        .toggleHeading({ level: 2 })
-                                        .run()
-                                }
-                                className={classNames(
-                                    'inline-flex items-center justify-center border-none bg-none px-1 py-0 text-sm font-medium opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
-                                    editor.isActive('heading', { level: 2 })
-                                        ? 'rounded-lg bg-secondary opacity-60'
-                                        : '',
-                                )}
-                            >
-                                <TbHeading />2
-                            </button>
-                            <button
-                                type='button'
-                                onClick={() =>
-                                    editor
-                                        .chain()
-                                        .focus()
-                                        .toggleHeading({ level: 3 })
-                                        .run()
-                                }
-                                className={classNames(
-                                    'inline-flex items-center justify-center border-none bg-none px-1 py-0 text-sm font-medium opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
-                                    editor.isActive('heading', { level: 3 })
-                                        ? 'rounded-lg bg-secondary opacity-60'
-                                        : '',
-                                )}
-                            >
-                                <TbHeading />3
-                            </button>
-                            <button
-                                type='button'
-                                onClick={() =>
-                                    editor
-                                        .chain()
-                                        .focus()
-                                        .toggleBulletList()
-                                        .run()
-                                }
-                                className={classNames(
-                                    'inline-flex items-center justify-center border-none bg-none px-1 py-0 text-sm font-medium opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
-                                    editor.isActive('bulletlist')
-                                        ? 'rounded-lg bg-secondary opacity-60'
-                                        : '',
-                                )}
-                            >
-                                <TbList />
-                            </button>
-                            <button
-                                type='button'
-                                onClick={() =>
-                                    editor
-                                        .chain()
-                                        .focus()
-                                        .toggleOrderedList()
-                                        .run()
-                                }
-                                className={classNames(
-                                    'inline-flex items-center justify-center border-none bg-none px-1 py-0 text-sm font-medium opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
-                                    editor.isActive('orderedlist')
-                                        ? 'rounded-lg bg-secondary opacity-60'
-                                        : '',
-                                )}
-                            >
-                                <TbListNumbers />
-                            </button>
-                            <button
-                                type='button'
-                                onClick={() =>
-                                    editor
-                                        .chain()
-                                        .focus()
-                                        .toggleBlockquote()
-                                        .run()
-                                }
-                                className={classNames(
-                                    'inline-flex items-center justify-center border-none bg-none px-1 py-0 text-sm font-medium opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
-                                    editor.isActive('blockquote')
-                                        ? 'rounded-lg bg-secondary opacity-60'
-                                        : '',
-                                )}
-                            >
-                                <TbBlockquote />
-                            </button>
-                        </FloatingMenu>
-                    </div>
-                )}
-
-                <EditorContent editor={editor} />
+            <div className='hidden lg:col-span-2 lg:block'>
+                <div className='rounded-lg bg-primary bg-opacity-30 p-3'>
+                    <h3>Hello!</h3>
+                    <p>
+                        This area will contain a legend and info about the
+                        editor
+                    </p>
+                </div>
             </div>
         </div>
     );

@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 import { PreviewCard } from '../../components/preview/previewCard';
 import { useFirebaseAuth } from '../../utils/contexts/firebaseProvider';
 import prisma from '../../lib/prisma';
-import { bookApi, BookCover } from '../../utils/api/Books';
+import { bookApi, BookCover } from '../../utils/api/bookApi';
 import { IPostPreview } from '../../models/posts';
 
 interface Props {
@@ -27,7 +27,7 @@ export const getStaticProps = async () => {
                     firstName: true,
                 },
             },
-            categories: {
+            tags: {
                 select: {
                     name: true,
                 },
@@ -72,15 +72,13 @@ const Posts: NextPage<Props> = ({ posts }: Props) => {
                             All Reviews
                         </h2>
                         <p className='mt-5 text-xl'>
-                            Click on any category to filter the reviews.
+                            Click on any tag to filter the reviews.
                         </p>
-                        {router.query.category && (
+                        {router.query.tag && (
                             <div className='mt-5 block text-sm font-light'>
                                 <p>
                                     Sorting by:{' '}
-                                    {(
-                                        router.query.category as string
-                                    ).toUpperCase()}
+                                    {(router.query.tag as string).toUpperCase()}
                                 </p>
                             </div>
                         )}
@@ -112,12 +110,12 @@ const Posts: NextPage<Props> = ({ posts }: Props) => {
                         authUser ? true : post.status === 'published',
                     )
                     .filter((post) =>
-                        // if router.query.category is defined, filter posts by category
-                        router.query.category
-                            ? post.categories.some(
-                                  (category) =>
-                                      category.name.toLowerCase() ===
-                                      router.query.category,
+                        // if router.query.tag is defined, filter posts by tag
+                        router.query.tag
+                            ? post.tags.some(
+                                  (tag) =>
+                                      tag.name.toLowerCase() ===
+                                      router.query.tag,
                               )
                             : true,
                     )

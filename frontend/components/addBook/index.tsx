@@ -7,9 +7,11 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
 import { TbBookUpload } from 'react-icons/tb';
 import { bookApi } from '../../utils/api';
+import { useFirebaseAuth } from '../../utils/contexts/firebaseProvider';
+import { classNames } from '../../utils/helpers';
 import { processImage } from '../../utils/helpers/base64';
 import { useEditorStore } from '../editor/editor-store';
-import { SingleMultiSelect } from '../reusable';
+import { ComboSelectBox } from '../reusable/comboBoxSelect';
 import { useBookStore } from './book-store';
 
 interface Props {
@@ -35,8 +37,8 @@ interface FormInputs {
 }
 
 const AddBook: FC<Props> = ({ open, setOpen }: Props) => {
-    const selectedCategories = useBookStore(
-        useCallback((state) => state.selectedCategories, []),
+    const selectedThemes = useBookStore(
+        useCallback((state) => state.selectedThemes, []),
     );
     const resetBookState = useBookStore(
         useCallback((state) => state.resetBookState, []),
@@ -45,12 +47,12 @@ const AddBook: FC<Props> = ({ open, setOpen }: Props) => {
         useCallback((state) => state.fetchBooks, []),
     );
 
-    const fetchCategories = useBookStore(
-        useCallback((state) => state.fetchCategories, []),
+    const fetchThemes = useBookStore(
+        useCallback((state) => state.fetchThemes, []),
     );
 
-    const setSelectedCategories = useBookStore(
-        useCallback((state) => state.setSelectedCategories, []),
+    const setSelectedThemes = useBookStore(
+        useCallback((state) => state.setSelectedThemes, []),
     );
     const setIsbnData = useBookStore(
         useCallback((state) => state.setIsbnData, []),
@@ -58,12 +60,17 @@ const AddBook: FC<Props> = ({ open, setOpen }: Props) => {
     const isbnData = useBookStore(useCallback((state) => state.isbnData, []));
     const options = useBookStore(useCallback((state) => state.options, []));
 
-    const categoryStatus = useBookStore(
-        useCallback((state) => state.categoryStatus, []),
+    const themeStatus = useBookStore(
+        useCallback((state) => state.themeStatus, []),
+    );
+    const createTheme = useBookStore(
+        useCallback((state) => state.createTheme, []),
     );
 
     const [hasResults, setHasResults] = useState<boolean>(false);
     const [isbn, setIsbn] = useState<string>('');
+
+    const { authUser } = useFirebaseAuth();
 
     const {
         register,
@@ -80,7 +87,7 @@ const AddBook: FC<Props> = ({ open, setOpen }: Props) => {
             isbn: '',
             publisher: '',
             language: '',
-            pages: 0,
+            pages: undefined,
             readingAge: '',
             gradeLevel: '',
         },
@@ -93,14 +100,13 @@ const AddBook: FC<Props> = ({ open, setOpen }: Props) => {
                     toast.error('Error processing image');
                 })) as string;
 
-                const categoryIds = selectedCategories.map(
-                    (category) => category.id,
-                );
+                const themeIds = selectedThemes.map((theme) => theme.id);
                 const newBook = {
                     ...data,
                     ...isbnData,
-                    categoryIds,
+                    themeIds,
                     coverImage,
+                    userUid: authUser?.uid,
                 };
 
                 bookApi.createBook(newBook).then((res) => {
@@ -149,7 +155,7 @@ const AddBook: FC<Props> = ({ open, setOpen }: Props) => {
             setIsbn('');
         }
         if (open) {
-            fetchCategories();
+            fetchThemes();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [open]);
@@ -637,29 +643,61 @@ const AddBook: FC<Props> = ({ open, setOpen }: Props) => {
                                                             )}
                                                         </div>
                                                     </div>
+                                                    <div
+                                                        className={classNames(
+                                                            selectedThemes.length ===
+                                                                0
+                                                                ? 'hidden'
+                                                                : '',
+                                                            'my-2 flex flex-row flex-wrap gap-1',
+                                                        )}
+                                                    >
+                                                        {selectedThemes.map(
+                                                            (theme) => (
+                                                                <span
+                                                                    key={
+                                                                        theme.name
+                                                                    }
+                                                                    className='inline-flex items-center rounded-full bg-secondary bg-opacity-30 px-2 py-[0.1rem] text-xs font-light'
+                                                                >
+                                                                    {theme.name}
+                                                                </span>
+                                                            ),
+                                                        )}
+                                                    </div>
                                                     <div className='flex max-w-sm flex-row gap-2 py-1'>
                                                         <div className='basis-1/2'>
                                                             <label
                                                                 htmlFor='grade-level'
-                                                                className='ml-3 block text-sm font-light'
+                                                                className={classNames(
+                                                                    selectedThemes.length >
+                                                                        0
+                                                                        ? 'hidden'
+                                                                        : '',
+                                                                    'ml-3 block text-sm font-light',
+                                                                )}
                                                             >
-                                                                Add Categories
+                                                                Themes
                                                             </label>
-                                                            <SingleMultiSelect
+                                                            <ComboSelectBox
                                                                 selectedOptions={
-                                                                    selectedCategories
+                                                                    selectedThemes
                                                                 }
                                                                 loadingStatus={
-                                                                    categoryStatus
+                                                                    themeStatus
                                                                 }
                                                                 options={
                                                                     options
                                                                 }
                                                                 setSelectedOptions={
-                                                                    setSelectedCategories as any
+                                                                    setSelectedThemes as any
                                                                 }
                                                                 theme='primary'
-                                                                label='Categories'
+                                                                label='Themes'
+                                                                creatable
+                                                                createCallback={
+                                                                    createTheme
+                                                                }
                                                             />
                                                         </div>
                                                     </div>
@@ -673,11 +711,29 @@ const AddBook: FC<Props> = ({ open, setOpen }: Props) => {
                                                         <input
                                                             {...register(
                                                                 'cover',
+                                                                {
+                                                                    required: {
+                                                                        value: true,
+                                                                        message:
+                                                                            'Cover image is required',
+                                                                    },
+                                                                },
                                                             )}
                                                             id='upload-cover'
                                                             type='file'
-                                                            className='inline-flex w-full items-center justify-center whitespace-nowrap rounded-md border border-primary bg-tertiary text-sm font-medium file:rounded-md file:border-none file:bg-primary file:px-3 file:py-2 file:shadow-lg file:hover:scale-105 file:active:scale-100 file:active:shadow-none'
+                                                            className='inline-flex w-full appearance-none items-center justify-center whitespace-nowrap rounded-md border border-primary bg-tertiary text-sm font-medium file:rounded-md file:border-none file:bg-primary file:px-3 file:py-2 file:shadow-lg file:hover:scale-105 file:active:scale-100 file:active:shadow-none'
                                                         />
+                                                        {errors.cover && (
+                                                            <p
+                                                                className='ml-3 mt-0.5 text-xs font-light text-alert'
+                                                                id='cover-error'
+                                                            >
+                                                                {
+                                                                    errors.cover
+                                                                        .message
+                                                                }
+                                                            </p>
+                                                        )}
                                                     </div>
                                                     <div className='mt-5'>
                                                         <button

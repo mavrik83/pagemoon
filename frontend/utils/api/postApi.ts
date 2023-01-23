@@ -3,7 +3,7 @@ import { apiRequest } from '../../lib/axios/baseAxios';
 
 export interface SavePostParams
     extends Partial<Omit<Post, 'userId' | 'createdAt' | 'updatedAt'>> {
-    categoryIds?: string[];
+    tagIds?: string[];
     bookId?: string;
     userUid?: string;
 }
@@ -14,11 +14,14 @@ export const postApi = {
         return posts;
     },
     upsertPost: async (params: SavePostParams) => {
-        const newPost = await apiRequest.post<null, Post>('/api/posts', params);
+        const newPost = await apiRequest.post<SavePostParams, Post>(
+            '/api/posts',
+            params,
+        );
         return newPost;
     },
     getPostById: async (id: string) => {
-        const post = await apiRequest.get<null, Post>(`/api/posts?id=${id}`);
+        const post = await apiRequest.get<string, Post>(`/api/posts?id=${id}`);
         return post;
     },
 };
