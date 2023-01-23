@@ -1,22 +1,25 @@
 import create from 'zustand';
-import { Category } from '@prisma/client';
-import { categoryApi } from '../../utils/api';
+import { Theme } from '@prisma/client';
+import toast from 'react-hot-toast';
+import { themeApi } from '../../utils/api';
 import { ListOption } from '../reusable/singleMultiSelect';
 import { IsbnBook } from '../../models/books';
 import { title } from '../../utils/helpers';
+import { FUser } from '../../utils/contexts/firebaseProvider';
 
 interface BookStoreState {
     options: ListOption[];
-    selectedCategories: ListOption[];
-    categoryStatus: 'done' | 'loading' | 'error' | 'idle';
+    selectedThemes: ListOption[];
+    themeStatus: 'done' | 'loading' | 'error' | 'idle';
     isbnData: Partial<IsbnDbMappedData> | undefined;
 }
 
 interface BookStoreActions {
-    setSelectedCategories: (selectedCategories: ListOption[]) => void;
-    fetchCategories: () => void;
+    setSelectedThemes: (selectedTags: ListOption[]) => void;
+    fetchThemes: () => void;
     resetBookState: () => void;
     setIsbnData: (isbnDataResponse: IsbnBook) => void;
+    createTheme: (name: string, authUser: FUser) => void;
 }
 
 interface IsbnDbMappedData {
@@ -35,8 +38,8 @@ interface IsbnDbMappedData {
 
 const initialBookState: BookStoreState = {
     options: [],
-    selectedCategories: [],
-    categoryStatus: 'idle',
+    selectedThemes: [],
+    themeStatus: 'idle',
     isbnData: undefined,
 };
 
@@ -48,34 +51,40 @@ export const useBookStore = create<BookStoreState & BookStoreActions>()(
         resetBookState: () => {
             set(initialBookState);
         },
-        setSelectedCategories: (selectedCategories) => {
-            set({ selectedCategories });
+        setSelectedThemes: (selectedThemes) => {
+            set({ selectedThemes });
         },
-        fetchCategories: async () => {
-            set({ categoryStatus: 'loading' });
-            const { options: checkOptions } = get();
-            if (checkOptions.length > 0) {
-                set({ categoryStatus: 'done' });
-                return;
-            }
+        fetchThemes: async () => {
+            set({ themeStatus: 'loading' });
             try {
-                categoryApi
-                    .getCategories()
+                themeApi
+                    .getThemes()
                     .then((res) => {
-                        const options: ListOption[] = res.map(
-                            (category: Category) => ({
-                                id: category.id as string,
-                                name: category.name as string,
-                            }),
-                        );
+                        const options: ListOption[] = res.map((tag: Theme) => ({
+                            id: tag.id as string,
+                            name: tag.name as string,
+                        }));
                         return options;
                     })
                     .then((options) => {
-                        set({ options, categoryStatus: 'done' });
+                        set({ options, themeStatus: 'done' });
                     });
             } catch (error) {
-                set({ categoryStatus: 'error' });
+                set({ themeStatus: 'error' });
             }
+        },
+        createTheme: async (name, authUser) => {
+            const { fetchThemes } = get();
+
+            themeApi
+                .createTheme({ name, userUid: authUser?.uid })
+                .then(() => {
+                    toast.success('Theme created');
+                    fetchThemes();
+                })
+                .catch(() => {
+                    toast.error('Error creating theme');
+                });
         },
         setIsbnData: (isbnDataResponse) => {
             set({

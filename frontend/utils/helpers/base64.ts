@@ -8,6 +8,10 @@ export const fileToBase64 = (file: FileList): Promise<string> =>
         reader.onerror = reject;
     });
 
+/**
+ * If the image is larger than 400x400, resize it to 400x400
+ * then convert it to base64
+ */
 export const processImage = (file: FileList): Promise<string> =>
     new Promise((resolve, reject) => {
         const reader = new FileReader();

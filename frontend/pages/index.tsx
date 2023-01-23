@@ -6,7 +6,7 @@ import prisma from '../lib/prisma';
 import { bookApi } from '../utils/api';
 import { RecentPosts } from '../components/preview/recentPosts';
 import { IPostPreview } from '../models/posts';
-import { BookCover } from '../utils/api/Books';
+import { BookCover } from '../utils/api/bookApi';
 
 interface Props {
     posts: IPostPreview[];
@@ -27,7 +27,7 @@ export const getStaticProps = async () => {
                     firstName: true,
                 },
             },
-            categories: {
+            tags: {
                 select: {
                     name: true,
                 },

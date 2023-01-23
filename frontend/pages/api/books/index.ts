@@ -1,5 +1,10 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import prisma from '../../../lib/prisma';
+import { SaveBookParams } from '../../../utils/api/bookApi';
+
+interface BookCreateRequest extends NextApiRequest {
+    body: SaveBookParams;
+}
 
 const getAllBooks = async (_req: NextApiRequest, res: NextApiResponse) => {
     try {
@@ -13,7 +18,7 @@ const getAllBooks = async (_req: NextApiRequest, res: NextApiResponse) => {
                 throw new Error('failed to get books');
             });
 
-        res.send(books);
+        res.status(200).send(books);
     } catch (error) {
         if (error instanceof Error) {
             res.status(400).send(error.message);
@@ -45,8 +50,18 @@ const getSingleBook = async (req: NextApiRequest, res: NextApiResponse) => {
     }
 };
 
-const createBook = async (req: NextApiRequest, res: NextApiResponse) => {
+const createBook = async (req: BookCreateRequest, res: NextApiResponse) => {
     try {
+        const user = await prisma.user
+            .findFirst({
+                where: {
+                    authUid: req.body.userUid,
+                },
+            })
+            .catch(() => {
+                throw new Error('User not found');
+            });
+
         const book = await prisma.book
             .create({
                 data: {
@@ -64,10 +79,15 @@ const createBook = async (req: NextApiRequest, res: NextApiResponse) => {
                     synopsis: req.body.synopsis,
                     datePublished: req.body.datePublished,
                     coverLink: req.body.coverLink,
-                    categories: {
-                        connect: req.body.categoryIds?.map((id: string) => ({
+                    themes: {
+                        connect: req.body.themeIds?.map((id: string) => ({
                             id,
                         })),
+                    },
+                    user: {
+                        connect: {
+                            id: user?.id,
+                        },
                     },
                 },
             })

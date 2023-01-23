@@ -2,7 +2,7 @@
 /* eslint-disable @next/next/no-img-element */
 import React from 'react';
 import { IPostPreview } from '../../models/posts';
-import { BookCover } from '../../utils/api/Books';
+import { BookCover } from '../../utils/api/bookApi';
 import { useFirebaseAuth } from '../../utils/contexts/firebaseProvider';
 import { PreviewCard } from './previewCard';
 

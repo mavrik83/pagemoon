@@ -7,11 +7,16 @@ export const userApi = {
         return users;
     },
     createUser: async (params: Partial<User>) => {
-        const newUser = await apiRequest.post<null, User>('/api/users', params);
+        const newUser = await apiRequest.post<Partial<User>, User>(
+            '/api/users',
+            params,
+        );
         return newUser;
     },
     findUser: async (id: User['authUid']) => {
-        const user = await apiRequest.get<null, User>(`/api/users/${id}`);
+        const user = await apiRequest.get<User['authUid'], User>(
+            `/api/users/${id}`,
+        );
         return user;
     },
 };
