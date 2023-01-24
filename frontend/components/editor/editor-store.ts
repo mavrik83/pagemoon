@@ -257,7 +257,7 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
                 ]);
 
                 // find any new tags that were added
-                const newTags = selectedTags.map(({ id }) => id);
+                const newTags = selectedTags?.map(({ id }) => id);
 
                 const newPost: SavePostParams = {
                     title: getTitle(),
@@ -309,13 +309,17 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
         determineReadTime: () => {
             const { rawContent } = get();
             // get the text from the document
-            const text = rawContent
-                .content!.map((item) => {
-                    if (item.type === 'paragraph') {
-                        return item
-                            .content!.map((para) => {
-                                if (para.type === 'text') {
-                                    return para.text;
+            const text = rawContent.content
+                ?.map((item) => {
+                    if (
+                        item.type === 'paragraph' ||
+                        item.type === 'heading' ||
+                        item.type === 'blockquote'
+                    ) {
+                        return item.content
+                            ?.map((node) => {
+                                if (node.type === 'text') {
+                                    return node.text;
                                 }
                                 return '';
                             })
@@ -325,7 +329,7 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
                 })
                 .join('');
             // get a word count
-            const wordCount = text.split(' ').length;
+            const wordCount = text?.split(' ').length || 0;
 
             return Math.ceil(wordCount / 200);
         },
