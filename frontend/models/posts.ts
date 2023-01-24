@@ -10,5 +10,6 @@ export interface IPostPreview extends Partial<Post> {
     book: {
         title: string;
         isbn: string;
+        coverImage?: string;
     };
 }

@@ -2,16 +2,14 @@
 /* eslint-disable @next/next/no-img-element */
 import React from 'react';
 import { IPostPreview } from '../../models/posts';
-import { BookCover } from '../../utils/api/bookApi';
 import { useFirebaseAuth } from '../../utils/contexts/firebaseProvider';
 import { PreviewCard } from './previewCard';
 
 interface Props {
     posts: IPostPreview[];
-    bookCovers: BookCover[];
 }
 
-export const RecentPosts: React.FC<Props> = ({ posts, bookCovers }) => {
+export const RecentPosts: React.FC<Props> = ({ posts }) => {
     const { authUser } = useFirebaseAuth();
 
     return (
@@ -21,19 +19,13 @@ export const RecentPosts: React.FC<Props> = ({ posts, bookCovers }) => {
                     // if user is logged in, show all posts. Otherwise, only show published posts
                     authUser ? true : post.status === 'published',
                 )
-                .slice(0, 2)
-                .map((post) => {
-                    const bookCover = bookCovers.find(
-                        (cover) => cover.id === post.bookId,
-                    );
-                    return (
-                        <PreviewCard
-                            key={post.id}
-                            post={post}
-                            bookCover={bookCover as BookCover}
-                        />
-                    );
-                })}
+                .map((post) => (
+                    <PreviewCard
+                        key={post.id}
+                        post={post}
+                        bookCover={post.book.coverImage || ''}
+                    />
+                ))}
         </div>
     );
 };

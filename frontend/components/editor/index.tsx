@@ -1,28 +1,13 @@
 import React, { useCallback, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import {
-    useEditor,
-    EditorContent,
-    BubbleMenu,
-    FloatingMenu,
-    JSONContent,
-} from '@tiptap/react';
+import { useEditor, EditorContent, JSONContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Document from '@tiptap/extension-document';
 import Underline from '@tiptap/extension-underline';
 import Placeholder from '@tiptap/extension-placeholder';
 import Typography from '@tiptap/extension-typography';
 import TextAlign from '@tiptap/extension-text-align';
-import {
-    TbBlockquote,
-    TbItalic,
-    TbBold,
-    TbHeading,
-    TbList,
-    TbListNumbers,
-    TbUnderline,
-    TbTags,
-} from 'react-icons/tb';
+import { TbTags } from 'react-icons/tb';
 import { IoBookOutline } from 'react-icons/io5';
 import { Post } from '@prisma/client';
 import { useFirebaseAuth } from '../../utils/contexts/firebaseProvider';
@@ -30,6 +15,8 @@ import { classNames } from '../../utils/helpers';
 import { Button } from '../reusable';
 import { useEditorStore } from './editor-store';
 import { ComboSelectBox } from '../reusable/comboBoxSelect';
+import { EditorBubbleMenu } from './components/bubbleMenu';
+import { EditorFloatingMenu } from './components/floatingMenu';
 
 interface Props {
     // eslint-disable-next-line react/require-default-props
@@ -117,6 +104,9 @@ export const Editor: React.FC<Props> = ({ isEditable, data }) => {
                     if (node.type.name === 'heading') {
                         return 'Start with a title...';
                     }
+                    if (node.type.name === 'paragraph') {
+                        return 'Start writing...';
+                    }
 
                     return 'Can you add some further context?';
                 },
@@ -203,221 +193,40 @@ export const Editor: React.FC<Props> = ({ isEditable, data }) => {
                     </div>
                 </div>
                 <div>
-                    {editor && (
-                        <div>
-                            <BubbleMenu
-                                className='flex gap-2 rounded-lg border border-secondary bg-secondary bg-opacity-50 p-1 backdrop-blur-sm focus:rounded-lg '
-                                tippyOptions={{ duration: 100, zIndex: 20 }}
-                                editor={editor}
-                            >
-                                <button
-                                    type='button'
-                                    onClick={() =>
-                                        editor
-                                            .chain()
-                                            .focus()
-                                            .toggleBold()
-                                            .run()
-                                    }
-                                    className={classNames(
-                                        'border-none bg-none px-1 py-0 text-sm font-extrabold opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
-                                        editor.isActive('bold')
-                                            ? 'rounded-lg bg-secondary opacity-60'
-                                            : '',
-                                    )}
-                                >
-                                    <TbBold />
-                                </button>
-                                <button
-                                    type='button'
-                                    onClick={() =>
-                                        editor
-                                            .chain()
-                                            .focus()
-                                            .toggleItalic()
-                                            .run()
-                                    }
-                                    className={classNames(
-                                        'border-none bg-none px-1 py-0 text-sm font-extrabold opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
-                                        editor.isActive('italic')
-                                            ? 'rounded-lg bg-secondary opacity-60'
-                                            : '',
-                                    )}
-                                >
-                                    <TbItalic />
-                                </button>
-                                <button
-                                    type='button'
-                                    onClick={() =>
-                                        editor
-                                            .chain()
-                                            .focus()
-                                            .toggleUnderline()
-                                            .run()
-                                    }
-                                    className={classNames(
-                                        'border-none bg-none px-1 py-0 text-sm font-extrabold opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
-                                        editor.isActive('underline')
-                                            ? 'rounded-lg bg-secondary opacity-60'
-                                            : '',
-                                    )}
-                                >
-                                    <TbUnderline />
-                                </button>
-                                <button
-                                    type='button'
-                                    onClick={() =>
-                                        editor
-                                            .chain()
-                                            .focus()
-                                            .toggleBlockquote()
-                                            .run()
-                                    }
-                                    className={classNames(
-                                        'border-none bg-none px-1 py-0 text-sm font-extrabold opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
-                                        editor.isActive('blockquote')
-                                            ? 'rounded-lg bg-secondary opacity-60'
-                                            : '',
-                                    )}
-                                >
-                                    <TbBlockquote />
-                                </button>
-                            </BubbleMenu>
-                        </div>
-                    )}
-
-                    {editor && (
-                        <div>
-                            <FloatingMenu
-                                className='flex gap-2 rounded-lg border border-secondary bg-secondary bg-opacity-50 p-1 focus:rounded-lg'
-                                tippyOptions={{
-                                    duration: 100,
-                                    placement: 'bottom-start',
-                                    zIndex: 20,
-                                }}
-                                editor={editor}
-                            >
-                                <button
-                                    type='button'
-                                    onClick={() =>
-                                        editor
-                                            .chain()
-                                            .focus()
-                                            .toggleHeading({ level: 1 })
-                                            .run()
-                                    }
-                                    className={classNames(
-                                        'inline-flex items-center justify-center border-none bg-none px-1 py-0 text-sm font-medium opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
-                                        editor.isActive('heading', { level: 1 })
-                                            ? 'rounded-lg bg-secondary opacity-60'
-                                            : '',
-                                    )}
-                                >
-                                    <TbHeading />1
-                                </button>
-                                <button
-                                    type='button'
-                                    onClick={() =>
-                                        editor
-                                            .chain()
-                                            .focus()
-                                            .toggleHeading({ level: 2 })
-                                            .run()
-                                    }
-                                    className={classNames(
-                                        'inline-flex items-center justify-center border-none bg-none px-1 py-0 text-sm font-medium opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
-                                        editor.isActive('heading', { level: 2 })
-                                            ? 'rounded-lg bg-secondary opacity-60'
-                                            : '',
-                                    )}
-                                >
-                                    <TbHeading />2
-                                </button>
-                                <button
-                                    type='button'
-                                    onClick={() =>
-                                        editor
-                                            .chain()
-                                            .focus()
-                                            .toggleHeading({ level: 3 })
-                                            .run()
-                                    }
-                                    className={classNames(
-                                        'inline-flex items-center justify-center border-none bg-none px-1 py-0 text-sm font-medium opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
-                                        editor.isActive('heading', { level: 3 })
-                                            ? 'rounded-lg bg-secondary opacity-60'
-                                            : '',
-                                    )}
-                                >
-                                    <TbHeading />3
-                                </button>
-                                <button
-                                    type='button'
-                                    onClick={() =>
-                                        editor
-                                            .chain()
-                                            .focus()
-                                            .toggleBulletList()
-                                            .run()
-                                    }
-                                    className={classNames(
-                                        'inline-flex items-center justify-center border-none bg-none px-1 py-0 text-sm font-medium opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
-                                        editor.isActive('bulletlist')
-                                            ? 'rounded-lg bg-secondary opacity-60'
-                                            : '',
-                                    )}
-                                >
-                                    <TbList />
-                                </button>
-                                <button
-                                    type='button'
-                                    onClick={() =>
-                                        editor
-                                            .chain()
-                                            .focus()
-                                            .toggleOrderedList()
-                                            .run()
-                                    }
-                                    className={classNames(
-                                        'inline-flex items-center justify-center border-none bg-none px-1 py-0 text-sm font-medium opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
-                                        editor.isActive('orderedlist')
-                                            ? 'rounded-lg bg-secondary opacity-60'
-                                            : '',
-                                    )}
-                                >
-                                    <TbListNumbers />
-                                </button>
-                                <button
-                                    type='button'
-                                    onClick={() =>
-                                        editor
-                                            .chain()
-                                            .focus()
-                                            .toggleBlockquote()
-                                            .run()
-                                    }
-                                    className={classNames(
-                                        'inline-flex items-center justify-center border-none bg-none px-1 py-0 text-sm font-medium opacity-80 hover:rounded-lg hover:bg-secondary hover:opacity-100 active:opacity-100',
-                                        editor.isActive('blockquote')
-                                            ? 'rounded-lg bg-secondary opacity-60'
-                                            : '',
-                                    )}
-                                >
-                                    <TbBlockquote />
-                                </button>
-                            </FloatingMenu>
-                        </div>
-                    )}
-
+                    {editor && <EditorBubbleMenu editor={editor} />}
+                    {editor && <EditorFloatingMenu editor={editor} />}
                     <EditorContent editor={editor} />
                 </div>
             </div>
-            <div className='hidden lg:col-span-2 lg:block'>
-                <div className='rounded-lg bg-primary bg-opacity-30 p-3'>
-                    <h3>Hello!</h3>
+            <div className='hidden space-y-2 lg:col-span-1 lg:block'>
+                <div className='rounded-lg bg-primary bg-opacity-30 p-3 text-sm font-light'>
+                    <p className=''>
+                        This is a &lsquo;block&rsquo; style editor. It is
+                        similar to a wordprocessor, but with some added
+                        constraints to make it easier to use and easier to
+                        create consistent content.
+                    </p>
+                </div>
+                <div className='rounded-lg bg-primary bg-opacity-30 p-3 text-sm font-light'>
                     <p>
-                        This area will contain a legend and info about the
-                        editor
+                        Click inside the editor to start editing. This editor
+                        requires the first block to be a heading.
+                    </p>
+                </div>
+                <div className='rounded-lg bg-primary bg-opacity-30 p-3 text-sm font-light'>
+                    <p>
+                        Push enter to create a new &lsquo;block&rsquo; of text.
+                        A block can be a paragraph, a heading, a list, or a
+                        quote. A menu will appear above the block to let you
+                        change the type of block.
+                    </p>
+                </div>
+                <div className='rounded-lg bg-primary bg-opacity-30 p-3 text-sm font-light'>
+                    <p>
+                        Once you have created a block and added some text, you
+                        can highlight some text and a formatting menu will
+                        appear. This menu lets you change the style of the text.
+                        The options here are bold, italic, and underline.
                     </p>
                 </div>
             </div>

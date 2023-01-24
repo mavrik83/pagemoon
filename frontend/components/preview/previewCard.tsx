@@ -12,7 +12,7 @@ import { IPostPreview } from '../../models/posts';
 
 interface Props {
     post: IPostPreview;
-    bookCover: BookCover;
+    bookCover: BookCover | string;
 }
 
 export const PreviewCard: React.FC<Props> = ({ post, bookCover }) => {
@@ -43,7 +43,11 @@ export const PreviewCard: React.FC<Props> = ({ post, bookCover }) => {
                         {bookCover && (
                             <Image
                                 className='h-full w-full rounded-b-lg object-cover'
-                                src={bookCover.coverImage as string}
+                                src={
+                                    typeof bookCover === 'string'
+                                        ? bookCover
+                                        : (bookCover.coverImage as string)
+                                }
                                 alt={post.title as string}
                                 layout='fill'
                             />
@@ -141,7 +145,11 @@ export const PreviewCard: React.FC<Props> = ({ post, bookCover }) => {
                     {bookCover && (
                         <Image
                             className='h-full w-full object-cover'
-                            src={bookCover.coverImage as string}
+                            src={
+                                typeof bookCover === 'string'
+                                    ? bookCover
+                                    : (bookCover.coverImage as string)
+                            }
                             alt={post.title as string}
                             layout='fill'
                         />
