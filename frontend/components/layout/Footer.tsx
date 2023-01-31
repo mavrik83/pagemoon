@@ -3,6 +3,7 @@ import React, { FC } from 'react';
 import toast from 'react-hot-toast';
 import { useFirebaseAuth } from '../../utils/contexts/firebaseProvider';
 import { AuthProps } from '../auth';
+import { MyLink } from '../reusable';
 
 interface Props {
     setAuthModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -19,22 +20,32 @@ export const Footer: FC<Props> = ({ setAuthModalOpen, setMode }) => {
                     className='-mb-6 flex columns-2 justify-center space-x-5 sm:space-x-12'
                     aria-label='Footer'
                 >
-                    <Link href='/' className='pb-6'>
+                    <MyLink href='/' className='pb-6'>
                         <div className='cursor-pointer text-sm leading-6 text-neutral-600 hover:text-neutral-900'>
                             Home
                         </div>
-                    </Link>
-                    <Link href='/reviews' className='pb-6'>
+                    </MyLink>
+                    <MyLink href='/books' className='pb-6'>
                         <div className='cursor-pointer text-sm leading-6 text-neutral-600 hover:text-neutral-900'>
-                            All Reviews
+                            All Books
                         </div>
-                    </Link>
+                    </MyLink>
                     {authUser && (
-                        <Link href='/editor' className='pb-6'>
-                            <div className='cursor-pointer text-sm leading-6 text-neutral-600 hover:text-neutral-900'>
-                                Create New
-                            </div>
-                        </Link>
+                        <>
+                            <MyLink href='/editor' className='pb-6'>
+                                <div className='cursor-pointer text-sm leading-6 text-neutral-600 hover:text-neutral-900'>
+                                    Create Review
+                                </div>
+                            </MyLink>
+                            <MyLink
+                                href='/editor?type=article'
+                                className='pb-6'
+                            >
+                                <div className='cursor-pointer text-sm leading-6 text-neutral-600 hover:text-neutral-900'>
+                                    Create Article
+                                </div>
+                            </MyLink>
+                        </>
                     )}
                     {!authUser ? (
                         <>

@@ -1,7 +1,6 @@
 import React from 'react';
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import Image from 'next/image';
 import prisma from '../lib/prisma';
 import { FeaturedBooks } from '../components/preview/featuredBooks';
 import { BookPreview } from '../models/books';
