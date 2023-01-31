@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import React, { FC } from 'react';
 import toast from 'react-hot-toast';
 import { useFirebaseAuth } from '../../utils/contexts/firebaseProvider';
