@@ -34,6 +34,10 @@ module.exports = {
             animation: {
                 shimmer: 'shimmer 8s ease-in-out infinite',
             },
+            transitionProperty: {
+                height: 'height',
+                display: 'display',
+            },
         },
     },
     plugins: [

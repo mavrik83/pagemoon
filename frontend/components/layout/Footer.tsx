@@ -24,7 +24,7 @@ export const Footer: FC<Props> = ({ setAuthModalOpen, setMode }) => {
                             Home
                         </div>
                     </Link>
-                    <Link href='/posts' className='pb-6'>
+                    <Link href='/reviews' className='pb-6'>
                         <div className='cursor-pointer text-sm leading-6 text-neutral-600 hover:text-neutral-900'>
                             All Reviews
                         </div>

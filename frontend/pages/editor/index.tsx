@@ -10,6 +10,7 @@ const EditorNew: NextPage = () => {
     const router = useRouter();
     const { authUser, authLoading } = useFirebaseAuth();
 
+    const setContentType = useEditorStore((state) => state.setContentType);
     const resetEditorState = useEditorStore((state) => state.resetEditorState);
     const resetBookState = useBookStore((state) => state.resetBookState);
 
@@ -23,7 +24,10 @@ const EditorNew: NextPage = () => {
         if (!authLoading && !authUser) {
             router.push('/');
         }
-    }, [authUser, router, authLoading]);
+        if (router.query.type === 'article') {
+            setContentType('article');
+        }
+    }, [authUser, router, authLoading, setContentType]);
 
     return <div>{authUser && <Editor isEditable />}</div>;
 };

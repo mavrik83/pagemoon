@@ -1,18 +1,18 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import prisma from '../../../lib/prisma';
-import { SavePostParams } from '../../../utils/api/postApi';
+import { SaveReviewParams } from '../../../utils/api/reviewApi';
 
-interface PostCreatRequest extends NextApiRequest {
-    body: SavePostParams;
+interface ReviewCreatRequest extends NextApiRequest {
+    body: SaveReviewParams;
 }
 
-const getAllPosts = async (req: NextApiRequest, res: NextApiResponse) => {
+const getAllReviews = async (req: NextApiRequest, res: NextApiResponse) => {
     try {
-        const posts = await prisma.post.findMany().catch(() => {
-            throw new Error('failed to get posts');
+        const reviews = await prisma.review.findMany().catch(() => {
+            throw new Error('failed to get reviews');
         });
 
-        res.send(posts);
+        res.send(reviews);
     } catch (error) {
         if (error instanceof Error) {
             res.status(400).send(error.message);
@@ -22,19 +22,19 @@ const getAllPosts = async (req: NextApiRequest, res: NextApiResponse) => {
     }
 };
 
-const getSinglePost = async (req: NextApiRequest, res: NextApiResponse) => {
+const getSingleReview = async (req: NextApiRequest, res: NextApiResponse) => {
     try {
-        const post = await prisma.post
+        const review = await prisma.review
             .findFirst({
                 where: {
                     id: req.query.id as string,
                 },
             })
             .catch(() => {
-                throw new Error('Post not found');
+                throw new Error('Review not found');
             });
 
-        res.status(200).send(post);
+        res.status(200).send(review);
     } catch (error) {
         if (error instanceof Error) {
             res.status(400).send(error.message);
@@ -44,7 +44,7 @@ const getSinglePost = async (req: NextApiRequest, res: NextApiResponse) => {
     }
 };
 
-const upsertPost = async (req: PostCreatRequest, res: NextApiResponse) => {
+const upsertReview = async (req: ReviewCreatRequest, res: NextApiResponse) => {
     try {
         const user = await prisma.user
             .findFirst({
@@ -57,7 +57,7 @@ const upsertPost = async (req: PostCreatRequest, res: NextApiResponse) => {
             });
 
         if (!req.body.id) {
-            const post = await prisma.post
+            const review = await prisma.review
                 .create({
                     data: {
                         title: req.body.title,
@@ -84,12 +84,12 @@ const upsertPost = async (req: PostCreatRequest, res: NextApiResponse) => {
                     },
                 })
                 .catch(() => {
-                    throw new Error('Failed to create post');
+                    throw new Error('Failed to create review');
                 });
 
-            res.status(200).send(post);
+            res.status(200).send(review);
         } else {
-            const post = await prisma.post
+            const review = await prisma.review
                 .update({
                     where: { id: req.body.id },
                     data: {
@@ -113,7 +113,7 @@ const upsertPost = async (req: PostCreatRequest, res: NextApiResponse) => {
                     },
                 })
                 .catch(() => {
-                    throw new Error('Failed to update post');
+                    throw new Error('Failed to update review');
                 });
 
             const currentBookTags = await prisma.book
@@ -158,7 +158,7 @@ const upsertPost = async (req: PostCreatRequest, res: NextApiResponse) => {
                     throw new Error('Failed to update book tags');
                 });
 
-            res.status(200).send(post);
+            res.status(200).send(review);
         }
     } catch (error) {
         if (error instanceof Error) {
@@ -169,9 +169,9 @@ const upsertPost = async (req: PostCreatRequest, res: NextApiResponse) => {
     }
 };
 
-const deletePost = async (req: NextApiRequest, res: NextApiResponse) => {
+const deleteReview = async (req: NextApiRequest, res: NextApiResponse) => {
     try {
-        const tags = await prisma.post
+        const tags = await prisma.review
             .findFirst({
                 where: {
                     id: req.query.id as string,
@@ -183,7 +183,7 @@ const deletePost = async (req: NextApiRequest, res: NextApiResponse) => {
             .tags();
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const post = await prisma.post.update({
+        const review = await prisma.review.update({
             where: {
                 id: req.query.id as string,
             },
@@ -199,13 +199,13 @@ const deletePost = async (req: NextApiRequest, res: NextApiResponse) => {
             },
         });
 
-        const deletedPost = await prisma.post.delete({
+        const deletedReview = await prisma.review.delete({
             where: {
                 id: req.query.id as string,
             },
         });
 
-        res.status(200).send(deletedPost);
+        res.status(200).send(deletedReview);
     } catch (error) {
         if (error instanceof Error) {
             res.status(400).send(error.message);
@@ -219,13 +219,13 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     switch (req.method) {
         case 'GET':
             if (req.query.id) {
-                return getSinglePost(req, res);
+                return getSingleReview(req, res);
             }
-            return getAllPosts(req, res);
+            return getAllReviews(req, res);
         case 'POST':
-            return upsertPost(req, res);
+            return upsertReview(req, res);
         case 'DELETE':
-            return deletePost(req, res);
+            return deleteReview(req, res);
         default:
             return res.status(405).json({
                 error: `Method ${req.method} not allowed`,

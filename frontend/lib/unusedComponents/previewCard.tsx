@@ -8,37 +8,37 @@ import { IoBookOutline } from 'react-icons/io5';
 import { TbTags, TbWriting, TbSettings } from 'react-icons/tb';
 import { useFirebaseAuth } from '../../utils/contexts/firebaseProvider';
 import { BookCover } from '../../utils/api/bookApi';
-import { IPostPreview } from '../../models/posts';
+import { ReviewPreview } from '../../models/reviews';
 
 interface Props {
-    post: IPostPreview;
+    review: ReviewPreview;
     bookCover: BookCover | string;
 }
 
-export const PreviewCard: React.FC<Props> = ({ post, bookCover }) => {
+export const PreviewCard: React.FC<Props> = ({ review, bookCover }) => {
     const { authUser } = useFirebaseAuth();
     const router = useRouter();
     const ref = useRef<HTMLDivElement>(null);
 
     const [createdAt, setCreatedAt] = React.useState<string | null>(
-        post.createdAt?.toUTCString() as string,
+        review.createdAt?.toUTCString() as string,
     );
 
     React.useEffect(() => {
         const interval = setInterval(() => {
-            setCreatedAt(post.createdAt!.toDateString());
+            setCreatedAt(review.createdAt!.toDateString());
         }, 1000);
 
         return () => clearInterval(interval);
-    }, [post.createdAt]);
+    }, [review.createdAt]);
 
     return (
         <div
-            key={post.id}
+            key={review.id}
             className='flex flex-row overflow-hidden rounded-lg border border-primary bg-white shadow-lg hover:border-secondary'
         >
             <div className='flex flex-1 flex-col justify-between bg-primary bg-opacity-10 p-3'>
-                <Link href={`/posts/${post.id}`}>
+                <Link href={`/reviews/${review.id}`}>
                     <div className='relative -m-3 mb-5 h-28 w-auto animate-shimmer cursor-pointer rounded-b-lg bg-gradient-to-r from-primary via-tertiary to-primary bg-[length:400%_100%] md:hidden'>
                         {bookCover && (
                             <Image
@@ -48,18 +48,18 @@ export const PreviewCard: React.FC<Props> = ({ post, bookCover }) => {
                                         ? bookCover
                                         : (bookCover.coverImage as string)
                                 }
-                                alt={post.title as string}
+                                alt={review.title as string}
                                 layout='fill'
                             />
                         )}
                     </div>
                 </Link>
                 <div className='flex-1'>
-                    <Link href={`/posts/${post.id}`}>
+                    <Link href={`/reviews/${review.id}`}>
                         <div className='flex cursor-pointer flex-row items-center gap-2 '>
                             <IoBookOutline className='shrink-0 grow-0 self-center text-2xl text-tertiary' />
                             <p className='text-xl font-semibold'>
-                                {post?.book?.title || post.title}
+                                {review?.book?.title || review.title}
                             </p>
                         </div>
                     </Link>
@@ -69,10 +69,10 @@ export const PreviewCard: React.FC<Props> = ({ post, bookCover }) => {
                             ref={ref}
                             className='flex flex-row flex-wrap gap-2'
                         >
-                            {post.tags.map((tag) => (
+                            {review.tags.map((tag) => (
                                 <Link
                                     href={{
-                                        pathname: '/posts',
+                                        pathname: '/reviews',
                                         query: {
                                             tag: tag.name.toLowerCase(),
                                         },
@@ -86,13 +86,13 @@ export const PreviewCard: React.FC<Props> = ({ post, bookCover }) => {
                             ))}
                         </div>
                     </div>
-                    <Link href={`/posts/${post.id}`}>
+                    <Link href={`/reviews/${review.id}`}>
                         <div className='mt-3 hidden cursor-pointer flex-row gap-2 md:flex'>
                             <RiQuillPenLine className='shrink-0 grow-0 self-center text-2xl text-tertiary' />
                             <p className='text-base text-neutral-600 line-clamp-3'>
-                                {post.description === 'No description'
-                                    ? post.title
-                                    : post.description}
+                                {review.description === 'No description'
+                                    ? review.title
+                                    : review.description}
                             </p>
                         </div>
                     </Link>
@@ -102,7 +102,7 @@ export const PreviewCard: React.FC<Props> = ({ post, bookCover }) => {
                         <TbWriting className='shrink-0 grow-0 self-center text-2xl text-tertiary' />
                         <div>
                             <p className='text-sm font-medium'>
-                                Reviewed by: {post.user.firstName}
+                                Reviewed by: {review.user.firstName}
                             </p>
                             <div className='flex space-x-1 text-sm text-neutral-500'>
                                 <time dateTime={createdAt as string}>
@@ -110,7 +110,7 @@ export const PreviewCard: React.FC<Props> = ({ post, bookCover }) => {
                                 </time>
                                 <span aria-hidden='true'>&middot;</span>
                                 <span>
-                                    {post.readTime?.toString()} minute read
+                                    {review.readTime?.toString()} minute read
                                 </span>
                             </div>
                         </div>
@@ -122,13 +122,13 @@ export const PreviewCard: React.FC<Props> = ({ post, bookCover }) => {
                         <button
                             type='button'
                             className='flex w-fit items-center gap-2'
-                            onClick={() => router.push(`/editor/${post.id}`)}
+                            onClick={() => router.push(`/editor/${review.id}`)}
                         >
                             <span className='inline-flex items-center rounded-full bg-secondary bg-opacity-30 px-3 py-0.5 text-sm font-light hover:scale-110 hover:cursor-pointer'>
                                 Edit
                             </span>
                         </button>
-                        {post.status === 'draft' ? (
+                        {review.status === 'draft' ? (
                             <span className='inline-flex items-center rounded-full bg-alert bg-opacity-30 px-3 py-0.5 text-sm font-light'>
                                 Draft
                             </span>
@@ -140,7 +140,7 @@ export const PreviewCard: React.FC<Props> = ({ post, bookCover }) => {
                     </div>
                 )}
             </div>
-            <Link href={`/posts/${post.id}`}>
+            <Link href={`/reviews/${review.id}`}>
                 <div className='hidden h-auto w-28 animate-shimmer cursor-pointer bg-gradient-to-r from-primary via-tertiary to-primary bg-[length:400%_100%] md:relative md:block'>
                     {bookCover && (
                         <Image
@@ -150,7 +150,7 @@ export const PreviewCard: React.FC<Props> = ({ post, bookCover }) => {
                                     ? bookCover
                                     : (bookCover.coverImage as string)
                             }
-                            alt={post.title as string}
+                            alt={review.title as string}
                             layout='fill'
                         />
                     )}

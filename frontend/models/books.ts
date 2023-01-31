@@ -1,3 +1,5 @@
+import { Book } from '@prisma/client';
+
 export interface IsbnBookModel {
     title?: string;
     title_long?: string;
@@ -44,3 +46,5 @@ export interface IsbnBook {
 export interface IsbnDbResponse {
     data: IsbnBook;
 }
+
+export interface BookPreview extends Partial<Book> {}

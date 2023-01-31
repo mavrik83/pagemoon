@@ -9,18 +9,19 @@ import Typography from '@tiptap/extension-typography';
 import TextAlign from '@tiptap/extension-text-align';
 import { TbTags } from 'react-icons/tb';
 import { IoBookOutline } from 'react-icons/io5';
-import { Post } from '@prisma/client';
+import { MdOutlineCollectionsBookmark } from 'react-icons/md';
+import { Article, Review } from '@prisma/client';
 import { useFirebaseAuth } from '../../utils/contexts/firebaseProvider';
 import { classNames } from '../../utils/helpers';
 import { Button } from '../reusable';
 import { useEditorStore } from './editor-store';
-import { ComboSelectBox } from '../reusable/comboBoxSelect';
+import { ComboSelectBox, ListOption } from '../reusable/comboBoxSelect';
 import { EditorBubbleMenu } from './components/bubbleMenu';
 import { EditorFloatingMenu } from './components/floatingMenu';
 
 interface Props {
     // eslint-disable-next-line react/require-default-props
-    data?: Post;
+    data?: Review | Article;
     isEditable: boolean;
 }
 
@@ -32,15 +33,20 @@ export const Editor: React.FC<Props> = ({ isEditable, data }) => {
     const { authUser } = useFirebaseAuth();
     const router = useRouter();
 
+    const contentType = useEditorStore(
+        useCallback((state) => state.contentType, []),
+    );
     const triggerDelayedSave = useEditorStore(
         useCallback((state) => state.triggerDelayedSave, []),
     );
     const setRawContent = useEditorStore(
         useCallback((state) => state.setRawContent, []),
     );
-    const savePost = useEditorStore(useCallback((state) => state.savePost, []));
-    const setPostData = useEditorStore(
-        useCallback((state) => state.setPostData, []),
+    const saveContent = useEditorStore(
+        useCallback((state) => state.saveContent, []),
+    );
+    const setContentData = useEditorStore(
+        useCallback((state) => state.setContentData, []),
     );
     // Tag state
     const fetchTags = useEditorStore(
@@ -50,9 +56,12 @@ export const Editor: React.FC<Props> = ({ isEditable, data }) => {
     const selectedTags = useEditorStore(
         useCallback((state) => state.selectedTags, []),
     );
-    const options = useEditorStore((state) => state.options);
+    const tagOptions = useEditorStore((state) => state.tagOptions);
 
     const tagStatus = useEditorStore((state) => state.tagStatus);
+    const createTag = useEditorStore(
+        useCallback((state) => state.createTag, []),
+    );
 
     // Book state
     const fetchBooks = useEditorStore(
@@ -68,23 +77,47 @@ export const Editor: React.FC<Props> = ({ isEditable, data }) => {
     const bookStatus = useEditorStore(
         useCallback((state) => state.bookStatus, []),
     );
-    const createTag = useEditorStore(
-        useCallback((state) => state.createTag, []),
+
+    // Theme state
+    const themeOptions = useEditorStore(
+        useCallback((state) => state.themeOptions, []),
+    );
+    const themeStatus = useEditorStore(
+        useCallback((state) => state.themeStatus, []),
+    );
+    const selectedThemes = useEditorStore(
+        useCallback((state) => state.selectedThemes, []),
+    );
+    const setSelectedThemes = useEditorStore(
+        useCallback((state) => state.setSelectedThemes, []),
+    );
+    const fetchThemes = useEditorStore(
+        useCallback((state) => state.fetchThemes, []),
     );
 
     useEffect(() => {
         if (data) {
             setRawContent(data.rawContent as JSONContent);
-            setPostData({
+            setContentData({
                 id: data.id,
                 tagIds: data.tagIds,
-                bookId: data.bookId as string,
+                bookIds: (data as Article).bookIds
+                    ? ((data as Article).bookIds as string[]) || []
+                    : ((data as Review).bookId as string) || '',
+                themeIds: (data as Article).themeIds || [],
             });
         }
         fetchTags();
         fetchBooks();
+        if (contentType === 'article') {
+            fetchThemes();
+        }
 
         return () => {
+            if (contentType === 'article') {
+                setSelectedThemes([]);
+                setSelectedBook([] as ListOption[]);
+            }
             setSelectedBook({ id: '', name: '' });
             setSelectedTags([]);
         };
@@ -130,7 +163,7 @@ export const Editor: React.FC<Props> = ({ isEditable, data }) => {
                 <div className='flex flex-wrap items-center justify-start gap-5'>
                     <Button
                         onClick={() => {
-                            savePost(authUser, 'published');
+                            saveContent(authUser, 'published');
                             router.push('/');
                         }}
                     >
@@ -139,20 +172,30 @@ export const Editor: React.FC<Props> = ({ isEditable, data }) => {
                     <Button
                         twClasses='!bg-tertiary !bg-opacity-30 !border-tertiary '
                         secondary
-                        onClick={() => savePost(authUser, 'draft')}
+                        onClick={() => saveContent(authUser, 'draft')}
                     >
                         Save as draft
                     </Button>
                     <ComboSelectBox
                         selectedOptions={selectedTags}
                         loadingStatus={tagStatus}
-                        options={options}
+                        options={tagOptions}
                         setSelectedOptions={setSelectedTags as any}
                         theme='secondary'
                         label='Tags'
                         creatable
                         createCallback={createTag}
                     />
+                    {contentType === 'article' && (
+                        <ComboSelectBox
+                            selectedOptions={selectedThemes}
+                            loadingStatus={themeStatus}
+                            options={themeOptions}
+                            setSelectedOptions={setSelectedThemes as any}
+                            theme='secondary'
+                            label='Themes'
+                        />
+                    )}
                     <ComboSelectBox
                         selectedOptions={selectedBook}
                         loadingStatus={bookStatus}
@@ -160,19 +203,34 @@ export const Editor: React.FC<Props> = ({ isEditable, data }) => {
                         setSelectedOptions={setSelectedBook as any}
                         theme='secondary'
                         label='Books'
-                        isMulti={false}
+                        isMulti={contentType === 'article'}
                     />
                 </div>
                 <div
                     className={classNames(
-                        selectedBook.name ? '' : 'hidden',
+                        (selectedBook as ListOption).name ||
+                            (selectedBook as ListOption[]).length
+                            ? ''
+                            : 'hidden',
                         'mt-5 flex flex-row flex-wrap items-center gap-3',
                     )}
                 >
                     <IoBookOutline className='text-2xl text-tertiary' />
-                    <span className='inline-flex items-center rounded-full bg-tertiary bg-opacity-30 px-3 py-0.5 text-sm font-medium'>
-                        {selectedBook.name}
-                    </span>
+                    {contentType === 'review' && (
+                        <span className='inline-flex items-center rounded-full bg-tertiary bg-opacity-30 px-3 py-0.5 text-sm '>
+                            {(selectedBook as ListOption).name}
+                        </span>
+                    )}
+                    {contentType === 'article' &&
+                        Array.isArray(selectedBook) &&
+                        (selectedBook as ListOption[]).map((book) => (
+                            <span
+                                key={book.name}
+                                className='inline-flex items-center rounded-full bg-tertiary bg-opacity-30 px-3 py-0.5 text-sm '
+                            >
+                                {book.name}
+                            </span>
+                        ))}
                 </div>
                 <div
                     className={classNames(
@@ -185,9 +243,27 @@ export const Editor: React.FC<Props> = ({ isEditable, data }) => {
                         {selectedTags.map((tag) => (
                             <span
                                 key={tag.name}
-                                className='inline-flex items-center rounded-full bg-secondary bg-opacity-30 px-3 py-0.5 text-sm font-medium'
+                                className='inline-flex items-center rounded-full bg-secondary bg-opacity-30 px-3 py-0.5 text-sm '
                             >
                                 {tag.name}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+                <div
+                    className={classNames(
+                        selectedThemes.length > 0 ? '' : 'hidden',
+                        'mt-5 flex items-center gap-3',
+                    )}
+                >
+                    <MdOutlineCollectionsBookmark className='shrink-0 grow-0 text-2xl text-secondary' />
+                    <div className='flex flex-row flex-wrap items-center gap-3'>
+                        {selectedThemes.map((theme) => (
+                            <span
+                                key={theme.name}
+                                className='inline-flex items-center rounded-full bg-secondary bg-opacity-30 px-3 py-0.5 text-sm '
+                            >
+                                {theme.name}
                             </span>
                         ))}
                     </div>
@@ -199,7 +275,7 @@ export const Editor: React.FC<Props> = ({ isEditable, data }) => {
                 </div>
             </div>
             <div className='hidden space-y-2 lg:col-span-1 lg:block'>
-                <div className='rounded-lg bg-primary bg-opacity-30 p-3 text-sm font-light'>
+                <div className='rounded-lg bg-primary bg-opacity-30 p-3 text-sm'>
                     <p className=''>
                         This is a &lsquo;block&rsquo; style editor. It is
                         similar to a wordprocessor, but with some added
@@ -207,13 +283,13 @@ export const Editor: React.FC<Props> = ({ isEditable, data }) => {
                         create consistent content.
                     </p>
                 </div>
-                <div className='rounded-lg bg-primary bg-opacity-30 p-3 text-sm font-light'>
+                <div className='rounded-lg bg-primary bg-opacity-30 p-3 text-sm'>
                     <p>
                         Click inside the editor to start editing. This editor
                         requires the first block to be a heading.
                     </p>
                 </div>
-                <div className='rounded-lg bg-primary bg-opacity-30 p-3 text-sm font-light'>
+                <div className='rounded-lg bg-primary bg-opacity-30 p-3 text-sm'>
                     <p>
                         Push enter to create a new &lsquo;block&rsquo; of text.
                         A block can be a paragraph, a heading, a list, or a
@@ -221,7 +297,7 @@ export const Editor: React.FC<Props> = ({ isEditable, data }) => {
                         change the type of block.
                     </p>
                 </div>
-                <div className='rounded-lg bg-primary bg-opacity-30 p-3 text-sm font-light'>
+                <div className='rounded-lg bg-primary bg-opacity-30 p-3 text-sm'>
                     <p>
                         Once you have created a block and added some text, you
                         can highlight some text and a formatting menu will

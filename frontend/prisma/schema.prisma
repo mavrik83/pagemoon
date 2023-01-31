@@ -20,10 +20,11 @@ model User {
   password  String?
   createdAt DateTime? @default(now())
   updatedAt DateTime? @updatedAt
-  posts     Post[]
+  reviews   Review[]
   tags      Tag[]
   themes    Theme[]
   books     Book[]
+  article   Article[]
 
   @@map("users")
 }
@@ -48,17 +49,19 @@ model Book {
   updatedAt     DateTime? @updatedAt
   userId        String?   @db.ObjectId
   user          User?     @relation(fields: [userId], references: [id])
-  postIds       String[]  @db.ObjectId
-  posts         Post[]
+  reviewIds     String[]  @db.ObjectId
+  reviews       Review[]
   tagIds        String[]  @db.ObjectId
   tags          Tag[]     @relation(fields: [tagIds], references: [id])
   themeIds      String[]  @db.ObjectId
   themes        Theme[]   @relation(fields: [themeIds], references: [id])
+  article       Article[] @relation(fields: [articleIds], references: [id])
+  articleIds    String[]  @db.ObjectId
 
   @@map("books")
 }
 
-model Post {
+model Review {
   id          String    @id @default(auto()) @map("_id") @db.ObjectId
   title       String?
   description String?
@@ -75,33 +78,59 @@ model Post {
   tagIds      String[]  @db.ObjectId
   tags        Tag[]     @relation(fields: [tagIds], references: [id])
 
-  @@map("posts")
+  @@map("reviews")
+}
+
+model Article {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  title       String?
+  description String?
+  rawContent  Json?
+  htmlContent String?
+  readTime    Int?
+  status      String?   @default("draft")
+  createdAt   DateTime? @default(now())
+  updatedAt   DateTime? @updatedAt
+  userId      String?   @db.ObjectId
+  user        User?     @relation(fields: [userId], references: [id])
+  bookIds     String[]  @db.ObjectId
+  books       Book[]    @relation(fields: [bookIds], references: [id])
+  tagIds      String[]  @db.ObjectId
+  tags        Tag[]     @relation(fields: [tagIds], references: [id])
+  themeIds    String[]  @db.ObjectId
+  themes      Theme[]   @relation(fields: [themeIds], references: [id])
+
+  @@map("articles")
 }
 
 model Tag {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  name      String?
-  createdAt DateTime? @default(now())
-  updatedAt DateTime? @updatedAt
-  postIds   String[]  @db.ObjectId
-  posts     Post[]    @relation(fields: [postIds], references: [id])
-  bookIds   String[]  @db.ObjectId
-  books     Book[]    @relation(fields: [bookIds], references: [id])
-  user      User?     @relation(fields: [userId], references: [id])
-  userId    String?   @db.ObjectId
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  name       String?
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
+  reviewIds  String[]  @db.ObjectId
+  reviews    Review[]  @relation(fields: [reviewIds], references: [id])
+  bookIds    String[]  @db.ObjectId
+  books      Book[]    @relation(fields: [bookIds], references: [id])
+  user       User?     @relation(fields: [userId], references: [id])
+  userId     String?   @db.ObjectId
+  article    Article[] @relation(fields: [articleIds], references: [id])
+  articleIds String[]  @db.ObjectId
 
   @@map("tags")
 }
 
 model Theme {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  name      String?
-  createdAt DateTime? @default(now())
-  updatedAt DateTime? @updatedAt
-  bookIds   String[]  @db.ObjectId
-  books     Book[]    @relation(fields: [bookIds], references: [id])
-  user      User?     @relation(fields: [userId], references: [id])
-  userId    String?   @db.ObjectId
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  name       String?
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
+  bookIds    String[]  @db.ObjectId
+  books      Book[]    @relation(fields: [bookIds], references: [id])
+  user       User?     @relation(fields: [userId], references: [id])
+  userId     String?   @db.ObjectId
+  article    Article[] @relation(fields: [articleIds], references: [id])
+  articleIds String[]  @db.ObjectId
 
   @@map("themes")
 }

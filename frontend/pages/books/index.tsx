@@ -1,9 +1,16 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
-import { NextPage } from 'next';
+import { GetStaticProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
 import React from 'react';
+import { PreviewCardBook } from '../../components/preview/previewCardBook';
+import prisma from '../../lib/prisma';
+import { BookPreview } from '../../models/books';
 
-const Books: NextPage = () => {
+interface Props {
+    books: BookPreview[];
+}
+
+const Books: NextPage<Props> = ({ books }: Props) => {
     const router = useRouter();
 
     return (
@@ -46,16 +53,39 @@ const Books: NextPage = () => {
                     </div>
                 </div>
             </div>
-            <div className='mx-5 mt-5 grid max-w-lg gap-5 lg:max-w-none lg:grid-cols-2'>
-                <div className='col-span-1 border border-primary'>
-                    <div className='grid grid-cols-5 gap-2'>
-                        <div className='col-span-3 my-2 ml-2 h-20 border border-primary' />
-                        <div className='col-span-2 my-2 mr-2 h-20 border border-primary' />
-                    </div>
-                </div>
+            <div className='mt-5 flex flex-row flex-wrap items-center justify-evenly gap-10 p-3 sm:p-8'>
+                {books.map((book) => (
+                    <PreviewCardBook
+                        key={book.id}
+                        bookId={book.id}
+                        heading={book.title as string}
+                        thumbnailSrc={book.coverImage as string}
+                    />
+                ))}
             </div>
         </>
     );
+};
+
+export const getStaticProps: GetStaticProps = async () => {
+    const books = await prisma.book.findMany({
+        select: {
+            id: true,
+            title: true,
+            authors: true,
+            coverImage: true,
+        },
+        orderBy: {
+            createdAt: 'desc',
+        },
+    });
+
+    return {
+        props: {
+            books,
+        },
+        revalidate: 10,
+    };
 };
 
 export default Books;

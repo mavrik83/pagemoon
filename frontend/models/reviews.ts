@@ -1,6 +1,6 @@
-import { Post } from '@prisma/client';
+import { Review } from '@prisma/client';
 
-export interface IPostPreview extends Partial<Post> {
+export interface ReviewPreview extends Partial<Review> {
     user: {
         firstName: string;
     };

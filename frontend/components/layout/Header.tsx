@@ -1,9 +1,9 @@
-import Link from 'next/link';
 import { Menu, Transition } from '@headlessui/react';
 import { MenuIcon } from '@heroicons/react/solid';
-import React, { ComponentPropsWithRef, forwardRef, Fragment } from 'react';
+import React, { Fragment } from 'react';
 import { useFirebaseAuth } from '../../utils/contexts/firebaseProvider';
 import { PageMoonIcon } from '../reusable/pageMoonIcon';
+import { MyLink } from '../reusable';
 
 interface MenuProps {
     // eslint-disable-next-line react/no-unused-prop-types
@@ -16,18 +16,6 @@ interface Props {
     setAddBookModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const MyLink = forwardRef((props: ComponentPropsWithRef<any>, ref) => {
-    const { href, children, ...rest } = props;
-    return (
-        <Link href={href}>
-            {/* eslint-disable-next-line react/jsx-props-no-spreading */}
-            <a ref={ref} {...rest}>
-                {children}
-            </a>
-        </Link>
-    );
-});
-
 MyLink.displayName = 'myLink';
 
 const classNames = (...classes: string[]) => classes.filter(Boolean).join(' ');
@@ -38,12 +26,17 @@ export const Header: React.FC<Props> = ({ setAddBookModalOpen }: Props) => {
     const navigation = [
         { name: 'Create Review', href: '/editor', adminOnly: true },
         {
+            name: 'Create Article',
+            href: '/editor?type=article',
+            adminOnly: true,
+        },
+        {
             name: 'Add Book',
             href: 'modal',
             adminOnly: true,
             cb: setAddBookModalOpen,
         },
-        { name: 'All Reviews', href: '/posts', adminOnly: false },
+        { name: 'All Books', href: '/books', adminOnly: false },
     ];
 
     return (

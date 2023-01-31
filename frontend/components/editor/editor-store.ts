@@ -1,4 +1,4 @@
-import { Book, Tag } from '@prisma/client';
+import { Article, Book, Tag, Theme } from '@prisma/client';
 import { JSONContent } from '@tiptap/react';
 import { toast } from 'react-hot-toast';
 import create from 'zustand';
@@ -9,61 +9,73 @@ import Placeholder from '@tiptap/extension-placeholder';
 import Typography from '@tiptap/extension-typography';
 import TextAlign from '@tiptap/extension-text-align';
 import { generateHTML } from '@tiptap/html';
-import { SavePostParams } from '../../utils/api/postApi';
-import { bookApi, tagApi, postApi } from '../../utils/api';
+import { SaveReviewParams } from '../../utils/api/reviewApi';
+import { bookApi, tagApi, reviewApi, themeApi } from '../../utils/api';
 import { FUser } from '../../utils/contexts/firebaseProvider';
 import { debounce } from '../../utils/helpers/debounce';
 import { ListOption } from '../reusable/singleMultiSelect';
 import { capitalize } from '../../utils/helpers';
+import { articleApi, SaveArticleParams } from '../../utils/api/articleApi';
 
-interface PostData {
+interface ContentData {
     id: string;
     tagIds: string[];
-    bookId: string;
+    bookIds: string | string[];
+    themeIds?: string[];
 }
 
 interface IEditorState {
-    postData: PostData;
+    contentType: 'review' | 'article';
+    contentData: ContentData;
     rawContent: JSONContent;
     htmlContent: string;
     status: 'published' | 'draft';
     touched: boolean;
     tagStatus: 'done' | 'loading' | 'error' | 'idle';
-    options: ListOption[];
+    tagOptions: ListOption[];
     selectedTags: ListOption[];
     charCount: number;
     bookStatus: 'done' | 'loading' | 'error' | 'idle';
     bookOptions: ListOption[];
-    selectedBook: ListOption;
+    selectedBook: ListOption | ListOption[];
+    themeStatus: 'done' | 'loading' | 'error' | 'idle';
+    themeOptions: ListOption[];
+    selectedThemes: ListOption[];
 }
 
 interface IEditorActions {
+    setContentType: (contentType: IEditorState['contentType']) => void;
     fetchTags: () => void;
     createTag: (name: string, authUser: FUser) => void;
-    setPostData: (postData: PostData) => void;
+    setContentData: (contentData: ContentData) => void;
     setRawContent: (rawContent: JSONContent) => void;
     setHtmlContent: (htmlContent: string) => void;
     setStatus: (status: IEditorState['status']) => void;
     setTouched: (touched: boolean) => void;
-    setOptions: (tagData?: Tag[]) => void;
+    setTagOptions: (tagData?: Tag[]) => void;
     setSelectedTags: (selectedTags: ListOption[]) => void;
     getTitle: () => string;
     getDescription: () => string;
-    savePost: (authUser: FUser, status?: IEditorState['status']) => void;
+    saveContent: (authUser: FUser, status?: IEditorState['status']) => void;
     triggerDelayedSave: (authUser: FUser) => void;
     setCharCount: (charCount: number) => void;
     determineReadTime: () => number;
     setBookOptions: (bookData?: Book[]) => void;
-    setSelectedBook: (selectedBook: ListOption) => void;
+    setSelectedBook: (selectedBook: ListOption | ListOption[]) => void;
     fetchBooks: () => void;
     resetEditorState: () => void;
+    setThemeOptions: (themeData?: Theme[]) => void;
+    setSelectedThemes: (selectedThemes: ListOption[]) => void;
+    fetchThemes: () => void;
 }
 
 const initialEditorState: IEditorState = {
-    postData: {
+    contentType: 'review',
+    contentData: {
         id: '',
         tagIds: [],
-        bookId: '',
+        bookIds: [],
+        themeIds: [],
     },
     bookOptions: [],
     selectedBook: {
@@ -76,8 +88,11 @@ const initialEditorState: IEditorState = {
     status: 'draft',
     touched: false,
     tagStatus: 'idle',
-    options: [],
+    tagOptions: [],
     selectedTags: [],
+    themeStatus: 'idle',
+    themeOptions: [],
+    selectedThemes: [],
     charCount: 0,
 };
 
@@ -86,8 +101,46 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
         // State
         ...initialEditorState,
         // Actions
+        setContentType: (contentType) => {
+            set({ contentType });
+        },
         resetEditorState: () => {
             set(initialEditorState);
+        },
+        fetchThemes: async () => {
+            set({ themeStatus: 'loading' });
+            themeApi
+                .getThemes()
+                .then((res) => {
+                    useEditorStore.getState().setThemeOptions(res);
+                    set({ themeStatus: 'done' });
+                })
+                .catch(() => {
+                    set({ themeStatus: 'error' });
+                    toast.error('Error fetching themes');
+                });
+        },
+        setThemeOptions: (themeData) => {
+            const { contentData } = get();
+
+            const themeOptions =
+                themeData &&
+                themeData.map((theme) => ({
+                    name: theme.name as string,
+                    id: theme.id,
+                }));
+            set({ themeOptions });
+
+            if (contentData && contentData.themeIds && themeOptions) {
+                // if there are themes in the article, set the selected themes
+                const selectedThemes = themeOptions.filter((option) =>
+                    (contentData as Article).themeIds.includes(option.id),
+                );
+                set({ selectedThemes });
+            }
+        },
+        setSelectedThemes: (selectedThemes) => {
+            set({ selectedThemes });
         },
         fetchBooks: async () => {
             set({ bookStatus: 'loading' });
@@ -103,22 +156,33 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
                 });
         },
         setBookOptions: (bookData) => {
-            const { postData } = get();
+            const { contentData } = get();
 
-            const options =
+            const bookOptions =
                 bookData &&
                 bookData.map((book) => ({
                     name: book.title as string,
                     id: book.id,
                 }));
-            set({ bookOptions: options });
+            set({ bookOptions });
 
-            if (postData && postData.bookId && options) {
-                // if there is a book in the post, set the selected book
-                const selectedBook = options.find(
-                    (option) => option.id === postData.bookId,
-                );
-                set({ selectedBook });
+            if (contentData && bookOptions) {
+                if (
+                    contentData.bookIds &&
+                    !Array.isArray(contentData.bookIds)
+                ) {
+                    // if there is a book in the review, set the selected book
+                    const selectedBook = bookOptions.find(
+                        (option) => option.id === contentData.bookIds,
+                    );
+                    set({ selectedBook });
+                } else if (contentData.bookIds) {
+                    // if there are books in the article, set the selected books
+                    const selectedBooks = bookOptions.filter((option) =>
+                        (contentData as Article).bookIds.includes(option.id),
+                    );
+                    set({ selectedBook: selectedBooks });
+                }
             }
         },
         setSelectedBook: (selectedBook) => {
@@ -129,7 +193,7 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
             tagApi
                 .getTags()
                 .then((res) => {
-                    useEditorStore.getState().setOptions(res);
+                    useEditorStore.getState().setTagOptions(res);
                     set({ tagStatus: 'done' });
                 })
                 .catch(() => {
@@ -150,8 +214,8 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
                     toast.error('Error creating tag');
                 });
         },
-        setPostData: (postData) => {
-            set({ postData });
+        setContentData: (contentData) => {
+            set({ contentData });
         },
         setRawContent: (rawContent) => {
             set({ rawContent });
@@ -165,21 +229,21 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
         setTouched: (touched) => {
             set({ touched });
         },
-        setOptions: (tagData) => {
-            const { postData } = get();
+        setTagOptions: (tagData) => {
+            const { contentData } = get();
 
-            const options =
+            const tagOptions =
                 tagData &&
                 tagData.map((tag) => ({
                     name: capitalize(tag.name as string),
                     id: tag.id,
                 }));
-            set({ options });
+            set({ tagOptions });
 
-            if (postData && postData.tagIds.length > 0 && options) {
-                // if there are tags in the post, set the selected tags
-                const selectedTags = options.filter((option) =>
-                    postData.tagIds.includes(option.id),
+            if (contentData && contentData.tagIds.length > 0 && tagOptions) {
+                // if there are tags in the content, set the selected tags
+                const selectedTags = tagOptions.filter((tagOption) =>
+                    contentData.tagIds.includes(tagOption.id),
                 );
                 set({ selectedTags });
             }
@@ -225,27 +289,31 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
                 }, '');
             return previewDescription || 'No description';
         },
-        savePost: async (authUser, statusParam) => {
+        saveContent: async (authUser, statusParam) => {
             try {
-                if (!authUser) {
-                    toast.error('You must be logged in to save a post');
-                    return;
-                }
-
                 const {
                     selectedTags,
                     selectedBook,
+                    selectedThemes,
                     rawContent,
-                    postData,
+                    contentData,
+                    contentType,
                     status,
                     getTitle,
                     getDescription,
                     setTouched,
-                    setPostData,
+                    setContentData,
                     setStatus,
                     setHtmlContent,
                     determineReadTime,
                 } = get();
+
+                if (!authUser) {
+                    toast.error(
+                        `You must be logged in to save a ${contentType}`,
+                    );
+                    return;
+                }
 
                 const htmlContentGen = generateHTML(rawContent, [
                     StarterKit,
@@ -259,49 +327,99 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
                 // find any new tags that were added
                 const newTags = selectedTags?.map(({ id }) => id);
 
-                const newPost: SavePostParams = {
-                    title: getTitle(),
-                    description: getDescription(),
-                    rawContent,
-                    htmlContent: htmlContentGen,
-                    status: statusParam || status,
-                    tagIds: newTags,
-                    bookId: selectedBook?.id,
-                    userUid: authUser.uid,
-                    readTime: determineReadTime(),
-                };
+                // if the content is an article, create a new article object
+                if (contentType === 'article') {
+                    const newThemes = selectedThemes?.map(({ id }) => id);
 
-                const updatePost: SavePostParams = {
-                    ...newPost,
-                    id: postData.id,
-                };
+                    const newArticle: SaveArticleParams = {
+                        title: getTitle(),
+                        description: getDescription(),
+                        rawContent,
+                        htmlContent: htmlContentGen,
+                        status: statusParam || status,
+                        tagIds: newTags,
+                        themeIds: newThemes,
+                        bookIds: (selectedBook as ListOption[]).map(
+                            (book) => book.id,
+                        ),
+                        userUid: authUser.uid,
+                        readTime: determineReadTime(),
+                    };
 
-                if (!newPost.bookId) {
-                    toast.error('You must select a book');
-                    return;
+                    const updateArticle: SaveArticleParams = {
+                        ...newArticle,
+                        id: contentData.id,
+                    };
+
+                    if (
+                        !newArticle.bookIds ||
+                        newArticle.bookIds.length === 0
+                    ) {
+                        toast.error('You must select a book');
+                        return;
+                    }
+
+                    const savedArticle = await articleApi.upsertArticle(
+                        contentData.id.length > 0 ? updateArticle : newArticle,
+                    );
+
+                    setContentData({
+                        id: savedArticle.id,
+                        tagIds: savedArticle.tagIds,
+                        bookIds: savedArticle.bookIds,
+                        themeIds: savedArticle.themeIds,
+                    });
+                    setStatus(statusParam || status);
+                    setTouched(false);
+                    setHtmlContent(savedArticle.htmlContent || '');
                 }
 
-                const savedPost = await postApi.upsertPost(
-                    postData.id.length > 0 ? updatePost : newPost,
-                );
+                // if the content is a review, create a new review object
+                if (contentType === 'review') {
+                    const newReview: SaveReviewParams = {
+                        title: getTitle(),
+                        description: getDescription(),
+                        rawContent,
+                        htmlContent: htmlContentGen,
+                        status: statusParam || status,
+                        tagIds: newTags,
+                        bookId: (selectedBook as ListOption).id,
+                        userUid: authUser.uid,
+                        readTime: determineReadTime(),
+                    };
 
-                setPostData({
-                    id: savedPost.id,
-                    tagIds: savedPost.tagIds,
-                    bookId: savedPost.bookId as string,
-                });
-                setTouched(false);
-                setStatus(statusParam || status);
-                setHtmlContent(savedPost.htmlContent || '');
+                    const updateReview: SaveReviewParams = {
+                        ...newReview,
+                        id: contentData.id,
+                    };
+
+                    if (!newReview.bookId) {
+                        toast.error('You must select a book');
+                        return;
+                    }
+
+                    const savedReview = await reviewApi.upsertReview(
+                        contentData.id.length > 0 ? updateReview : newReview,
+                    );
+
+                    setContentData({
+                        id: savedReview.id,
+                        tagIds: savedReview.tagIds,
+                        bookIds: savedReview.bookId as string,
+                    });
+                    setTouched(false);
+                    setStatus(statusParam || status);
+                    setHtmlContent(savedReview.htmlContent || '');
+                }
 
                 toast.success('Saved...');
             } catch (err) {
-                toast.error('Error saving post');
+                toast.error(`Error saving content`);
             }
         },
         triggerDelayedSave: debounce({ delay: 5000 }, (authUser) => {
-            const { savePost } = get();
-            savePost(authUser);
+            const { saveContent } = get();
+            saveContent(authUser);
         }),
         setCharCount: (charCount) => {
             set({ charCount });

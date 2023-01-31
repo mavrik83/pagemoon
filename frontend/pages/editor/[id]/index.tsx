@@ -1,20 +1,20 @@
 import React, { useEffect } from 'react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { Post } from '@prisma/client';
+import { Review } from '@prisma/client';
 import { useFirebaseAuth } from '../../../utils/contexts/firebaseProvider';
 import { Editor } from '../../../components/editor';
-import { postApi } from '../../../utils/api';
+import { reviewApi } from '../../../utils/api';
 
 const EditorEdit: NextPage = () => {
     const router = useRouter();
     const { authUser, authLoading } = useFirebaseAuth();
-    const [post, setPost] = React.useState<Post>();
+    const [review, setReview] = React.useState<Review>();
 
     const { id } = router.query;
 
     useEffect(() => {
-        postApi.getPostById(id as string).then((res) => setPost(res));
+        reviewApi.getReviewById(id as string).then((res) => setReview(res));
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -24,7 +24,9 @@ const EditorEdit: NextPage = () => {
         }
     }, [authUser, router, authLoading]);
 
-    return <div>{authUser && post && <Editor isEditable data={post} />}</div>;
+    return (
+        <div>{authUser && review && <Editor isEditable data={review} />}</div>
+    );
 };
 
 export default EditorEdit;

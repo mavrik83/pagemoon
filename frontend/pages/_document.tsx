@@ -11,7 +11,7 @@ const Document = () => (
             />
             <link rel='icon' href='/favicon.ico' />
         </Head>
-        <body className='text-neutral-800'>
+        <body className='font-light text-neutral-800'>
             <Main />
             <NextScript />
         </body>

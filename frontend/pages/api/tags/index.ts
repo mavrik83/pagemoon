@@ -69,7 +69,7 @@ const deleteTag = async (req: NextApiRequest, res: NextApiResponse) => {
                 },
                 include: {
                     books: true,
-                    posts: true,
+                    reviews: true,
                 },
             })
             .catch(() => {
@@ -89,9 +89,9 @@ const deleteTag = async (req: NextApiRequest, res: NextApiResponse) => {
                                 id: book.id,
                             })),
                         },
-                        posts: {
-                            disconnect: tag.posts.map((post) => ({
-                                id: post.id,
+                        reviews: {
+                            disconnect: tag.reviews.map((review) => ({
+                                id: review.id,
                             })),
                         },
                         user: {
