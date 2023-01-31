@@ -4,7 +4,7 @@ import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
 import Image from 'next/image';
 import { Book as BookModel } from '@prisma/client';
 import prisma from '../../lib/prisma';
-import { classNames } from '../../utils/helpers';
+import { classNames, formatAuthors } from '../../utils/helpers';
 
 interface Props {
     book: BookWithTagsThemes;
@@ -33,7 +33,10 @@ const BookDetail: NextPage<Props> = ({ book }) => (
             <div className='mt-10 flex flex-col justify-center text-base leading-3 md:ml-10 md:leading-10'>
                 <h1 className='text-3xl'>{book.title}</h1>
                 <h2>
-                    by: <span className='text-lg'>{book.authors}</span>
+                    by:{' '}
+                    <span className='text-lg'>
+                        {formatAuthors(book.authors as string)}
+                    </span>
                 </h2>
                 <h3>
                     ISBN: <span className='text-lg'>{book.isbn}</span>

@@ -29,3 +29,18 @@ export const title = (str: string | null | undefined): string => {
         .map((s) => capitalize(s.toLowerCase()))
         .join(' ');
 };
+
+/**
+ * Formats a given string of author names from "last, first" to "first last"
+ * there can be multiple authors separated by " & "
+ */
+export const formatAuthors = (authors: string): string => {
+    if (!authors) return '';
+    return authors
+        .split(' & ')
+        .map((author) => {
+            const [last, first] = author.split(', ');
+            return `${first} ${last}`;
+        })
+        .join(' & ');
+};

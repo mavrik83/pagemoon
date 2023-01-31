@@ -29,7 +29,7 @@ export const Layout = ({ children }: LayoutProps) => {
     const [mode, setMode] = useState<AuthProps['mode']>('signin');
 
     return (
-        <>
+        <div>
             <Toaster
                 toastOptions={{
                     success: {
@@ -61,6 +61,6 @@ export const Layout = ({ children }: LayoutProps) => {
             />
             <div className={containerClasses}>{children}</div>
             <Footer setAuthModalOpen={setAuthModalOpen} setMode={setMode} />
-        </>
+        </div>
     );
 };

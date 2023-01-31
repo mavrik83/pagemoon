@@ -20,11 +20,11 @@ const Home: NextPage<Props> = ({ books }: Props) => (
         <main className='my-5'>
             <section>
                 <div className='rounded-xl bg-tertiary'>
-                    <div className='container mx-auto flex flex-col items-center px-4 py-8 text-center font-light md:py-12 md:px-10 lg:px-32 lg:pb-52'>
+                    <div className='container mx-auto flex flex-col items-center px-4 py-8 text-center font-light md:py-12 md:px-10 lg:px-32'>
                         <h1 className='text-5xl leading-none sm:text-6xl xl:max-w-3xl'>
                             Welcome to PageMoon
                         </h1>
-                        <p className='mt-6 mb-8 text-lg sm:mb-12 xl:max-w-3xl'>
+                        <p className='mt-6 text-lg xl:max-w-3xl'>
                             Our mission is to give parents real insights and
                             honest reviews of children&apos;s books. We are a
                             mother and daughter with a collective 30 years of
@@ -33,15 +33,6 @@ const Home: NextPage<Props> = ({ books }: Props) => (
                             share our love of reading with you.
                         </p>
                     </div>
-                </div>
-                <div className='relative mx-auto mb-12 hidden h-[300px] w-[500px] lg:-mt-56 lg:block'>
-                    <Image
-                        src='https://source.unsplash.com/random/500x500/?children,books'
-                        alt='random unsplash of children reading books'
-                        className='h-full w-full rounded-xl bg-gray-500 object-cover shadow-md'
-                        layout='fill'
-                        priority
-                    />
                 </div>
             </section>
             <section className='mt-20 flex flex-col justify-center'>
