@@ -42,7 +42,7 @@ export const Header: React.FC<Props> = ({ setAddBookModalOpen }: Props) => {
     return (
         <header className='sticky top-0 z-40 bg-white bg-opacity-50 font-light shadow-xl backdrop-blur-sm'>
             <nav
-                className='mx-auto max-w-7xl px-4 backdrop-blur-sm sm:px-6 lg:px-8'
+                className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'
                 aria-label='Top'
             >
                 <div className='flex w-full items-center justify-between py-1'>

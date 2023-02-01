@@ -21,6 +21,9 @@ module.exports = {
             },
             boxShadow: {
                 '3xl': '0 35px 60px -15px rgba(0, 0, 0, 0.3)',
+                even: '0 0 10px .05rem rgba(0, 0, 0, 0.5)',
+                'even-bg': '0 0 200px 7rem rgba(0, 0, 0, 0.5)',
+                'even-bg-md': '0 0 100px 5rem rgba(0, 0, 0, 0.5)',
             },
             height: {
                 'screen-1/2': '50vh',
@@ -36,7 +39,6 @@ module.exports = {
             },
             transitionProperty: {
                 height: 'height',
-                display: 'display',
             },
         },
     },

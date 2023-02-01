@@ -16,30 +16,25 @@ const Home: NextPage<Props> = ({ books }: Props) => (
             <meta name='description' content='PageMoon' />
             <link rel='icon' href='/favicon.ico' />
         </Head>
-        <main className='my-5'>
-            <section>
-                <div className='rounded-xl bg-tertiary'>
-                    <div className='container mx-auto flex flex-col items-center px-4 py-8 text-center font-light md:py-12 md:px-10 lg:px-32'>
-                        <h1 className='text-5xl leading-none sm:text-6xl xl:max-w-3xl'>
-                            Welcome to PageMoon
-                        </h1>
-                        <p className='mt-6 text-lg xl:max-w-3xl'>
-                            Our mission is to give parents real insights and
-                            honest reviews of children&apos;s books. We are a
-                            mother and daughter with a collective 30 years of
-                            experience in early childhood education. We are
-                            passionate about children&apos;s books and want to
-                            share our love of reading with you.
-                        </p>
-                    </div>
+        <main className='my-5 rounded-xl'>
+            <div className='p-4 md:flex md:flex-row md:items-center'>
+                <div className='h-full w-auto rounded-xl p-4 md:w-1/2'>
+                    <section>
+                        <div className='container relative mx-auto flex flex-col items-center text-center font-light '>
+                            <h1 className='z-10 my-5 whitespace-nowrap text-3xl sm:text-5xl xl:max-w-3xl'>
+                                Chidrens Books.
+                            </h1>
+                            <h1 className='z-10 text-3xl sm:text-5xl xl:max-w-3xl'>
+                                Demystified.
+                            </h1>
+                            <div className='absolute bottom-1/2 left-1/2 h-1 w-0 rounded-full shadow-even-bg shadow-tertiary' />
+                        </div>
+                    </section>
                 </div>
-            </section>
-            <section className='mt-20 flex flex-col justify-center'>
-                <h2 className='text-center text-3xl font-light'>
-                    Featured Books
-                </h2>
-                <FeaturedBooks books={books} />
-            </section>
+                <section className='mt-20 flex flex-col justify-center md:w-1/2'>
+                    <FeaturedBooks books={books} />
+                </section>
+            </div>
         </main>
     </div>
 );

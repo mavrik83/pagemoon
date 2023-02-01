@@ -7,7 +7,7 @@ interface Props {
 }
 
 export const FeaturedBooks: React.FC<Props> = ({ books }) => (
-    <div className='mt-5 flex flex-row flex-wrap items-center justify-evenly gap-10 p-3 sm:p-8'>
+    <div className='md:gap-15 mt-5 flex flex-row flex-wrap items-center justify-evenly gap-5 lg:gap-20'>
         {books.map((book) => (
             <PreviewCardBook
                 key={book.id}

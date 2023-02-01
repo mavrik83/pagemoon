@@ -26,6 +26,8 @@ const EditorNew: NextPage = () => {
         }
         if (router.query.type === 'article') {
             setContentType('article');
+        } else {
+            setContentType('review');
         }
     }, [authUser, router, authLoading, setContentType]);
 

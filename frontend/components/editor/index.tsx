@@ -306,6 +306,27 @@ export const Editor: React.FC<Props> = ({ isEditable, data }) => {
                     </p>
                 </div>
             </div>
+            <div className='hidden space-y-2 lg:col-span-1 lg:block'>
+                {contentType === 'review' ? (
+                    <div className='rounded-lg bg-secondary bg-opacity-30 p-3 text-sm'>
+                        <p className=''>
+                            This a review of a book. You can add a book to the
+                            review by selecting it from the dropdown menu. A
+                            review can only have one book associated with it.
+                        </p>
+                    </div>
+                ) : (
+                    <div className='rounded-lg bg-secondary bg-opacity-30 p-3 text-sm'>
+                        <p className=''>
+                            This is an article. You can add multiple books and
+                            themes to an article. Articles are content that can
+                            span many themes and books. Use them to write about
+                            a topic that is not specific to a single book or
+                            theme.
+                        </p>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

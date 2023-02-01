@@ -22,7 +22,7 @@ interface BookWithTagsThemes extends BookModel {
 const BookDetail: NextPage<Props> = ({ book }) => (
     <main className='flex flex-col md:px-36'>
         <div className='md:flex md:flex-row'>
-            <div className='relative mt-10 h-72 w-52 rounded-xl shadow-md md:h-96 md:w-72'>
+            <div className='relative mt-10 h-72 w-52 rounded-xl shadow-even shadow-secondary md:h-96 md:w-72'>
                 <Image
                     className='rounded-xl object-cover object-center'
                     src={book.coverImage || ''}

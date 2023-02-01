@@ -16,7 +16,7 @@ export const Footer: FC<Props> = ({ setAuthModalOpen, setMode }) => {
         <footer className='sticky top-[100vh] bg-white'>
             <div className='mx-auto max-w-7xl overflow-hidden py-20 px-6 sm:py-24 lg:px-8'>
                 <nav
-                    className='-mb-6 flex columns-2 justify-center space-x-5 sm:space-x-12'
+                    className='-mb-6 flex columns-2 flex-wrap justify-center space-x-5 sm:space-x-12'
                     aria-label='Footer'
                 >
                     <MyLink href='/' className='pb-6'>
