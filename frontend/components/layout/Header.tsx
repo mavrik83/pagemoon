@@ -24,7 +24,7 @@ export const Header: React.FC<Props> = ({ setAddBookModalOpen }: Props) => {
     const { authUser } = useFirebaseAuth();
 
     const navigation = [
-        { name: 'Create Review', href: '/editor', adminOnly: true },
+        { name: 'Create Review', href: '/editor?type=review', adminOnly: true },
         {
             name: 'Create Article',
             href: '/editor?type=article',

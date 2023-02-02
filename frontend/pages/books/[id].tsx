@@ -30,86 +30,84 @@ const BookDetail: NextPage<Props> = ({ book }) => (
                     layout='fill'
                 />
             </div>
-            <div className='mt-10 flex flex-col justify-center text-base leading-3 md:ml-10 md:leading-10'>
+            <div className='mt-10 flex flex-col justify-end text-sm leading-3 md:ml-10 md:leading-8'>
                 <h1 className='text-3xl'>{book.title}</h1>
                 <h2>
-                    by:{' '}
-                    <span className='text-lg'>
+                    <span className='text-base'>
                         {formatAuthors(book.authors as string)}
                     </span>
                 </h2>
                 <h3>
-                    ISBN: <span className='text-lg'>{book.isbn}</span>
+                    <span className='text-base'>{book.publisher}</span>
                 </h3>
                 <h3>
-                    Published:{' '}
-                    <span className='text-lg'>{book.datePublished}</span>
+                    <span className='text-base'>{book.datePublished}</span>
                 </h3>
                 <h3>
-                    Pages: <span className='text-lg'>{book.pages}</span>
+                    ISBN: <span className='text-base'>{book.isbn}</span>
                 </h3>
                 <h3>
-                    Publisher: <span className='text-lg'>{book.publisher}</span>
+                    <span className='text-base'>{book.pages} pages</span>
                 </h3>
                 <h3>
-                    Language:{' '}
-                    <span className='text-lg'>
+                    <span className='text-base'>
                         {book.language === 'en' ? 'English' : book.language}
                     </span>
                 </h3>
             </div>
         </div>
-
-        <div
-            className={classNames(
-                book.themes.length ? '' : 'hidden',
-                `mt-3 flex flex-row flex-wrap gap-3 md:w-72`,
-            )}
-        >
-            Themes:{' '}
-            {book.themes.map((theme) => (
-                <span
-                    key={theme.name}
-                    className='inline-flex cursor-pointer items-center justify-self-center rounded-full bg-tertiary bg-opacity-30 px-2 py-[0.1rem] text-xs font-light'
-                >
-                    {theme.name}
-                </span>
-            ))}
-        </div>
-        <div
-            className={classNames(
-                book.tags.length ? '' : 'hidden',
-                `mt-3 flex flex-row flex-wrap gap-3 md:w-72`,
-            )}
-        >
-            Tags:{' '}
-            {book.tags.map((tag) => (
-                <span
-                    key={tag.name}
-                    className='inline-flex cursor-pointer items-center justify-self-center rounded-full bg-secondary bg-opacity-30 px-2 py-[0.1rem] text-xs font-light'
-                >
-                    {tag.name}
-                </span>
-            ))}
-        </div>
-        <div
-            className={classNames(
-                book.synopsis?.length ? '' : 'hidden',
-                'mt-10 text-xl',
-            )}
-        >
-            <h1>Description</h1>
-            <p className='text-base'>{book.synopsis}</p>
-        </div>
-        <div>
-            <h1
+        <div className='mt-5'>
+            <div
                 className={classNames(
-                    book.reviewIds.length ? '' : 'hidden',
+                    book.themes.length ? '' : 'hidden',
+                    `mt-3 flex flex-row flex-wrap gap-3 md:w-72`,
+                )}
+            >
+                Themes:{' '}
+                {book.themes.map((theme) => (
+                    <span
+                        key={theme.name}
+                        className='inline-flex cursor-pointer items-center justify-self-center rounded-full bg-tertiary bg-opacity-30 px-2 py-[0.1rem] text-xs font-light'
+                    >
+                        {theme.name}
+                    </span>
+                ))}
+            </div>
+            <div
+                className={classNames(
+                    book.tags.length ? '' : 'hidden',
+                    `mt-3 flex flex-row flex-wrap gap-3 md:w-72`,
+                )}
+            >
+                Tags:{' '}
+                {book.tags.map((tag) => (
+                    <span
+                        key={tag.name}
+                        className='inline-flex cursor-pointer items-center justify-self-center rounded-full bg-secondary bg-opacity-30 px-2 py-[0.1rem] text-xs font-light'
+                    >
+                        {tag.name}
+                    </span>
+                ))}
+            </div>
+            <div
+                className={classNames(
+                    book.synopsis?.length ? '' : 'hidden',
                     'mt-10 text-xl',
                 )}
             >
-                Reviews
-            </h1>
+                <h1>Description</h1>
+                <p className='text-base'>{book.synopsis}</p>
+            </div>
+            <div>
+                <h1
+                    className={classNames(
+                        book.reviewIds.length ? '' : 'hidden',
+                        'mt-10 text-xl',
+                    )}
+                >
+                    Reviews
+                </h1>
+            </div>
         </div>
     </main>
 );

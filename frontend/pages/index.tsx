@@ -16,7 +16,7 @@ const Home: NextPage<Props> = ({ books }: Props) => (
             <meta name='description' content='PageMoon' />
             <link rel='icon' href='/favicon.ico' />
         </Head>
-        <main className='my-5 rounded-xl'>
+        <main className='my-5 mt-10 rounded-xl md:mt-20'>
             <div className='p-4 md:flex md:flex-row md:items-center'>
                 <div className='h-full w-auto rounded-xl p-4 md:w-1/2'>
                     <section>
@@ -24,14 +24,14 @@ const Home: NextPage<Props> = ({ books }: Props) => (
                             <h1 className='z-10 my-5 whitespace-nowrap text-3xl sm:text-5xl xl:max-w-3xl'>
                                 Chidrens Books.
                             </h1>
-                            <h1 className='z-10 text-3xl sm:text-5xl xl:max-w-3xl'>
+                            <h1 className='z-10 my-5 text-3xl sm:text-5xl xl:max-w-3xl'>
                                 Demystified.
                             </h1>
                             <div className='absolute bottom-1/2 left-1/2 h-1 w-0 rounded-full shadow-even-bg shadow-tertiary' />
                         </div>
                     </section>
                 </div>
-                <section className='mt-20 flex flex-col justify-center md:w-1/2'>
+                <section className='mt-28 flex flex-col justify-center md:mt-0 md:w-1/2'>
                     <FeaturedBooks books={books} />
                 </section>
             </div>

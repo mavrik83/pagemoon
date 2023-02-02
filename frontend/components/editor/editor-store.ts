@@ -25,7 +25,7 @@ interface ContentData {
 }
 
 interface IEditorState {
-    contentType: 'review' | 'article';
+    contentType: 'review' | 'article' | '';
     contentData: ContentData;
     rawContent: JSONContent;
     htmlContent: string;
@@ -70,7 +70,7 @@ interface IEditorActions {
 }
 
 const initialEditorState: IEditorState = {
-    contentType: 'review',
+    contentType: '',
     contentData: {
         id: '',
         tagIds: [],

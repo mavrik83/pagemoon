@@ -49,9 +49,6 @@ export const Editor: React.FC<Props> = ({ isEditable, data }) => {
         useCallback((state) => state.setContentData, []),
     );
     // Tag state
-    const fetchTags = useEditorStore(
-        useCallback((state) => state.fetchTags, []),
-    );
     const setSelectedTags = useEditorStore((state) => state.setSelectedTags);
     const selectedTags = useEditorStore(
         useCallback((state) => state.selectedTags, []),
@@ -64,9 +61,6 @@ export const Editor: React.FC<Props> = ({ isEditable, data }) => {
     );
 
     // Book state
-    const fetchBooks = useEditorStore(
-        useCallback((state) => state.fetchBooks, []),
-    );
     const setSelectedBook = useEditorStore(
         useCallback((state) => state.setSelectedBook, []),
     );
@@ -91,9 +85,6 @@ export const Editor: React.FC<Props> = ({ isEditable, data }) => {
     const setSelectedThemes = useEditorStore(
         useCallback((state) => state.setSelectedThemes, []),
     );
-    const fetchThemes = useEditorStore(
-        useCallback((state) => state.fetchThemes, []),
-    );
 
     useEffect(() => {
         if (data) {
@@ -106,11 +97,6 @@ export const Editor: React.FC<Props> = ({ isEditable, data }) => {
                     : ((data as Review).bookId as string) || '',
                 themeIds: (data as Article).themeIds || [],
             });
-        }
-        fetchTags();
-        fetchBooks();
-        if (contentType === 'article') {
-            fetchThemes();
         }
 
         return () => {
