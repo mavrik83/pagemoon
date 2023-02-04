@@ -2,12 +2,23 @@
 import React from 'react';
 import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
 import Image from 'next/image';
+import { MdOutlineCollectionsBookmark } from 'react-icons/md';
+import { AiOutlineTags } from 'react-icons/ai';
 import { Book as BookModel } from '@prisma/client';
 import prisma from '../../lib/prisma';
 import { classNames, formatAuthors } from '../../utils/helpers';
+import { ContentPreviewCard } from '../../components/preview/previewContent';
 
 interface Props {
     book: BookWithTagsThemes;
+    reviews: {
+        id: string;
+        title: string;
+        description: string;
+        user: {
+            firstName: string;
+        };
+    }[];
 }
 
 interface BookWithTagsThemes extends BookModel {
@@ -19,8 +30,8 @@ interface BookWithTagsThemes extends BookModel {
     }[];
 }
 
-const BookDetail: NextPage<Props> = ({ book }) => (
-    <main className='flex flex-col md:px-36'>
+const BookDetail: NextPage<Props> = ({ book, reviews }) => (
+    <main className='mb-40 flex flex-col md:px-36'>
         <div className='md:flex md:flex-row'>
             <div className='relative mt-10 h-72 w-52 rounded-xl shadow-even shadow-secondary md:h-96 md:w-72'>
                 <Image
@@ -60,10 +71,10 @@ const BookDetail: NextPage<Props> = ({ book }) => (
             <div
                 className={classNames(
                     book.themes.length ? '' : 'hidden',
-                    `mt-3 flex flex-row flex-wrap gap-3 md:w-72`,
+                    `mt-3 flex flex-row flex-wrap items-center gap-3 md:w-72`,
                 )}
             >
-                Themes:{' '}
+                <MdOutlineCollectionsBookmark className='text-tertiary' />
                 {book.themes.map((theme) => (
                     <span
                         key={theme.name}
@@ -76,10 +87,10 @@ const BookDetail: NextPage<Props> = ({ book }) => (
             <div
                 className={classNames(
                     book.tags.length ? '' : 'hidden',
-                    `mt-3 flex flex-row flex-wrap gap-3 md:w-72`,
+                    `mt-3 flex flex-row flex-wrap items-center gap-3 md:w-72`,
                 )}
             >
-                Tags:{' '}
+                <AiOutlineTags className='text-secondary' />
                 {book.tags.map((tag) => (
                     <span
                         key={tag.name}
@@ -98,17 +109,23 @@ const BookDetail: NextPage<Props> = ({ book }) => (
                 <h1>Description</h1>
                 <p className='text-base'>{book.synopsis}</p>
             </div>
-            <div>
-                <h1
-                    className={classNames(
-                        book.reviewIds.length ? '' : 'hidden',
-                        'mt-10 text-xl',
-                    )}
-                >
-                    Reviews
-                </h1>
-            </div>
         </div>
+        {reviews.length > 0 && (
+            <div className='mt-10'>
+                <h3 className='mb-5 text-xl'>Reviews:</h3>
+                <div className='flex flex-col space-y-10'>
+                    {reviews.map((review) => (
+                        <ContentPreviewCard
+                            key={review.id}
+                            id={review.id}
+                            title={review.title}
+                            description={review.description}
+                            author={review.user.firstName}
+                        />
+                    ))}
+                </div>
+            </div>
+        )}
     </main>
 );
 
@@ -145,8 +162,25 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
         },
     });
 
+    const reviews = await prisma.review.findMany({
+        where: {
+            bookId: params?.id as string,
+        },
+        select: {
+            id: true,
+            title: true,
+            description: true,
+            user: {
+                select: {
+                    firstName: true,
+                },
+            },
+        },
+    });
+
     return {
         props: {
+            reviews,
             book,
         },
         revalidate: 10,
