@@ -1,4 +1,4 @@
-import { Article, Book, Tag, Theme } from '@prisma/client';
+import { Book, Tag, Theme } from '@prisma/client';
 import { JSONContent } from '@tiptap/react';
 import { toast } from 'react-hot-toast';
 import create from 'zustand';
@@ -134,7 +134,7 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
             if (contentData && contentData.themeIds && themeOptions) {
                 // if there are themes in the article, set the selected themes
                 const selectedThemes = themeOptions.filter((option) =>
-                    (contentData as Article).themeIds.includes(option.id),
+                    contentData.themeIds?.includes(option.id),
                 );
                 set({ selectedThemes });
             }
@@ -156,7 +156,7 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
                 });
         },
         setBookOptions: (bookData) => {
-            const { contentData } = get();
+            const { contentData, contentType } = get();
 
             const bookOptions =
                 bookData &&
@@ -167,19 +167,16 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
             set({ bookOptions });
 
             if (contentData && bookOptions) {
-                if (
-                    contentData.bookIds &&
-                    !Array.isArray(contentData.bookIds)
-                ) {
+                if (contentType === 'review') {
                     // if there is a book in the review, set the selected book
                     const selectedBook = bookOptions.find(
                         (option) => option.id === contentData.bookIds,
                     );
                     set({ selectedBook });
-                } else if (contentData.bookIds) {
+                } else if (contentType === 'article') {
                     // if there are books in the article, set the selected books
                     const selectedBooks = bookOptions.filter((option) =>
-                        (contentData as Article).bookIds.includes(option.id),
+                        contentData.bookIds?.includes(option.id),
                     );
                     set({ selectedBook: selectedBooks });
                 }

@@ -1,14 +1,12 @@
 import React from 'react';
 import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
-import { Review as ReviewModel } from '@prisma/client';
+import { Review as ReviewModel, Tag } from '@prisma/client';
 import parse from 'html-react-parser';
 import prisma from '../../lib/prisma';
 
 interface Props {
     review: ReviewModel & {
-        tags: {
-            name: string;
-        }[];
+        tags: Tag[];
         user: {
             firstName: string;
             lastName: string;
@@ -39,7 +37,7 @@ const BookReview: NextPage<Props> = ({ review }: Props) => {
                     {review.tags &&
                         review.tags.map((tag) => (
                             <span
-                                key={tag.name}
+                                key={tag.id}
                                 className='inline-flex cursor-pointer items-center justify-self-center rounded-full bg-secondary bg-opacity-30 px-2 py-[0.1rem] text-xs font-light'
                             >
                                 {tag.name}

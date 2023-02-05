@@ -51,12 +51,12 @@ export const ComboSelectBox: FC<Props> = ({
         labelProp: string,
     ) => {
         if (isMulti) {
-            if ((selected as ListOption[]).length > 0) {
+            if ((selected as ListOption[])?.length > 0) {
                 return `${labelProp} *`;
             }
             return labelProp;
         }
-        if ((selected as ListOption).name) {
+        if ((selected as ListOption)?.name) {
             return `${labelProp} *`;
         }
         return labelProp;
@@ -116,7 +116,7 @@ export const ComboSelectBox: FC<Props> = ({
                                                 setQuery('');
                                             }
                                         }}
-                                        className='relative w-full cursor-pointer bg-secondary bg-opacity-30 py-2'
+                                        className='relative w-full cursor-pointer bg-secondary bg-opacity-30 py-2 pl-10 pr-4'
                                     >
                                         Create: {query}
                                     </button>

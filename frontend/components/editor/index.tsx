@@ -21,7 +21,17 @@ import { EditorFloatingMenu } from './components/floatingMenu';
 
 interface Props {
     // eslint-disable-next-line react/require-default-props
-    data?: Review | Article;
+    data?:
+        | (Review & {
+              bookIds: string[];
+              tagIds: string[];
+              themeIds?: string[];
+          })
+        | (Article & {
+              bookIds: string[];
+              tagIds: string[];
+              themeIds?: string[];
+          });
     isEditable: boolean;
 }
 
@@ -91,11 +101,9 @@ export const Editor: React.FC<Props> = ({ isEditable, data }) => {
             setRawContent(data.rawContent as JSONContent);
             setContentData({
                 id: data.id,
-                tagIds: data.tagIds,
-                bookIds: (data as Article).bookIds
-                    ? ((data as Article).bookIds as string[]) || []
-                    : ((data as Review).bookId as string) || '',
-                themeIds: (data as Article).themeIds || [],
+                tagIds: data.tagIds || [],
+                bookIds: data.bookIds || [],
+                themeIds: data.themeIds || [],
             });
         }
 
@@ -194,8 +202,8 @@ export const Editor: React.FC<Props> = ({ isEditable, data }) => {
                 </div>
                 <div
                     className={classNames(
-                        (selectedBook as ListOption).name ||
-                            (selectedBook as ListOption[]).length
+                        (selectedBook as ListOption)?.name ||
+                            (selectedBook as ListOption[])?.length
                             ? ''
                             : 'hidden',
                         'mt-5 flex flex-row flex-wrap items-center gap-3',
@@ -204,12 +212,12 @@ export const Editor: React.FC<Props> = ({ isEditable, data }) => {
                     <IoBookOutline className='text-2xl text-tertiary' />
                     {contentType === 'review' && (
                         <span className='inline-flex items-center rounded-full bg-tertiary bg-opacity-30 px-3 py-0.5 text-sm '>
-                            {(selectedBook as ListOption).name}
+                            {(selectedBook as ListOption)?.name}
                         </span>
                     )}
                     {contentType === 'article' &&
                         Array.isArray(selectedBook) &&
-                        (selectedBook as ListOption[]).map((book) => (
+                        (selectedBook as ListOption[])?.map((book) => (
                             <span
                                 key={book.name}
                                 className='inline-flex items-center rounded-full bg-tertiary bg-opacity-30 px-3 py-0.5 text-sm '

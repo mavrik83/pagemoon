@@ -1,3 +1,4 @@
+import { JSONContent } from '@tiptap/react';
 import { NextApiRequest, NextApiResponse } from 'next';
 import prisma from '../../../lib/prisma';
 import { SaveArticleParams } from '../../../utils/api/articleApi';
@@ -29,12 +30,24 @@ const getSingleArticle = async (req: NextApiRequest, res: NextApiResponse) => {
                 where: {
                     id: req.query.id as string,
                 },
+                include: {
+                    tags: true,
+                    books: true,
+                    themes: true,
+                },
             })
             .catch(() => {
                 throw new Error('Article not found');
             });
+        
+        const articleResponse = {
+            ...article,
+            bookIds: article?.books.map((book) => book.id),
+            tagIds: article?.tags.map((tag) => tag.id),
+            themeIds: article?.themes.map((theme) => theme.id),
+        };
 
-        res.status(200).send(article);
+        res.status(200).send(articleResponse);
     } catch (error) {
         if (error instanceof Error) {
             res.status(400).send(error.message);
@@ -65,7 +78,7 @@ const upsertArticle = async (
                     data: {
                         title: req.body.title,
                         description: req.body.description,
-                        rawContent: req.body.rawContent,
+                        rawContent: req.body.rawContent as JSONContent,
                         htmlContent: req.body.htmlContent,
                         status: req.body.status,
                         readTime: req.body.readTime,
@@ -90,6 +103,11 @@ const upsertArticle = async (
                             })),
                         },
                     },
+                    include: {
+                        tags: true,
+                        books: true,
+                        themes: true,
+                    },
                 })
                 .catch(() => {
                     throw new Error('Failed to create article');
@@ -97,14 +115,24 @@ const upsertArticle = async (
 
             const booksInArticle = await prisma.book.findMany({
                 where: {
-                    articleIds: {
-                        has: article.id,
+                    article: {
+                        some: {
+                            id: article.id,
+                        },
                     },
                 },
                 select: {
                     id: true,
-                    themeIds: true,
-                    tagIds: true,
+                    themes: {
+                        select: {
+                            id: true,
+                        },
+                    },
+                    tags: {
+                        select: {
+                            id: true,
+                        },
+                    },
                 },
             });
 
@@ -113,10 +141,16 @@ const upsertArticle = async (
             await Promise.all(
                 booksInArticle.map(async (book) => {
                     const newTagIds = Array.from(
-                        new Set([...book.tagIds, ...req.body.tagIds!]),
+                        new Set([
+                            ...book.tags.map((tag) => tag.id),
+                            ...req.body.tagIds!,
+                        ]),
                     );
                     const newThemeIds = Array.from(
-                        new Set([...book.themeIds, ...req.body.themeIds!]),
+                        new Set([
+                            ...book.themes.map((theme) => theme.id),
+                            ...req.body.themeIds!,
+                        ]),
                     );
 
                     await prisma.book.update({
@@ -124,11 +158,17 @@ const upsertArticle = async (
                             id: book.id,
                         },
                         data: {
-                            tagIds: {
-                                set: newTagIds,
+                            tags: {
+                                set: [],
+                                connect: newTagIds.map((id) => ({
+                                    id,
+                                })),
                             },
-                            themeIds: {
-                                set: newThemeIds,
+                            themes: {
+                                set: [],
+                                connect: newThemeIds.map((id) => ({
+                                    id,
+                                })),
                             },
                         },
                     });
@@ -137,7 +177,14 @@ const upsertArticle = async (
                 throw new Error('Failed to update books');
             });
 
-            res.status(200).send(article);
+            const articleResponse = {
+                ...article,
+                bookIds: article?.books.map((book) => book.id),
+                tagIds: article?.tags.map((tag) => tag.id),
+                themeIds: article?.themes.map((theme) => theme.id),
+            };
+
+            res.status(200).send(articleResponse);
         } else {
             const article = await prisma.article
                 .update({
@@ -145,7 +192,7 @@ const upsertArticle = async (
                     data: {
                         title: req.body.title,
                         description: req.body.description,
-                        rawContent: req.body.rawContent,
+                        rawContent: req.body.rawContent as JSONContent,
                         htmlContent: req.body.htmlContent,
                         status: req.body.status,
                         readTime: req.body.readTime,
@@ -168,6 +215,11 @@ const upsertArticle = async (
                             })),
                         },
                     },
+                    include: {
+                        tags: true,
+                        books: true,
+                        themes: true,
+                    },
                 })
                 .catch(() => {
                     throw new Error('Failed to update article');
@@ -175,14 +227,24 @@ const upsertArticle = async (
 
             const booksInArticle = await prisma.book.findMany({
                 where: {
-                    articleIds: {
-                        has: article.id,
+                    article: {
+                        some: {
+                            id: article.id,
+                        },
                     },
                 },
                 select: {
                     id: true,
-                    themeIds: true,
-                    tagIds: true,
+                    themes: {
+                        select: {
+                            id: true,
+                        },
+                    },
+                    tags: {
+                        select: {
+                            id: true,
+                        },
+                    },
                 },
             });
 
@@ -191,10 +253,16 @@ const upsertArticle = async (
             await Promise.all(
                 booksInArticle.map(async (book) => {
                     const newTagIds = Array.from(
-                        new Set([...book.tagIds, ...req.body.tagIds!]),
+                        new Set([
+                            ...book.tags.map((tag) => tag.id),
+                            ...req.body.tagIds!,
+                        ]),
                     );
                     const newThemeIds = Array.from(
-                        new Set([...book.themeIds, ...req.body.themeIds!]),
+                        new Set([
+                            ...book.themes.map((theme) => theme.id),
+                            ...req.body.themeIds!,
+                        ]),
                     );
 
                     await prisma.book.update({
@@ -202,11 +270,17 @@ const upsertArticle = async (
                             id: book.id,
                         },
                         data: {
-                            tagIds: {
-                                set: newTagIds,
+                            tags: {
+                                set: [],
+                                connect: newTagIds.map((id) => ({
+                                    id,
+                                })),
                             },
-                            themeIds: {
-                                set: newThemeIds,
+                            themes: {
+                                set: [],
+                                connect: newThemeIds.map((id) => ({
+                                    id,
+                                })),
                             },
                         },
                     });
@@ -215,7 +289,14 @@ const upsertArticle = async (
                 throw new Error('Failed to update books');
             });
 
-            res.status(200).send(article);
+            const articleResponse = {
+                ...article,
+                bookIds: article?.books.map((book) => book.id),
+                tagIds: article?.tags.map((tag) => tag.id),
+                themeIds: article?.themes.map((theme) => theme.id),
+            };
+
+            res.status(200).send(articleResponse);
         }
     } catch (error) {
         if (error instanceof Error) {

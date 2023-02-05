@@ -1,3 +1,4 @@
+import { JSONContent } from '@tiptap/react';
 import { NextApiRequest, NextApiResponse } from 'next';
 import prisma from '../../../lib/prisma';
 import { SaveReviewParams } from '../../../utils/api/reviewApi';
@@ -29,12 +30,22 @@ const getSingleReview = async (req: NextApiRequest, res: NextApiResponse) => {
                 where: {
                     id: req.query.id as string,
                 },
+                include: {
+                    book: true,
+                    tags: true,
+                },
             })
             .catch(() => {
                 throw new Error('Review not found');
             });
 
-        res.status(200).send(review);
+        const reviewResponse = {
+            ...review,
+            bookIds: [review?.book?.id],
+            tagIds: review?.tags.map((tag) => tag.id),
+        };
+
+        res.status(200).send(reviewResponse);
     } catch (error) {
         if (error instanceof Error) {
             res.status(400).send(error.message);
@@ -62,7 +73,7 @@ const upsertReview = async (req: ReviewCreatRequest, res: NextApiResponse) => {
                     data: {
                         title: req.body.title,
                         description: req.body.description,
-                        rawContent: req.body.rawContent,
+                        rawContent: req.body.rawContent as JSONContent,
                         htmlContent: req.body.htmlContent,
                         status: req.body.status,
                         readTime: req.body.readTime,
@@ -82,12 +93,22 @@ const upsertReview = async (req: ReviewCreatRequest, res: NextApiResponse) => {
                             },
                         },
                     },
+                    include: {
+                        book: true,
+                        tags: true,
+                    },
                 })
                 .catch(() => {
                     throw new Error('Failed to create review');
                 });
 
-            res.status(200).send(review);
+            const reviewResponse = {
+                ...review,
+                bookIds: [review?.book?.id],
+                tagIds: review?.tags.map((tag) => tag.id),
+            };
+
+            res.status(200).send(reviewResponse);
         } else {
             const review = await prisma.review
                 .update({
@@ -95,7 +116,7 @@ const upsertReview = async (req: ReviewCreatRequest, res: NextApiResponse) => {
                     data: {
                         title: req.body.title,
                         description: req.body.description,
-                        rawContent: req.body.rawContent,
+                        rawContent: req.body.rawContent as JSONContent,
                         htmlContent: req.body.htmlContent,
                         status: req.body.status,
                         readTime: req.body.readTime,
@@ -111,6 +132,10 @@ const upsertReview = async (req: ReviewCreatRequest, res: NextApiResponse) => {
                             },
                         },
                     },
+                    include: {
+                        book: true,
+                        tags: true,
+                    },
                 })
                 .catch(() => {
                     throw new Error('Failed to update review');
@@ -122,20 +147,25 @@ const upsertReview = async (req: ReviewCreatRequest, res: NextApiResponse) => {
                         id: req.body.bookId as string,
                     },
                     select: {
-                        tagIds: true,
+                        tags: {
+                            select: {
+                                id: true,
+                            },
+                        },
                     },
                 })
                 .catch(() => {
                     throw new Error('Failed to get book tags');
                 });
 
+            const currentBookTagIds = currentBookTags?.tags?.map(
+                (tag) => tag.id,
+            );
+
             const newBookTagIds =
-                currentBookTags?.tagIds && currentBookTags?.tagIds?.length > 0
-                    ? req.body.tagIds?.filter(
-                          (id: string) =>
-                              !currentBookTags?.tagIds?.some(
-                                  (tagId) => tagId === id,
-                              ),
+                currentBookTagIds && currentBookTagIds.length > 0
+                    ? req.body.tagIds?.filter((id: string) =>
+                          currentBookTagIds.some((tagId) => tagId === id),
                       )
                     : req.body.tagIds;
 
@@ -158,7 +188,13 @@ const upsertReview = async (req: ReviewCreatRequest, res: NextApiResponse) => {
                     throw new Error('Failed to update book tags');
                 });
 
-            res.status(200).send(review);
+            const reviewResponse = {
+                ...review,
+                bookIds: [review?.book?.id],
+                tagIds: review?.tags.map((tag) => tag.id),
+            };
+
+            res.status(200).send(reviewResponse);
         }
     } catch (error) {
         if (error instanceof Error) {
