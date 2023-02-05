@@ -22,7 +22,7 @@ const Home: NextPage<Props> = ({ books }: Props) => (
                     <section>
                         <div className='container relative mx-auto flex flex-col items-center text-center font-light '>
                             <h1 className='z-10 my-5 whitespace-nowrap text-3xl sm:text-5xl xl:max-w-3xl'>
-                                Chidrens Books.
+                                Childrens Books.
                             </h1>
                             <h1 className='z-10 my-5 text-3xl sm:text-5xl xl:max-w-3xl'>
                                 Demystified.
