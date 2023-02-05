@@ -9,7 +9,13 @@ import { reviewApi } from '../../../utils/api';
 const EditorEdit: NextPage = () => {
     const router = useRouter();
     const { authUser, authLoading } = useFirebaseAuth();
-    const [review, setReview] = React.useState<Review>();
+    const [review, setReview] = React.useState<
+        Review & {
+            bookIds: string[];
+            tagIds: string[];
+            themeIds?: string[];
+        }
+    >();
 
     const { id } = router.query;
 

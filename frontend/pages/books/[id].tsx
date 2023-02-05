@@ -4,7 +4,7 @@ import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
 import Image from 'next/image';
 import { MdOutlineCollectionsBookmark } from 'react-icons/md';
 import { AiOutlineTags } from 'react-icons/ai';
-import { Book as BookModel } from '@prisma/client';
+import { Book as BookModel, Tag, Theme } from '@prisma/client';
 import prisma from '../../lib/prisma';
 import { classNames, formatAuthors } from '../../utils/helpers';
 import { ContentPreviewCard } from '../../components/preview/previewContent';
@@ -22,12 +22,8 @@ interface Props {
 }
 
 interface BookWithTagsThemes extends BookModel {
-    tags: {
-        name: string;
-    }[];
-    themes: {
-        name: string;
-    }[];
+    tags: Tag[];
+    themes: Theme[];
 }
 
 const BookDetail: NextPage<Props> = ({ book, reviews }) => (
@@ -149,16 +145,8 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
             id: params?.id as string,
         },
         include: {
-            tags: {
-                select: {
-                    name: true,
-                },
-            },
-            themes: {
-                select: {
-                    name: true,
-                },
-            },
+            tags: true,
+            themes: true,
         },
     });
 

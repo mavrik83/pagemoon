@@ -15,16 +15,25 @@ export const articleApi = {
         return articles;
     },
     upsertArticle: async (params: SaveArticleParams) => {
-        const newArticle = await apiRequest.post<SaveArticleParams, Article>(
-            '/api/articles',
-            params,
-        );
+        const newArticle = await apiRequest.post<
+            SaveArticleParams,
+            Article & {
+                bookIds: string[];
+                tagIds: string[];
+                themeIds?: string[];
+            }
+        >('/api/articles', params);
         return newArticle;
     },
     getArticleById: async (id: string) => {
-        const article = await apiRequest.get<string, Article>(
-            `/api/articles?id=${id}`,
-        );
+        const article = await apiRequest.get<
+            string,
+            Article & {
+                bookIds: string[];
+                tagIds: string[];
+                themeIds?: string[];
+            }
+        >(`/api/articles?id=${id}`);
         return article;
     },
 };
