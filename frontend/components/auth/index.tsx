@@ -6,6 +6,7 @@ import { FcGoogle } from 'react-icons/fc';
 import {
     GoogleAuthProvider,
     createUserWithEmailAndPassword,
+    deleteUser,
     signInWithEmailAndPassword,
     signInWithPopup,
 } from 'firebase/auth';
@@ -76,6 +77,10 @@ export const Auth: React.FC<AuthProps> = ({ open, setOpen, mode }) => {
                             .then((user) => {
                                 toast.success(`Saved new user: ${user.email}`);
                                 setOpen(false);
+                            })
+                            .catch(() => {
+                                deleteUser(userCred.user);
+                                throw new Error('Failed to save user');
                             });
                     })
                     .catch((err) => {

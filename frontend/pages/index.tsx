@@ -16,8 +16,8 @@ const Home: NextPage<Props> = ({ books }: Props) => (
             <meta name='description' content='PageMoon' />
             <link rel='icon' href='/favicon.ico' />
         </Head>
-        <main className='my-5 mt-10 rounded-xl md:mt-20'>
-            <div className='p-4 md:flex md:flex-row md:items-center'>
+        <main className='my-5 mt-10 rounded-xl pb-44 md:mt-20'>
+            <div className='w-full md:flex md:flex-row md:items-center'>
                 <div className='h-full w-auto rounded-xl p-4 md:w-1/2'>
                     <section>
                         <div className='container relative mx-auto flex flex-col items-center text-center font-light '>

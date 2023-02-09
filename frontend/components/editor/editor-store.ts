@@ -395,9 +395,10 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
                         return;
                     }
 
-                    const savedReview = await reviewApi.upsertReview(
-                        contentData.id.length > 0 ? updateReview : newReview,
-                    );
+                    const savedReview =
+                        contentData.id.length > 0
+                            ? await reviewApi.updateReview(updateReview)
+                            : await reviewApi.createReview(newReview);
 
                     setContentData({
                         id: savedReview.id,

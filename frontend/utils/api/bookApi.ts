@@ -18,9 +18,13 @@ export const bookApi = {
         const books = await apiRequest.get<null, Book[]>('/api/books');
         return books;
     },
+    getSingleBook: async (id: string) => {
+        const book = await apiRequest.get<null, Book>(`/api/books/${id}`);
+        return book;
+    },
     createBook: async (params: SaveBookParams) => {
         const newBook = await apiRequest.post<SaveBookParams, Book>(
-            '/api/books',
+            '/api/books/create',
             params,
         );
         return newBook;

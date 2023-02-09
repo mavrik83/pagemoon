@@ -1,18 +1,19 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import prisma from '../../../lib/prisma';
-import { SaveThemeParams } from '../../../utils/api/themeApi';
 
-export interface ThemeCreateRequest extends NextApiRequest {
-    body: SaveThemeParams;
-}
-
-const getThemes = async (_req: NextApiRequest, res: NextApiResponse) => {
+const deleteUser = async (req: NextApiRequest, res: NextApiResponse) => {
     try {
-        const themes = await prisma.theme.findMany().catch(() => {
-            throw new Error('failed to get themes');
-        });
+        const user = await prisma.user
+            .delete({
+                where: {
+                    id: req.query.id as string,
+                },
+            })
+            .catch(() => {
+                throw new Error('failed to delete user');
+            });
 
-        res.send(themes);
+        res.status(200).send(user);
     } catch (error) {
         if (error instanceof Error) {
             res.status(400).send(error.message);
@@ -24,8 +25,8 @@ const getThemes = async (_req: NextApiRequest, res: NextApiResponse) => {
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
     switch (req.method) {
-        case 'GET':
-            return getThemes(req, res);
+        case 'DELETE':
+            return deleteUser(req, res);
         default:
             return res.status(405).json({
                 error: `Method ${req.method} not allowed`,

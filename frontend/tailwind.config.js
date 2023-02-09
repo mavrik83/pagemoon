@@ -1,7 +1,9 @@
 /* eslint-disable global-require */
 /* eslint-disable import/no-extraneous-dependencies */
+const { withTV } = require('tailwind-variants/transformer');
+
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+module.exports = withTV({
     content: [
         './pages/**/*.{js,ts,jsx,tsx}',
         './components/**/*.{js,ts,jsx,tsx}',
@@ -33,6 +35,7 @@ module.exports = {
                 even: '0 0 10px .05rem rgba(0, 0, 0, 0.5)',
                 'even-bg': '0 0 200px 7rem rgba(0, 0, 0, 0.5)',
                 'even-bg-md': '0 0 100px 5rem rgba(0, 0, 0, 0.5)',
+                'even-bg-sm': '0 0 50px 0.5rem rgba(0, 0, 0, 0.5)',
                 blur: '0 0 10px .5rem rgba(0, 0, 0, 0.5)',
             },
             height: {
@@ -60,4 +63,4 @@ module.exports = {
         require('@tailwindcss/aspect-ratio'),
         require('@tailwindcss/line-clamp'),
     ],
-};
+});

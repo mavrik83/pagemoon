@@ -13,11 +13,11 @@ import { MdOutlineCollectionsBookmark } from 'react-icons/md';
 import { Article, Review } from '@prisma/client';
 import { useFirebaseAuth } from '../../utils/contexts/firebaseProvider';
 import { classNames } from '../../utils/helpers';
-import { Button } from '../reusable';
 import { useEditorStore } from './editor-store';
 import { ComboSelectBox, ListOption } from '../reusable/comboBoxSelect';
 import { EditorBubbleMenu } from './components/bubbleMenu';
 import { EditorFloatingMenu } from './components/floatingMenu';
+import { buttonStyles } from '../../styles';
 
 interface Props {
     // eslint-disable-next-line react/require-default-props
@@ -155,21 +155,28 @@ export const Editor: React.FC<Props> = ({ isEditable, data }) => {
         <div className='z-30 mt-10 gap-2 lg:grid lg:grid-cols-5'>
             <div className='min-h-screen rounded-lg bg-primary bg-opacity-5 p-3 lg:col-span-3'>
                 <div className='flex flex-wrap items-center justify-start gap-5'>
-                    <Button
+                    <button
+                        type='button'
+                        className={buttonStyles({ size: 'small' })}
                         onClick={() => {
                             saveContent(authUser, 'published');
                             router.push('/');
                         }}
                     >
                         Publish
-                    </Button>
-                    <Button
-                        twClasses='!bg-tertiary !bg-opacity-30 !border-tertiary '
-                        secondary
+                    </button>
+                    <button
+                        type='button'
+                        className={buttonStyles({
+                            size: 'small',
+                            color: 'primary',
+                            className:
+                                'border-tertiary bg-tertiary bg-opacity-30 text-neutral-800',
+                        })}
                         onClick={() => saveContent(authUser, 'draft')}
                     >
                         Save as draft
-                    </Button>
+                    </button>
                     <ComboSelectBox
                         selectedOptions={selectedTags}
                         loadingStatus={tagStatus}

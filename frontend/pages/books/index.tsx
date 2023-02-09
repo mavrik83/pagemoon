@@ -10,7 +10,7 @@ interface Props {
 }
 
 const Books: NextPage<Props> = ({ books }: Props) => (
-    <>
+    <div className='mb-24'>
         <div className='mt-5 w-full'>
             <div className='mx-auto flex max-w-7xl justify-center py-8 md:ml-20 md:justify-start'>
                 <div className='relative max-w-xl'>
@@ -21,7 +21,7 @@ const Books: NextPage<Props> = ({ books }: Props) => (
                 </div>
             </div>
         </div>
-        <div className='mt-5 flex flex-row flex-wrap items-center justify-evenly gap-10 p-3 sm:p-8 md:gap-20'>
+        <div className='mt-5 flex flex-row flex-wrap items-center justify-evenly gap-y-14 gap-x-10 p-3 sm:p-8 md:gap-x-20 md:gap-y-20'>
             {books.map((book) => (
                 <PreviewCardBook
                     key={book.id}
@@ -31,7 +31,7 @@ const Books: NextPage<Props> = ({ books }: Props) => (
                 />
             ))}
         </div>
-    </>
+    </div>
 );
 
 export const getStaticProps: GetStaticProps = async () => {
