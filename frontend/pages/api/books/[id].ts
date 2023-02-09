@@ -1,18 +1,19 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import prisma from '../../../lib/prisma';
-import { SaveThemeParams } from '../../../utils/api/themeApi';
 
-export interface ThemeCreateRequest extends NextApiRequest {
-    body: SaveThemeParams;
-}
-
-const getThemes = async (_req: NextApiRequest, res: NextApiResponse) => {
+const getSingleBook = async (req: NextApiRequest, res: NextApiResponse) => {
     try {
-        const themes = await prisma.theme.findMany().catch(() => {
-            throw new Error('failed to get themes');
-        });
+        const book = await prisma.book
+            .findFirst({
+                where: {
+                    id: req.query.id as string,
+                },
+            })
+            .catch(() => {
+                throw new Error('Book not found');
+            });
 
-        res.send(themes);
+        res.status(200).send(book);
     } catch (error) {
         if (error instanceof Error) {
             res.status(400).send(error.message);
@@ -25,7 +26,7 @@ const getThemes = async (_req: NextApiRequest, res: NextApiResponse) => {
 export default async (req: NextApiRequest, res: NextApiResponse) => {
     switch (req.method) {
         case 'GET':
-            return getThemes(req, res);
+            return getSingleBook(req, res);
         default:
             return res.status(405).json({
                 error: `Method ${req.method} not allowed`,

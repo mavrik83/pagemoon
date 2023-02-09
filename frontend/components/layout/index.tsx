@@ -2,7 +2,7 @@ import React, { ReactNode, useState } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { BsPinFill } from 'react-icons/bs';
 import { MdError } from 'react-icons/md';
-import { twc } from '../../utils/helpers';
+import { tv } from 'tailwind-variants';
 import AddBook from '../addBook';
 import { Auth, AuthProps } from '../auth';
 import { Footer } from './Footer';
@@ -12,14 +12,9 @@ interface LayoutProps {
     children: ReactNode;
 }
 
-const containerClasses = twc`
-    max-w-7xl
-    mx-auto
-    min-h-screen
-    px-4
-    sm:px-6
-    lg:px-8
-`;
+const appContainer = tv({
+    base: 'max-w-7xl mx-auto min-h-screen px-4 sm:px-6 lg:px-8',
+});
 
 export const Layout = ({ children }: LayoutProps) => {
     const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -59,7 +54,7 @@ export const Layout = ({ children }: LayoutProps) => {
                 addBookModalOpen={addBookModalOpen}
                 setAddBookModalOpen={setAddBookModalOpen}
             />
-            <div className={containerClasses}>{children}</div>
+            <div className={appContainer()}>{children}</div>
             <Footer setAuthModalOpen={setAuthModalOpen} setMode={setMode} />
         </div>
     );

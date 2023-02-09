@@ -8,7 +8,7 @@ export const userApi = {
     },
     createUser: async (params: Partial<User>) => {
         const newUser = await apiRequest.post<Partial<User>, User>(
-            '/api/users',
+            '/api/users/create',
             params,
         );
         return newUser;
@@ -16,6 +16,13 @@ export const userApi = {
     findUser: async (id: User['authUid']) => {
         const user = await apiRequest.get<User['authUid'], User>(
             `/api/users/${id}`,
+        );
+        return user;
+    },
+    deleteUser: async (id: User['authUid']) => {
+        const user = await apiRequest.delete<User['authUid'], User>(
+            `/api/users/delete`,
+            { params: id },
         );
         return user;
     },

@@ -12,7 +12,7 @@ export const themeApi = {
     },
     createTheme: async (params: SaveThemeParams) => {
         const newTheme = await apiRequest.post<SaveThemeParams, Theme>(
-            '/api/themes',
+            '/api/themes/create',
             params,
         );
         return newTheme;

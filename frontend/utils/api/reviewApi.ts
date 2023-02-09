@@ -13,7 +13,7 @@ export const reviewApi = {
         const reviews = await apiRequest.get<null, Review[]>('/api/reviews');
         return reviews;
     },
-    upsertReview: async (params: SaveReviewParams) => {
+    createReview: async (params: SaveReviewParams) => {
         const newReview = await apiRequest.post<
             SaveReviewParams,
             Review & {
@@ -21,7 +21,18 @@ export const reviewApi = {
                 tagIds: string[];
                 themeIds?: string[];
             }
-        >('/api/reviews', params);
+        >('/api/reviews/create', params);
+        return newReview;
+    },
+    updateReview: async (params: SaveReviewParams) => {
+        const newReview = await apiRequest.post<
+            SaveReviewParams,
+            Review & {
+                bookIds: string[];
+                tagIds: string[];
+                themeIds?: string[];
+            }
+        >('/api/reviews/update', params);
         return newReview;
     },
     getReviewById: async (id: string) => {

@@ -12,7 +12,7 @@ export const tagApi = {
     },
     createTag: async (params: SaveTagParams) => {
         const newTag = await apiRequest.post<SaveTagParams, Tag>(
-            '/api/tags',
+            '/api/tags/create',
             params,
         );
         return newTag;

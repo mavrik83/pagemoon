@@ -8,6 +8,7 @@ import { Book as BookModel, Tag, Theme } from '@prisma/client';
 import prisma from '../../lib/prisma';
 import { classNames, formatAuthors } from '../../utils/helpers';
 import { ContentPreviewCard } from '../../components/preview/previewContent';
+import { badgeStyles } from '../../styles/badge';
 
 interface Props {
     book: BookWithTagsThemes;
@@ -74,7 +75,7 @@ const BookDetail: NextPage<Props> = ({ book, reviews }) => (
                 {book.themes.map((theme) => (
                     <span
                         key={theme.name}
-                        className='inline-flex cursor-pointer items-center justify-self-center rounded-full bg-tertiary bg-opacity-30 px-2 py-[0.1rem] text-xs font-light'
+                        className={badgeStyles({ color: 'tertiary' })}
                     >
                         {theme.name}
                     </span>
@@ -90,7 +91,7 @@ const BookDetail: NextPage<Props> = ({ book, reviews }) => (
                 {book.tags.map((tag) => (
                     <span
                         key={tag.name}
-                        className='inline-flex cursor-pointer items-center justify-self-center rounded-full bg-secondary bg-opacity-30 px-2 py-[0.1rem] text-xs font-light'
+                        className={badgeStyles({ color: 'secondary' })}
                     >
                         {tag.name}
                     </span>

@@ -27,10 +27,11 @@ export const PreviewCardBook: React.FC<Props> = ({
                     layout='fill'
                 />
             </div>
-            <div className='absolute inset-x-0 bottom-0 flex h-[25%] flex-col justify-between justify-self-end rounded-xl bg-white bg-opacity-70 transition-all duration-500 ease-in-out group-hover:h-0'>
-                <h1 className='rounded-xl p-1 text-sm font-normal text-neutral-800 line-clamp-2 lg:text-base'>
+            <div className='relative'>
+                <h1 className='items-center rounded-xl p-1 text-center text-sm font-normal text-neutral-800 line-clamp-2 lg:text-base'>
                     {heading}
                 </h1>
+                <div className='absolute bottom-1/2 left-1/4 -z-10 h-0 w-1/2 rounded-full shadow-even-bg-sm shadow-secondary' />
             </div>
         </div>
     </MyLink>
