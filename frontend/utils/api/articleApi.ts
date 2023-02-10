@@ -14,7 +14,18 @@ export const articleApi = {
         const articles = await apiRequest.get<null, Article[]>('/api/articles');
         return articles;
     },
-    upsertArticle: async (params: SaveArticleParams) => {
+    createArticle: async (params: SaveArticleParams) => { 
+        const newArticle = await apiRequest.post<
+            SaveArticleParams,
+            Article & {
+                bookIds: string[];
+                tagIds: string[];
+                themeIds?: string[];
+            }
+        >('/api/articles/create', params);
+        return newArticle;
+    },
+    updateArticle: async (params: SaveArticleParams) => {
         const newArticle = await apiRequest.post<
             SaveArticleParams,
             Article & {

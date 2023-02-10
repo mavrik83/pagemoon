@@ -356,10 +356,10 @@ export const useEditorStore = create<IEditorState & IEditorActions>()(
                         return;
                     }
 
-                    const savedArticle = await articleApi.upsertArticle(
-                        contentData.id.length > 0 ? updateArticle : newArticle,
-                    );
-
+                    const savedArticle =
+                        contentData.id.length > 0
+                            ? await articleApi.updateArticle(updateArticle)
+                            : await articleApi.createArticle(newArticle);
                     setContentData({
                         id: savedArticle.id,
                         tagIds: savedArticle.tagIds,
